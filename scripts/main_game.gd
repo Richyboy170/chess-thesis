@@ -16,6 +16,12 @@ var visual_pieces: Array = []
 var board_squares: Array = []
 var selected_square: Vector2i = Vector2i(-1, -1)
 
+# Drag and drop variables
+var dragging_piece: Label = null
+var drag_offset: Vector2 = Vector2.ZERO
+var original_parent: Control = null
+var is_dragging: bool = false
+
 func _ready():
 	chess_board = ChessBoard.new()
 	add_child(chess_board)
@@ -31,6 +37,21 @@ func _ready():
 	update_board_display()
 	update_score_display()
 
+func _input(event):
+	if is_dragging and dragging_piece:
+		if event is InputEventMouseMotion or event is InputEventScreenDrag:
+			# Update dragging piece position to follow cursor/finger
+			var mouse_pos = get_viewport().get_mouse_position()
+			dragging_piece.global_position = mouse_pos - drag_offset
+		elif event is InputEventMouseButton:
+			if not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				# Mouse released - try to drop piece
+				end_drag(event.position)
+		elif event is InputEventScreenTouch:
+			if not event.pressed:
+				# Touch released - try to drop piece
+				end_drag(event.position)
+
 func setup_chessboard():
 	# Create 8x8 grid of chess squares
 	board_squares = []
@@ -38,7 +59,7 @@ func setup_chessboard():
 		var row_array = []
 		for col in range(8):
 			var square = Button.new()
-			square.custom_minimum_size = Vector2(50, 50)
+			square.custom_minimum_size = Vector2(80, 80)  # Increased from 50 to 80
 			square.flat = true
 
 			# Create background style
@@ -97,7 +118,8 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	visual_piece.text = piece.get_piece_symbol()
 	visual_piece.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	visual_piece.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	visual_piece.add_theme_font_size_override("font_size", 36)
+	visual_piece.add_theme_font_size_override("font_size", 56)  # Increased from 36 to 56
+	visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow mouse events
 
 	# Style based on character theme
 	var style_colors = {
@@ -117,6 +139,9 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	visual_pieces.append(visual_piece)
 
 func _on_square_clicked(pos: Vector2i):
+	if is_dragging:
+		return  # Don't process clicks while dragging
+
 	# If a piece is selected, try to move it
 	if selected_square != Vector2i(-1, -1):
 		if chess_board.try_move_piece(selected_square, pos):
@@ -128,7 +153,7 @@ func _on_square_clicked(pos: Vector2i):
 			# Try selecting a new piece
 			attempt_select_piece(pos)
 	else:
-		# Try to select a piece
+		# Try to select a piece and start dragging
 		attempt_select_piece(pos)
 
 func attempt_select_piece(pos: Vector2i):
@@ -136,6 +161,7 @@ func attempt_select_piece(pos: Vector2i):
 	if chess_board.select_piece(pos):
 		selected_square = pos
 		highlight_valid_moves()
+		start_drag(pos)
 
 func highlight_valid_moves():
 	# Highlight selected square
@@ -199,7 +225,78 @@ func update_captured_display():
 		label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 		player2_captured_container.add_child(label)
 
-func _on_piece_moved(from_pos: Vector2i, to_pos: Vector2i):
+func start_drag(pos: Vector2i):
+	# Get the piece label from the square
+	var square = board_squares[pos.x][pos.y]
+	if square.get_child_count() > 0:
+		var piece_label = square.get_child(0)
+		if piece_label is Label:
+			# Store original parent
+			original_parent = square
+
+			# Get mouse position
+			var mouse_pos = get_viewport().get_mouse_position()
+
+			# Calculate offset from piece center
+			var piece_center = piece_label.global_position + piece_label.size / 2
+			drag_offset = mouse_pos - piece_center
+
+			# Reparent to root to move freely
+			piece_label.reparent(self)
+			piece_label.z_index = 100  # Draw on top
+
+			# Set position to follow cursor
+			piece_label.global_position = mouse_pos - drag_offset
+
+			dragging_piece = piece_label
+			is_dragging = true
+
+func end_drag(drop_position: Vector2):
+	if not is_dragging or dragging_piece == null:
+		return
+
+	# Find which square we dropped on
+	var dropped_on_square = Vector2i(-1, -1)
+	for row in range(8):
+		for col in range(8):
+			var square = board_squares[row][col]
+			var rect = Rect2(square.global_position, square.size)
+			if rect.has_point(drop_position):
+				dropped_on_square = Vector2i(row, col)
+				break
+		if dropped_on_square != Vector2i(-1, -1):
+			break
+
+	# Try to move the piece
+	if dropped_on_square != Vector2i(-1, -1) and selected_square != Vector2i(-1, -1):
+		if chess_board.try_move_piece(selected_square, dropped_on_square):
+			# Move successful
+			clear_highlights()
+			selected_square = Vector2i(-1, -1)
+			update_board_display()
+			update_score_display()
+		else:
+			# Move failed - return piece to original position
+			return_piece_to_original_position()
+	else:
+		# Dropped outside board or invalid
+		return_piece_to_original_position()
+
+	# Clean up drag state
+	if dragging_piece:
+		dragging_piece.queue_free()
+	dragging_piece = null
+	is_dragging = false
+	original_parent = null
+
+func return_piece_to_original_position():
+	if dragging_piece and original_parent:
+		dragging_piece.reparent(original_parent)
+		dragging_piece.z_index = 0
+		dragging_piece = null
+	clear_highlights()
+
+func _on_piece_moved(from_pos: Vector2i, to_pos: Vector2i, piece: ChessPiece):
 	print("Piece moved from ", from_pos, " to ", to_pos)
 
 func _on_piece_captured(piece: ChessPiece, captured_by: ChessPiece):
@@ -211,11 +308,102 @@ func _on_turn_changed(is_white_turn: bool):
 	turn_indicator.text = turn_text
 	print(turn_text)
 
-func _on_game_over(winner: ChessPiece.PieceColor):
-	var winner_text = "White" if winner == ChessPiece.PieceColor.WHITE else "Black"
-	print("Game Over! ", winner_text, " wins!")
-	# Show game over dialog or return to menu
+func _on_game_over(result: String):
+	print("Game Over! Result: ", result)
+	# Show game summary dialog
+	show_game_summary(result)
 
 func _on_menu_button_pressed():
 	# Return to character selection or main menu
 	get_tree().change_scene_to_file("res://scenes/ui/login_page.tscn")
+
+func show_game_summary(result: String):
+	# Create a popup dialog for game summary
+	var dialog = AcceptDialog.new()
+	dialog.title = "Game Over!"
+	dialog.dialog_autowrap = true
+	dialog.size = Vector2(600, 800)
+
+	# Determine winner text
+	var result_text = ""
+	match result:
+		"checkmate_white":
+			result_text = "Checkmate! White Wins!"
+		"checkmate_black":
+			result_text = "Checkmate! Black Wins!"
+		"stalemate":
+			result_text = "Stalemate! It's a Draw!"
+		"draw":
+			result_text = "Draw!"
+		_:
+			result_text = "Game Over!"
+
+	# Create content
+	var content = VBoxContainer.new()
+	content.add_theme_constant_override("separation", 15)
+
+	# Result label
+	var result_label = Label.new()
+	result_label.text = result_text
+	result_label.add_theme_font_size_override("font_size", 28)
+	result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(result_label)
+
+	# Separator
+	var sep1 = HSeparator.new()
+	content.add_child(sep1)
+
+	# Stats section
+	var stats_label = Label.new()
+	stats_label.text = "Game Statistics"
+	stats_label.add_theme_font_size_override("font_size", 22)
+	stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(stats_label)
+
+	var stats_text = Label.new()
+	stats_text.text = "Total Moves: " + str(GameState.move_count) + "\n"
+	stats_text.text += "Player 1 Score: " + str(GameState.player1_score) + "\n"
+	stats_text.text += "Player 2 Score: " + str(GameState.player2_score) + "\n"
+	stats_text.text += "Total Captures: " + str(GameState.captured_pieces)
+	stats_text.add_theme_font_size_override("font_size", 18)
+	stats_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(stats_text)
+
+	# Separator
+	var sep2 = HSeparator.new()
+	content.add_child(sep2)
+
+	# Move history section
+	var history_label = Label.new()
+	history_label.text = "Move History"
+	history_label.add_theme_font_size_override("font_size", 22)
+	history_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(history_label)
+
+	# Create scrollable container for moves
+	var scroll = ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(550, 300)
+
+	var moves_label = Label.new()
+	var moves_text = ""
+	for i in range(GameState.move_history.size()):
+		var move_num = (i / 2) + 1
+		if i % 2 == 0:
+			moves_text += str(move_num) + ". " + GameState.move_history[i]
+			if i + 1 < GameState.move_history.size():
+				moves_text += "  " + GameState.move_history[i + 1] + "\n"
+			else:
+				moves_text += "\n"
+
+	moves_label.text = moves_text
+	moves_label.add_theme_font_size_override("font_size", 16)
+	moves_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	scroll.add_child(moves_label)
+	content.add_child(scroll)
+
+	dialog.add_child(content)
+	add_child(dialog)
+	dialog.popup_centered()
+
+	# When dialog is closed, return to menu
+	dialog.confirmed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/login_page.tscn"))
