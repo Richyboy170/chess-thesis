@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://d5m8n4k7p9qwx"]
+[gd_scene load_steps=2 format=3 uid="uid://8d22nx52u56"]
 
-[ext_resource type="Script" path="res://scripts/main_game.gd" id="1_p8m3n"]
+[ext_resource type="Script" uid="uid://pfhk1odaxqw7" path="res://scripts/main_game.gd" id="1_p8m3n"]
 
 [node name="MainGame" type="Control"]
 layout_mode = 3
@@ -89,8 +89,8 @@ text = "Character: TBD"
 
 [node name="TimerLabel" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
 theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
+theme_override_font_sizes/font_size = 28
 text = "Time: --:--"
 
 [node name="CapturedLabel" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
@@ -130,9 +130,9 @@ horizontal_alignment = 1
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-ratio = 1.0
 
 [node name="Chessboard" type="GridContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer/AspectRatioContainer"]
+visibility_layer = 391
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -283,8 +283,8 @@ text = "Character: TBD"
 
 [node name="TimerLabel" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
 theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
+theme_override_font_sizes/font_size = 28
 text = "Time: --:--"
 
 [node name="CapturedLabel" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
