@@ -73,16 +73,53 @@ The project is configured for mobile with:
 - Touch input support
 - Responsive layouts using anchors and containers
 
+## Chess Logic Implementation
+
+The game now includes full chess logic with:
+
+### Chess Pieces
+- **Base ChessPiece class** (`scripts/chess_piece.gd`): Foundation for all pieces with common functionality
+- **Individual piece classes** (`scripts/chess_pieces.gd`):
+  - Pawn: Forward movement, double move from start, diagonal capture
+  - Rook: Horizontal and vertical movement
+  - Knight: L-shaped jumps
+  - Bishop: Diagonal movement
+  - Queen: Combined rook and bishop movement
+  - King: One square in any direction
+
+### Game Features
+- **Turn-based gameplay**: Alternates between white and black players
+- **Valid move highlighting**:
+  - Selected pieces highlighted in yellow
+  - Valid moves shown in green
+  - Capture moves shown in red
+- **Capture system**: Captured pieces displayed in opponent's area
+- **Score tracking**: Point values for captured pieces (Pawn=1, Knight/Bishop=3, Rook=5, Queen=9)
+- **Move counter**: Tracks total moves made
+- **Turn indicator**: Shows whose turn it is
+- **Character-based piece styling**:
+  - Classic: Traditional white/black colors
+  - Modern: Blue-tinted color scheme
+  - Fantasy: Gold/purple color scheme
+
+### Responsive Design
+- Adaptive layout for different screen sizes
+- Flexible player areas and score panel
+- Resizable window with proper aspect ratio handling
+- Touch-friendly interface optimized for mobile
+
 ## Future Enhancements
 
 - Add character artwork and animations
-- Implement chess piece art variations based on selected characters
-- Add chess game logic (piece movement, rules, checkmate detection)
-- Implement score calculation system
+- Implement castling and en passant moves
+- Add check and checkmate detection
+- Implement pawn promotion
+- Add move history and undo functionality
 - Add sound effects and music
 - Create settings page
 - Add game save/load functionality
 - Implement online multiplayer
+- Add AI opponent
 
 ## Character System
 
