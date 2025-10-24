@@ -10,6 +10,10 @@ var player2_score: int = 0
 var move_count: int = 0
 var captured_pieces: int = 0
 
+# Move history for game summary
+var move_history: Array = []
+var game_result: String = ""  # "white_win", "black_win", "draw", "stalemate", ""
+
 # Character data - can be expanded with more details
 var character_data = [
 	{
@@ -37,6 +41,8 @@ func reset_game():
 	player2_score = 0
 	move_count = 0
 	captured_pieces = 0
+	move_history = []
+	game_result = ""
 
 func reset_selections():
 	player1_character = -1

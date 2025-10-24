@@ -108,18 +108,50 @@ The game now includes full chess logic with:
 - Resizable window with proper aspect ratio handling
 - Touch-friendly interface optimized for mobile
 
+## Recent Updates
+
+### Chess Piece Animation
+- **Drag and Drop**: Chess pieces now follow the player's finger or mouse cursor when picked up
+- **Smooth Movement**: Pieces stick to the cursor during dragging for intuitive gameplay
+- **Visual Feedback**: Valid moves are highlighted in green, captures in red
+
+### Game Ending Logic
+- **Checkmate Detection**: Automatically detects when a king is captured or checkmated
+- **Stalemate Detection**: Identifies stalemate situations when no valid moves are available
+- **Check Detection**: Monitors if kings are under attack
+
+### Game Summarization
+- **Move History**: Complete record of all moves in algebraic notation
+- **Game Statistics**: Displays total moves, scores, and captured pieces
+- **End Game Dialog**: Beautiful popup showing game results and full move history
+- **Scrollable History**: View all moves made during the game
+
+### Enhanced UI
+- **Larger Elements**: Increased sizes for:
+  - Chess pieces (56px font size)
+  - Chess squares (80x80px)
+  - All text labels (18-28px)
+  - Player areas and character displays
+- **Better Readability**: Improved contrast and sizing for mobile devices
+
+### Responsive Design
+- **Orientation Support**: Supports both portrait and landscape orientations
+- **Auto-Resize**: UI automatically adapts when device is rotated
+- **Flexible Layout**: Maintains playability across different screen sizes
+- **Aspect Ratio**: Chessboard maintains proper square proportions
+
 ## Future Enhancements
 
-- Add character artwork and animations
+- Add character artwork and custom piece designs
 - Implement castling and en passant moves
-- Add check and checkmate detection
 - Implement pawn promotion
-- Add move history and undo functionality
+- Add undo/redo functionality
 - Add sound effects and music
-- Create settings page
+- Create settings page (volume, difficulty, etc.)
 - Add game save/load functionality
 - Implement online multiplayer
-- Add AI opponent
+- Add AI opponent with difficulty levels
+- Add time controls and chess clock
 
 ## Character System
 
