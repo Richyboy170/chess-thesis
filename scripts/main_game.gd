@@ -10,11 +10,17 @@ extends Control
 @onready var turn_indicator = $MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/TurnIndicator
 @onready var player1_captured_container = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/CapturedPieces
 @onready var player2_captured_container = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/CapturedPieces
+@onready var score_panel = $MainContainer/GameArea/ScorePanel
+@onready var score_toggle_button = $MainContainer/GameArea/ScoreToggleButton
+@onready var player1_timer_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
+@onready var player2_timer_label = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
 
 var chess_board: ChessBoard
 var visual_pieces: Array = []
 var board_squares: Array = []
 var selected_square: Vector2i = Vector2i(-1, -1)
+var score_panel_visible: bool = true
+var game_ended: bool = false
 
 # Drag and drop variables
 var dragging_piece: Label = null
@@ -36,6 +42,26 @@ func _ready():
 	update_character_displays()
 	update_board_display()
 	update_score_display()
+	setup_score_toggle()
+	initialize_timers()
+	update_timer_display()
+
+func _process(delta):
+	# Update timers if game is active
+	if not game_ended and GameState.player_time_limit > 0:
+		# Decrement current player's time
+		if chess_board.is_white_turn:
+			GameState.player1_time_remaining -= delta
+			if GameState.player1_time_remaining <= 0:
+				GameState.player1_time_remaining = 0
+				handle_time_expired(true)  # Player 1 (White) ran out of time
+		else:
+			GameState.player2_time_remaining -= delta
+			if GameState.player2_time_remaining <= 0:
+				GameState.player2_time_remaining = 0
+				handle_time_expired(false)  # Player 2 (Black) ran out of time
+
+		update_timer_display()
 
 func _input(event):
 	if is_dragging and dragging_piece:
@@ -120,6 +146,18 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	visual_piece.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	visual_piece.add_theme_font_size_override("font_size", 56)  # Increased from 36 to 56
 	visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow mouse events
+
+	# Center the piece in its square using anchors
+	visual_piece.anchor_left = 0.0
+	visual_piece.anchor_top = 0.0
+	visual_piece.anchor_right = 1.0
+	visual_piece.anchor_bottom = 1.0
+	visual_piece.offset_left = 0
+	visual_piece.offset_top = 0
+	visual_piece.offset_right = 0
+	visual_piece.offset_bottom = 0
+	visual_piece.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	visual_piece.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 	# Style based on character theme
 	var style_colors = {
@@ -273,28 +311,72 @@ func end_drag(drop_position: Vector2):
 			# Move successful
 			clear_highlights()
 			selected_square = Vector2i(-1, -1)
+			# Clean up drag state
+			if dragging_piece:
+				dragging_piece.queue_free()
+			dragging_piece = null
+			is_dragging = false
+			original_parent = null
 			update_board_display()
 			update_score_display()
 		else:
-			# Move failed - return piece to original position
+			# Move failed - show red flash on target square and return piece
+			if dropped_on_square != Vector2i(-1, -1):
+				flash_square_red(dropped_on_square)
 			return_piece_to_original_position()
 	else:
 		# Dropped outside board or invalid
 		return_piece_to_original_position()
 
-	# Clean up drag state
-	if dragging_piece:
-		dragging_piece.queue_free()
-	dragging_piece = null
-	is_dragging = false
-	original_parent = null
-
 func return_piece_to_original_position():
 	if dragging_piece and original_parent:
 		dragging_piece.reparent(original_parent)
 		dragging_piece.z_index = 0
-		dragging_piece = null
+
+	# Clean up drag state
+	dragging_piece = null
+	is_dragging = false
+	original_parent = null
 	clear_highlights()
+	selected_square = Vector2i(-1, -1)
+	update_board_display()
+
+func flash_square_red(pos: Vector2i):
+	if pos.x < 0 or pos.x >= 8 or pos.y < 0 or pos.y >= 8:
+		return
+
+	var square = board_squares[pos.x][pos.y]
+	var original_color: Color
+
+	# Get original square color
+	if (pos.x + pos.y) % 2 == 0:
+		original_color = Color(0.9, 0.9, 0.8, 1)  # Light square
+	else:
+		original_color = Color(0.5, 0.4, 0.3, 1)  # Dark square
+
+	# Create red flash style
+	var red_style = StyleBoxFlat.new()
+	red_style.bg_color = Color(1, 0, 0, 0.7)  # Bright red
+	square.add_theme_stylebox_override("normal", red_style)
+
+	# Create tween for smooth color transition back
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+
+	# Animate back to original color over 1 second
+	tween.tween_method(func(value: float):
+		var current_style = StyleBoxFlat.new()
+		current_style.bg_color = Color(1, 0, 0, 0.7).lerp(original_color, value)
+		square.add_theme_stylebox_override("normal", current_style)
+	, 0.0, 1.0, 1.0)
+
+	# Restore original color at the end
+	tween.tween_callback(func():
+		var final_style = StyleBoxFlat.new()
+		final_style.bg_color = original_color
+		square.add_theme_stylebox_override("normal", final_style)
+	)
 
 func _on_piece_moved(from_pos: Vector2i, to_pos: Vector2i, piece: ChessPiece):
 	print("Piece moved from ", from_pos, " to ", to_pos)
@@ -310,8 +392,95 @@ func _on_turn_changed(is_white_turn: bool):
 
 func _on_game_over(result: String):
 	print("Game Over! Result: ", result)
+	game_ended = true
 	# Show game summary dialog
 	show_game_summary(result)
+
+func initialize_timers():
+	# Initialize timer values from GameState
+	if GameState.player_time_limit > 0:
+		GameState.player1_time_remaining = float(GameState.player_time_limit)
+		GameState.player2_time_remaining = float(GameState.player_time_limit)
+	else:
+		GameState.player1_time_remaining = 0.0
+		GameState.player2_time_remaining = 0.0
+		# Hide timer labels if no timer is set
+		player1_timer_label.visible = false
+		player2_timer_label.visible = false
+
+func update_timer_display():
+	if GameState.player_time_limit == 0:
+		return
+
+	# Format and display Player 1 time
+	var p1_minutes = int(GameState.player1_time_remaining) / 60
+	var p1_seconds = int(GameState.player1_time_remaining) % 60
+	player1_timer_label.text = "Time: %02d:%02d" % [p1_minutes, p1_seconds]
+
+	# Format and display Player 2 time
+	var p2_minutes = int(GameState.player2_time_remaining) / 60
+	var p2_seconds = int(GameState.player2_time_remaining) % 60
+	player2_timer_label.text = "Time: %02d:%02d" % [p2_minutes, p2_seconds]
+
+	# Color coding: red if less than 30 seconds, yellow if less than 60 seconds
+	if GameState.player1_time_remaining <= 30:
+		player1_timer_label.add_theme_color_override("font_color", Color(1, 0, 0, 1))  # Red
+	elif GameState.player1_time_remaining <= 60:
+		player1_timer_label.add_theme_color_override("font_color", Color(1, 1, 0, 1))  # Yellow
+	else:
+		player1_timer_label.add_theme_color_override("font_color", Color(0.3, 1, 0.3, 1))  # Green
+
+	if GameState.player2_time_remaining <= 30:
+		player2_timer_label.add_theme_color_override("font_color", Color(1, 0, 0, 1))  # Red
+	elif GameState.player2_time_remaining <= 60:
+		player2_timer_label.add_theme_color_override("font_color", Color(1, 1, 0, 1))  # Yellow
+	else:
+		player2_timer_label.add_theme_color_override("font_color", Color(0.3, 1, 0.3, 1))  # Green
+
+func handle_time_expired(is_white: bool):
+	if game_ended:
+		return
+
+	game_ended = true
+	var result = "timeout_black_wins" if is_white else "timeout_white_wins"
+	GameState.game_result = result
+
+	# Show game over
+	var result_text = "Time's Up! Black Wins!" if is_white else "Time's Up! White Wins!"
+	show_game_summary(result)
+
+func setup_score_toggle():
+	# Connect the toggle button signal
+	score_toggle_button.pressed.connect(_on_score_toggle_pressed)
+	update_score_toggle_text()
+
+func _on_score_toggle_pressed():
+	score_panel_visible = !score_panel_visible
+	toggle_score_panel()
+
+func toggle_score_panel():
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_IN_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+
+	if score_panel_visible:
+		# Show panel - slide in from right
+		tween.tween_property(score_panel, "modulate:a", 1.0, 0.3)
+		tween.parallel().tween_property(score_panel, "position:x", 0, 0.3).from(320)
+		score_panel.visible = true
+	else:
+		# Hide panel - slide out to right
+		tween.tween_property(score_panel, "modulate:a", 0.0, 0.3)
+		tween.parallel().tween_property(score_panel, "position:x", 320, 0.3).from(0)
+		tween.tween_callback(func(): score_panel.visible = false)
+
+	update_score_toggle_text()
+
+func update_score_toggle_text():
+	if score_panel_visible:
+		score_toggle_button.text = ">"
+	else:
+		score_toggle_button.text = "<"
 
 func _on_menu_button_pressed():
 	# Return to character selection or main menu

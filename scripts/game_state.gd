@@ -10,6 +10,11 @@ var player2_score: int = 0
 var move_count: int = 0
 var captured_pieces: int = 0
 
+# Timer settings (in seconds, 0 means no timer)
+var player_time_limit: int = 0  # Time limit per player in seconds
+var player1_time_remaining: float = 0.0
+var player2_time_remaining: float = 0.0
+
 # Move history for game summary
 var move_history: Array = []
 var game_result: String = ""  # "white_win", "black_win", "draw", "stalemate", ""
@@ -43,6 +48,13 @@ func reset_game():
 	captured_pieces = 0
 	move_history = []
 	game_result = ""
+	# Reset timer to configured limit
+	if player_time_limit > 0:
+		player1_time_remaining = float(player_time_limit)
+		player2_time_remaining = float(player_time_limit)
+	else:
+		player1_time_remaining = 0.0
+		player2_time_remaining = 0.0
 
 func reset_selections():
 	player1_character = -1

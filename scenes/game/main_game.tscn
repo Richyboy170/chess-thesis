@@ -87,6 +87,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Character: TBD"
 
+[node name="TimerLabel" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
+text = "Time: --:--"
+
 [node name="CapturedLabel" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
@@ -100,6 +106,13 @@ layout_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 20
+
+[node name="ScoreToggleButton" type="Button" parent="MainContainer/GameArea"]
+custom_minimum_size = Vector2(40, 60)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
+text = ">"
 
 [node name="ChessboardContainer" type="PanelContainer" parent="MainContainer/GameArea"]
 layout_mode = 2
@@ -267,6 +280,12 @@ text = "Player 1"
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Character: TBD"
+
+[node name="TimerLabel" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
+text = "Time: --:--"
 
 [node name="CapturedLabel" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2

@@ -49,7 +49,62 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Spacer" type="Control" parent="VBoxContainer"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="TimerSettings" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TimerLabel" type="Label" parent="VBoxContainer/TimerSettings"]
+layout_mode = 2
+text = "Time Per Player (minutes)"
+horizontal_alignment = 1
+
+[node name="TimerOptions" type="HBoxContainer" parent="VBoxContainer/TimerSettings"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="NoTimerButton" type="Button" parent="VBoxContainer/TimerSettings/TimerOptions"]
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = null
+text = "None"
+
+[node name="Timer5Button" type="Button" parent="VBoxContainer/TimerSettings/TimerOptions"]
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+toggle_mode = true
+button_group = null
+text = "5"
+
+[node name="Timer10Button" type="Button" parent="VBoxContainer/TimerSettings/TimerOptions"]
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+toggle_mode = true
+button_group = null
+text = "10"
+
+[node name="Timer15Button" type="Button" parent="VBoxContainer/TimerSettings/TimerOptions"]
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+toggle_mode = true
+button_group = null
+text = "15"
+
+[node name="Timer30Button" type="Button" parent="VBoxContainer/TimerSettings/TimerOptions"]
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+toggle_mode = true
+button_group = null
+text = "30"
+
+[node name="Spacer2" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
 [node name="PlayButton" type="Button" parent="VBoxContainer"]
