@@ -25,9 +25,7 @@ ChessPieces="*res://scripts/chess_pieces.gd"
 window/size/viewport_width=1080
 window/size/viewport_height=1920
 window/size/mode=2
-window/size/resizable=true
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
 window/handheld/orientation=1
 
 [rendering]
