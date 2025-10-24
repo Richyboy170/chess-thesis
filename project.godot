@@ -27,8 +27,8 @@ window/size/viewport_height=1920
 window/size/mode=2
 window/size/resizable=true
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
-window/handheld/orientation=0
+window/stretch/aspect="keep"
+window/handheld/orientation=1
 
 [rendering]
 

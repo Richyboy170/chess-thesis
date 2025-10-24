@@ -1,11 +1,10 @@
 extends Node
 class_name ChessBoard
 
-signal piece_moved(from_pos: Vector2i, to_pos: Vector2i, piece: ChessPiece)
+signal piece_moved(from_pos: Vector2i, to_pos: Vector2i)
 signal piece_captured(piece: ChessPiece, captured_by: ChessPiece)
 signal turn_changed(is_white_turn: bool)
-signal game_over(result: String)  # "checkmate_white", "checkmate_black", "stalemate", "draw"
-signal check_detected(color: ChessPiece.PieceColor)
+signal game_over(winner: ChessPiece.PieceColor)
 
 var board_state: Array = []
 var is_white_turn: bool = true
@@ -110,12 +109,8 @@ func try_move_piece(from_pos: Vector2i, to_pos: Vector2i) -> bool:
 	# Update game state
 	GameState.move_count += 1
 
-	# Record move in history
-	var move_notation = get_move_notation(piece, from_pos, to_pos, captured_piece)
-	GameState.move_history.append(move_notation)
-
 	# Emit signals
-	piece_moved.emit(from_pos, to_pos, piece)
+	piece_moved.emit(from_pos, to_pos)
 
 	# Switch turns
 	is_white_turn = !is_white_turn
@@ -126,13 +121,7 @@ func try_move_piece(from_pos: Vector2i, to_pos: Vector2i) -> bool:
 
 	# Check for game over (if king was captured)
 	if captured_piece != null and captured_piece.piece_type == ChessPiece.PieceType.KING:
-		var result = "checkmate_white" if piece.piece_color == ChessPiece.PieceColor.WHITE else "checkmate_black"
-		GameState.game_result = result
-		game_over.emit(result)
-		return true
-
-	# Check for checkmate or stalemate
-	check_game_state()
+		game_over.emit(piece.piece_color)
 
 	return true
 
@@ -162,82 +151,3 @@ func reset():
 	selected_piece = null
 	valid_moves = []
 	initialize_board()
-
-func get_move_notation(piece: ChessPiece, from_pos: Vector2i, to_pos: Vector2i, captured: ChessPiece) -> String:
-	var piece_symbol = ""
-	match piece.piece_type:
-		ChessPiece.PieceType.KING: piece_symbol = "K"
-		ChessPiece.PieceType.QUEEN: piece_symbol = "Q"
-		ChessPiece.PieceType.ROOK: piece_symbol = "R"
-		ChessPiece.PieceType.BISHOP: piece_symbol = "B"
-		ChessPiece.PieceType.KNIGHT: piece_symbol = "N"
-		ChessPiece.PieceType.PAWN: piece_symbol = ""
-
-	var from_notation = get_square_notation(from_pos)
-	var to_notation = get_square_notation(to_pos)
-	var capture_symbol = "x" if captured != null else "-"
-
-	return piece_symbol + from_notation + capture_symbol + to_notation
-
-func get_square_notation(pos: Vector2i) -> String:
-	var files = ["a", "b", "c", "d", "e", "f", "g", "h"]
-	var rank = str(8 - pos.x)
-	var file = files[pos.y]
-	return file + rank
-
-func check_game_state():
-	# Check if the current player has any valid moves
-	var current_color = ChessPiece.PieceColor.WHITE if is_white_turn else ChessPiece.PieceColor.BLACK
-	var has_valid_moves = false
-
-	for row in range(8):
-		for col in range(8):
-			var piece = board_state[row][col]
-			if piece != null and piece.piece_color == current_color:
-				var moves = piece.get_valid_moves(board_state)
-				if moves.size() > 0:
-					has_valid_moves = true
-					break
-		if has_valid_moves:
-			break
-
-	# If no valid moves, it's either checkmate or stalemate
-	if not has_valid_moves:
-		# Check if the king is in check
-		var in_check = is_king_in_check(current_color)
-		if in_check:
-			# Checkmate
-			var result = "checkmate_black" if current_color == ChessPiece.PieceColor.WHITE else "checkmate_white"
-			GameState.game_result = result
-			game_over.emit(result)
-		else:
-			# Stalemate
-			GameState.game_result = "stalemate"
-			game_over.emit("stalemate")
-
-func is_king_in_check(color: ChessPiece.PieceColor) -> bool:
-	# Find the king
-	var king_pos = Vector2i(-1, -1)
-	for row in range(8):
-		for col in range(8):
-			var piece = board_state[row][col]
-			if piece != null and piece.piece_type == ChessPiece.PieceType.KING and piece.piece_color == color:
-				king_pos = Vector2i(row, col)
-				break
-		if king_pos != Vector2i(-1, -1):
-			break
-
-	if king_pos == Vector2i(-1, -1):
-		return false
-
-	# Check if any enemy piece can attack the king
-	var enemy_color = ChessPiece.PieceColor.BLACK if color == ChessPiece.PieceColor.WHITE else ChessPiece.PieceColor.WHITE
-	for row in range(8):
-		for col in range(8):
-			var piece = board_state[row][col]
-			if piece != null and piece.piece_color == enemy_color:
-				var moves = piece.get_valid_moves(board_state)
-				if king_pos in moves:
-					return true
-
-	return false
