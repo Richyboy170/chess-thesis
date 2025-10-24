@@ -1,138 +1,334 @@
 extends Control
 
+# ============================================================================
+# NODE REFERENCES
+# ============================================================================
+# These @onready variables store references to UI nodes in the scene tree
+# They are automatically assigned when the scene is loaded
+
+# Chessboard and game area references
 @onready var chessboard = $MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer/AspectRatioContainer/Chessboard
+
+# Player info labels (character names)
 @onready var player1_character_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/CharacterName
 @onready var player2_character_label = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/CharacterName
+
+# Score panel elements
 @onready var player1_score_label = $MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/Player1Score/ScoreValue
 @onready var player2_score_label = $MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/Player2Score/ScoreValue
 @onready var moves_label = $MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/GameStats/MovesLabel
 @onready var captured_label = $MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/GameStats/CapturedLabel
 @onready var turn_indicator = $MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/TurnIndicator
+
+# Captured pieces display containers
 @onready var player1_captured_container = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/CapturedPieces
 @onready var player2_captured_container = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/CapturedPieces
+
+# Score panel and toggle button
 @onready var score_panel = $MainContainer/GameArea/ScorePanel
 @onready var score_toggle_button = $MainContainer/GameArea/ScoreToggleButton
+
+# Player timer labels
 @onready var player1_timer_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
 @onready var player2_timer_label = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
 
+# Player character display areas (for video backgrounds)
+@onready var player1_character_display = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
+@onready var player2_character_display = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
+
+# ============================================================================
+# GAME STATE VARIABLES
+# ============================================================================
+
+# Core chess game logic instance
 var chess_board: ChessBoard
+
+# Visual representation of chess pieces on the board
 var visual_pieces: Array = []
+
+# 2D array of button nodes representing board squares [row][col]
 var board_squares: Array = []
+
+# Currently selected square position (-1, -1 means no selection)
 var selected_square: Vector2i = Vector2i(-1, -1)
-var score_panel_visible: bool = true
+
+# Score panel visibility state
+var score_panel_visible: bool = false  # Hidden by default
+
+# Game state flag
 var game_ended: bool = false
 
-# Drag and drop variables
+# ============================================================================
+# DRAG AND DROP SYSTEM VARIABLES
+# ============================================================================
+
+# Reference to the piece currently being dragged
 var dragging_piece: Label = null
+
+# Offset from mouse position to piece center for smooth dragging
 var drag_offset: Vector2 = Vector2.ZERO
+
+# Original parent node to return piece to if drag is cancelled
 var original_parent: Control = null
+
+# Flag indicating if a drag operation is in progress
 var is_dragging: bool = false
 
+# ============================================================================
+# INITIALIZATION FUNCTIONS
+# ============================================================================
+
 func _ready():
+	"""
+	Called when the node is added to the scene tree.
+	Initializes the chess game, connects signals, and sets up the UI.
+	"""
+	# Create the chess board logic instance
 	chess_board = ChessBoard.new()
 	add_child(chess_board)
 
-	# Connect signals
+	# Connect chess board signals to our handler functions
 	chess_board.piece_moved.connect(_on_piece_moved)
 	chess_board.piece_captured.connect(_on_piece_captured)
 	chess_board.turn_changed.connect(_on_turn_changed)
 	chess_board.game_over.connect(_on_game_over)
 
-	setup_chessboard()
-	update_character_displays()
-	update_board_display()
-	update_score_display()
-	setup_score_toggle()
-	initialize_timers()
-	update_timer_display()
+	# Initialize all game components
+	setup_chessboard()           # Create the 8x8 grid of squares
+	update_character_displays()   # Show selected characters
+	load_character_assets()       # Load themed assets (backgrounds, videos)
+	update_board_display()        # Place pieces on the board
+	update_score_display()        # Initialize score panel
+	setup_score_toggle()          # Configure score panel toggle button
+	initialize_timers()           # Set up game timers
+	update_timer_display()        # Display initial timer values
+
+# ============================================================================
+# FRAME UPDATE FUNCTIONS
+# ============================================================================
 
 func _process(delta):
-	# Update timers if game is active
+	"""
+	Called every frame. Updates game timers if a timed game is in progress.
+
+	Args:
+		delta: Time elapsed since the previous frame in seconds
+	"""
+	# Only update timers if game is active and timers are enabled
 	if not game_ended and GameState.player_time_limit > 0:
-		# Decrement current player's time
+		# Decrement the current player's remaining time
 		if chess_board.is_white_turn:
 			GameState.player1_time_remaining -= delta
+			# Check if Player 1 (White) ran out of time
 			if GameState.player1_time_remaining <= 0:
 				GameState.player1_time_remaining = 0
-				handle_time_expired(true)  # Player 1 (White) ran out of time
+				handle_time_expired(true)
 		else:
 			GameState.player2_time_remaining -= delta
+			# Check if Player 2 (Black) ran out of time
 			if GameState.player2_time_remaining <= 0:
 				GameState.player2_time_remaining = 0
-				handle_time_expired(false)  # Player 2 (Black) ran out of time
+				handle_time_expired(false)
 
+		# Update timer display to show new values
 		update_timer_display()
 
+# ============================================================================
+# INPUT HANDLING FUNCTIONS
+# ============================================================================
+
 func _input(event):
+	"""
+	Handles all input events, primarily for drag-and-drop piece movement.
+	Supports both mouse (desktop) and touch (mobile) input.
+
+	Args:
+		event: The input event to process
+	"""
+	# Only process input if a piece is currently being dragged
 	if is_dragging and dragging_piece:
+		# Handle mouse movement or touch drag - update piece position
 		if event is InputEventMouseMotion or event is InputEventScreenDrag:
-			# Update dragging piece position to follow cursor/finger
 			var mouse_pos = get_viewport().get_mouse_position()
 			dragging_piece.global_position = mouse_pos - drag_offset
+
+		# Handle mouse button release
 		elif event is InputEventMouseButton:
 			if not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-				# Mouse released - try to drop piece
-				end_drag(event.position)
-		elif event is InputEventScreenTouch:
-			if not event.pressed:
-				# Touch released - try to drop piece
 				end_drag(event.position)
 
+		# Handle touch release (mobile)
+		elif event is InputEventScreenTouch:
+			if not event.pressed:
+				end_drag(event.position)
+
+# ============================================================================
+# CHESSBOARD SETUP FUNCTIONS
+# ============================================================================
+
 func setup_chessboard():
-	# Create 8x8 grid of chess squares
+	"""
+	Creates the 8x8 chessboard grid with themed backgrounds.
+	The board is split in half vertically:
+	- Bottom half (rows 0-3): Player 1's theme
+	- Top half (rows 4-7): Player 2's theme
+	Each square is a Button node with custom styling.
+	"""
 	board_squares = []
+
+	# Get player character themes for split board coloring
+	var player1_theme = GameState.get_character_piece_style(GameState.player1_character)
+	var player2_theme = GameState.get_character_piece_style(GameState.player2_character)
+
+	# Define theme color schemes for board squares
+	var theme_colors = {
+		"classic": {
+			"light": Color(0.9, 0.9, 0.8, 1),    # Cream
+			"dark": Color(0.5, 0.4, 0.3, 1)      # Brown
+		},
+		"modern": {
+			"light": Color(0.85, 0.92, 0.98, 1), # Light blue
+			"dark": Color(0.2, 0.3, 0.5, 1)      # Dark blue
+		},
+		"fantasy": {
+			"light": Color(0.95, 0.9, 0.75, 1),  # Golden
+			"dark": Color(0.5, 0.2, 0.4, 1)      # Purple
+		}
+	}
+
+	# Create 8x8 grid of squares
 	for row in range(8):
 		var row_array = []
 		for col in range(8):
 			var square = Button.new()
-			square.custom_minimum_size = Vector2(80, 80)  # Increased from 50 to 80
+			square.custom_minimum_size = Vector2(80, 80)
 			square.flat = true
 
-			# Create background style
-			var style_box = StyleBoxFlat.new()
-			# Alternate colors for chessboard pattern
-			if (row + col) % 2 == 0:
-				style_box.bg_color = Color(0.9, 0.9, 0.8, 1)  # Light square
-			else:
-				style_box.bg_color = Color(0.5, 0.4, 0.3, 1)  # Dark square
+			# Determine which player's theme to use based on row
+			# Rows 0-3 (bottom): Player 1's theme
+			# Rows 4-7 (top): Player 2's theme
+			var current_theme = player1_theme if row < 4 else player2_theme
+			var colors = theme_colors.get(current_theme, theme_colors["classic"])
 
+			# Create background style with theme colors
+			var style_box = StyleBoxFlat.new()
+			# Alternate light and dark squares for checkerboard pattern
+			if (row + col) % 2 == 0:
+				style_box.bg_color = colors["light"]
+			else:
+				style_box.bg_color = colors["dark"]
+
+			# Apply style to all button states
 			square.add_theme_stylebox_override("normal", style_box)
 			square.add_theme_stylebox_override("hover", style_box)
 			square.add_theme_stylebox_override("pressed", style_box)
 
-			# Store position in metadata
+			# Store board position in metadata for later reference
 			square.set_meta("board_pos", Vector2i(row, col))
+
+			# Connect click handler with position parameter
 			square.pressed.connect(_on_square_clicked.bind(Vector2i(row, col)))
 
+			# Add square to the chessboard container
 			chessboard.add_child(square)
 			row_array.append(square)
+
 		board_squares.append(row_array)
 
+	# Ensure chessboard is visible
+	chessboard.visible = true
+	print("Chessboard created with themed backgrounds: ", player1_theme, " (bottom) and ", player2_theme, " (top)")
+
+func load_character_assets():
+	"""
+	Loads themed assets for both players including:
+	- Character background images
+	- Character animation videos (.mp4)
+	- Custom chess piece sprites
+	This function will attempt to load assets from the assets/ folder structure.
+	If assets are not found, it will use default placeholders.
+	"""
+	# Character folder paths
+	var char1_path = "res://assets/characters/character_" + str(GameState.player1_character + 1) + "/"
+	var char2_path = "res://assets/characters/character_" + str(GameState.player2_character + 1) + "/"
+
+	# Try to load Player 1 character video/background
+	var p1_video_path = char1_path + "animations/character_idle.mp4"
+	var p1_bg_path = char1_path + "backgrounds/character_background.png"
+	load_character_media(player1_character_display, p1_video_path, p1_bg_path)
+
+	# Try to load Player 2 character video/background
+	var p2_video_path = char2_path + "animations/character_idle.mp4"
+	var p2_bg_path = char2_path + "backgrounds/character_background.png"
+	load_character_media(player2_character_display, p2_video_path, p2_bg_path)
+
+	print("Character assets loaded for Player 1 (", GameState.player1_character, ") and Player 2 (", GameState.player2_character, ")")
+
+func load_character_media(display_node: ColorRect, video_path: String, bg_path: String):
+	"""
+	Helper function to load and display character media (video or background image).
+
+	Args:
+		display_node: The ColorRect node to display the media on
+		video_path: Path to the character's .mp4 video file
+		bg_path: Fallback path to a background image if video is not available
+	"""
+	# TODO: Implement video player when artist provides .mp4 files
+	# For now, try to load background image
+	if FileAccess.file_exists(bg_path):
+		var texture = load(bg_path)
+		if texture:
+			# Create TextureRect to display the background
+			var texture_rect = TextureRect.new()
+			texture_rect.texture = texture
+			texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			texture_rect.anchor_right = 1.0
+			texture_rect.anchor_bottom = 1.0
+			display_node.add_child(texture_rect)
+	else:
+		print("Character media not found: ", video_path, " or ", bg_path)
+
+# ============================================================================
+# CHARACTER AND UI UPDATE FUNCTIONS
+# ============================================================================
+
 func update_character_displays():
-	# Update character names based on selection
+	"""
+	Updates the character name labels to show which character each player selected.
+	"""
 	var character_names = ["Character 1", "Character 2", "Character 3"]
 
+	# Update Player 1 character display
 	if GameState.player1_character >= 0 and GameState.player1_character < character_names.size():
 		player1_character_label.text = "Character: " + character_names[GameState.player1_character]
 
+	# Update Player 2 character display
 	if GameState.player2_character >= 0 and GameState.player2_character < character_names.size():
 		player2_character_label.text = "Character: " + character_names[GameState.player2_character]
 
 func update_board_display():
-	# Clear existing visual pieces
+	"""
+	Refreshes the visual representation of all chess pieces on the board.
+	This function:
+	1. Clears all existing visual pieces
+	2. Queries the chess board logic for current piece positions
+	3. Creates new visual representations for each piece
+	Called after every move or board state change.
+	"""
+	# Clear existing visual pieces from previous render
 	for piece in visual_pieces:
 		piece.queue_free()
 	visual_pieces.clear()
 
-	# Clear all squares
+	# Remove piece labels from all squares
 	for row in range(8):
 		for col in range(8):
 			var square = board_squares[row][col]
-			# Remove any existing children (pieces)
 			for child in square.get_children():
 				child.queue_free()
 
-	# Create visual pieces for current board state
+	# Create fresh visual pieces based on current board state
 	for row in range(8):
 		for col in range(8):
 			var piece = chess_board.get_piece_at(Vector2i(row, col))
@@ -140,14 +336,24 @@ func update_board_display():
 				create_visual_piece(piece, Vector2i(row, col))
 
 func create_visual_piece(piece: ChessPiece, pos: Vector2i):
+	"""
+	Creates a visual representation of a chess piece at the specified position.
+	Currently uses Unicode symbols (♔♕♖♗♘♙) but can be extended to use
+	custom images/sprites from the assets folder.
+
+	Args:
+		piece: The ChessPiece object containing piece data
+		pos: Board position (row, col) where the piece should be displayed
+	"""
+	# Create a Label to display the piece (using Unicode symbol for now)
 	var visual_piece = Label.new()
 	visual_piece.text = piece.get_piece_symbol()
 	visual_piece.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	visual_piece.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	visual_piece.add_theme_font_size_override("font_size", 56)  # Increased from 36 to 56
-	visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow mouse events
+	visual_piece.add_theme_font_size_override("font_size", 56)
+	visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow drag events
 
-	# Center the piece in its square using anchors
+	# Center the piece label within its square using anchors
 	visual_piece.anchor_left = 0.0
 	visual_piece.anchor_top = 0.0
 	visual_piece.anchor_right = 1.0
@@ -159,7 +365,7 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	visual_piece.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	visual_piece.grow_vertical = Control.GROW_DIRECTION_BOTH
 
-	# Style based on character theme
+	# Apply theme-based colors to pieces
 	var style_colors = {
 		"classic": {"white": Color(1, 1, 1), "black": Color(0.2, 0.2, 0.2)},
 		"modern": {"white": Color(0.8, 0.9, 1), "black": Color(0.1, 0.2, 0.4)},
@@ -168,86 +374,161 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 
 	var style = piece.character_style
 	if not style in style_colors:
-		style = "classic"
+		style = "classic"  # Fallback to classic if theme not found
 
+	# Determine piece color and apply appropriate theme color
 	var color_key = "white" if piece.piece_color == ChessPiece.PieceColor.WHITE else "black"
 	visual_piece.add_theme_color_override("font_color", style_colors[style][color_key])
 
+	# Add piece to the board square and track it
 	board_squares[pos.x][pos.y].add_child(visual_piece)
 	visual_pieces.append(visual_piece)
 
-func _on_square_clicked(pos: Vector2i):
-	if is_dragging:
-		return  # Don't process clicks while dragging
+	# TODO: Replace Unicode symbols with custom sprite/image when assets are available
+	# Example: load texture from res://assets/characters/character_X/pieces/white_king.png
 
-	# If a piece is selected, try to move it
+# ============================================================================
+# SQUARE CLICK AND PIECE SELECTION FUNCTIONS
+# ============================================================================
+
+func _on_square_clicked(pos: Vector2i):
+	"""
+	Handles clicks on chess board squares.
+	Two-click interface: First click selects a piece, second click moves it.
+	Also initiates drag-and-drop when a piece is clicked.
+
+	Args:
+		pos: The board position (row, col) that was clicked
+	"""
+	# Ignore clicks during drag operations
+	if is_dragging:
+		return
+
+	# If a piece is already selected, try to move it to the clicked square
 	if selected_square != Vector2i(-1, -1):
 		if chess_board.try_move_piece(selected_square, pos):
+			# Move successful
 			clear_highlights()
 			selected_square = Vector2i(-1, -1)
 			update_board_display()
 			update_score_display()
 		else:
-			# Try selecting a new piece
+			# Move invalid, try selecting a different piece
 			attempt_select_piece(pos)
 	else:
-		# Try to select a piece and start dragging
+		# No piece selected yet, try to select the clicked piece
 		attempt_select_piece(pos)
 
 func attempt_select_piece(pos: Vector2i):
+	"""
+	Attempts to select a chess piece at the given position.
+	If successful, highlights valid moves and starts drag operation.
+
+	Args:
+		pos: The board position to select from
+	"""
 	clear_highlights()
 	if chess_board.select_piece(pos):
 		selected_square = pos
 		highlight_valid_moves()
 		start_drag(pos)
 
+# ============================================================================
+# BOARD HIGHLIGHTING FUNCTIONS
+# ============================================================================
+
 func highlight_valid_moves():
-	# Highlight selected square
+	"""
+	Highlights the selected piece and all its valid moves on the board.
+	- Selected square: Yellow highlight
+	- Valid moves: Green highlight
+	- Capture moves: Red highlight
+	"""
+	# Highlight the currently selected square in yellow
 	var selected = board_squares[selected_square.x][selected_square.y]
 	var highlight_style = StyleBoxFlat.new()
-	highlight_style.bg_color = Color(1, 1, 0, 0.5)
+	highlight_style.bg_color = Color(1, 1, 0, 0.5)  # Semi-transparent yellow
 	selected.add_theme_stylebox_override("normal", highlight_style)
 
-	# Highlight valid moves
+	# Highlight all valid moves for the selected piece
 	for move in chess_board.valid_moves:
 		var square = board_squares[move.x][move.y]
 		var move_style = StyleBoxFlat.new()
 
-		# Different color for captures
+		# Use red for capture moves, green for regular moves
 		if chess_board.get_piece_at(move) != null:
-			move_style.bg_color = Color(1, 0.3, 0.3, 0.5)  # Red for capture
+			move_style.bg_color = Color(1, 0.3, 0.3, 0.5)  # Red (capture)
 		else:
-			move_style.bg_color = Color(0.3, 1, 0.3, 0.5)  # Green for move
+			move_style.bg_color = Color(0.3, 1, 0.3, 0.5)  # Green (move)
 
 		square.add_theme_stylebox_override("normal", move_style)
 
 func clear_highlights():
+	"""
+	Removes all move highlights and restores the themed chessboard colors.
+	This function is called after a move is made or selection is cancelled.
+	"""
+	# Get player themes for restoring themed colors
+	var player1_theme = GameState.get_character_piece_style(GameState.player1_character)
+	var player2_theme = GameState.get_character_piece_style(GameState.player2_character)
+
+	# Theme color definitions (must match setup_chessboard)
+	var theme_colors = {
+		"classic": {
+			"light": Color(0.9, 0.9, 0.8, 1),
+			"dark": Color(0.5, 0.4, 0.3, 1)
+		},
+		"modern": {
+			"light": Color(0.85, 0.92, 0.98, 1),
+			"dark": Color(0.2, 0.3, 0.5, 1)
+		},
+		"fantasy": {
+			"light": Color(0.95, 0.9, 0.75, 1),
+			"dark": Color(0.5, 0.2, 0.4, 1)
+		}
+	}
+
+	# Restore themed colors to all squares
 	for row in range(8):
 		for col in range(8):
 			var square = board_squares[row][col]
-			var style_box = StyleBoxFlat.new()
 
+			# Determine theme based on row (bottom half = player1, top half = player2)
+			var current_theme = player1_theme if row < 4 else player2_theme
+			var colors = theme_colors.get(current_theme, theme_colors["classic"])
+
+			var style_box = StyleBoxFlat.new()
+			# Restore checkerboard pattern with themed colors
 			if (row + col) % 2 == 0:
-				style_box.bg_color = Color(0.9, 0.9, 0.8, 1)
+				style_box.bg_color = colors["light"]
 			else:
-				style_box.bg_color = Color(0.5, 0.4, 0.3, 1)
+				style_box.bg_color = colors["dark"]
 
 			square.add_theme_stylebox_override("normal", style_box)
 
 func update_score_display():
+	"""
+	Updates all score panel labels with current game statistics.
+	This includes player scores, move count, and captured pieces count.
+	"""
 	player1_score_label.text = str(GameState.player1_score)
 	player2_score_label.text = str(GameState.player2_score)
 	moves_label.text = "Moves: " + str(GameState.move_count)
 	captured_label.text = "Captured Pieces: " + str(GameState.captured_pieces)
 
 func update_captured_display():
-	# Clear existing captured pieces display
+	"""
+	Updates the visual display of captured pieces for both players.
+	Shows piece symbols in the player info areas at top and bottom of screen.
+	Called whenever a piece is captured.
+	"""
+	# Clear existing captured pieces labels
 	for child in player1_captured_container.get_children():
 		child.queue_free()
 	for child in player2_captured_container.get_children():
 		child.queue_free()
 
-	# Display pieces captured by Player 1 (White)
+	# Display pieces captured by Player 1 (White pieces captured)
 	for piece in chess_board.get_captured_by_white():
 		var label = Label.new()
 		label.text = piece.get_piece_symbol()
@@ -255,7 +536,7 @@ func update_captured_display():
 		label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 		player1_captured_container.add_child(label)
 
-	# Display pieces captured by Player 2 (Black)
+	# Display pieces captured by Player 2 (Black pieces captured)
 	for piece in chess_board.get_captured_by_black():
 		var label = Label.new()
 		label.text = piece.get_piece_symbol()
@@ -263,44 +544,61 @@ func update_captured_display():
 		label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 		player2_captured_container.add_child(label)
 
+# ============================================================================
+# DRAG AND DROP FUNCTIONS
+# ============================================================================
+
 func start_drag(pos: Vector2i):
-	# Get the piece label from the square
+	"""
+	Initiates a drag operation for the piece at the given position.
+	The piece is reparented to the root control to move freely across the screen.
+
+	Args:
+		pos: Board position of the piece to start dragging
+	"""
 	var square = board_squares[pos.x][pos.y]
 	if square.get_child_count() > 0:
 		var piece_label = square.get_child(0)
 		if piece_label is Label:
-			# Store original parent
+			# Store the original square to return the piece if drag is cancelled
 			original_parent = square
 
-			# Get mouse position
+			# Get current mouse/touch position
 			var mouse_pos = get_viewport().get_mouse_position()
 
-			# Calculate offset to center piece on cursor
-			# Use the square size since the label fills the square
+			# Calculate offset to center the piece on cursor
 			drag_offset = square.size / 2
 
-			# Reparent to root to move freely
+			# Reparent piece to root node so it can move freely over the entire screen
 			piece_label.reparent(self)
-			piece_label.z_index = 100  # Draw on top
+			piece_label.z_index = 100  # Draw on top of everything
 
-			# Reset anchors and set size to match square
+			# Reset anchors and set size to match the square
 			piece_label.anchor_left = 0
 			piece_label.anchor_top = 0
 			piece_label.anchor_right = 0
 			piece_label.anchor_bottom = 0
 			piece_label.size = square.size
 
-			# Set position to follow cursor with piece centered
+			# Position piece centered on cursor
 			piece_label.global_position = mouse_pos - drag_offset
 
+			# Update drag state
 			dragging_piece = piece_label
 			is_dragging = true
 
 func end_drag(drop_position: Vector2):
+	"""
+	Ends a drag operation and attempts to place the piece on a square.
+	If the move is valid, the piece is moved. Otherwise, it returns to its original position.
+
+	Args:
+		drop_position: The screen position where the piece was dropped
+	"""
 	if not is_dragging or dragging_piece == null:
 		return
 
-	# Find which square we dropped on
+	# Find which square the piece was dropped on
 	var dropped_on_square = Vector2i(-1, -1)
 	for row in range(8):
 		for col in range(8):
@@ -312,13 +610,13 @@ func end_drag(drop_position: Vector2):
 		if dropped_on_square != Vector2i(-1, -1):
 			break
 
-	# Try to move the piece
+	# Attempt to move the piece to the dropped square
 	if dropped_on_square != Vector2i(-1, -1) and selected_square != Vector2i(-1, -1):
 		if chess_board.try_move_piece(selected_square, dropped_on_square):
-			# Move successful
+			# Move successful - update game state
 			clear_highlights()
 			selected_square = Vector2i(-1, -1)
-			# Clean up drag state
+			# Clean up the dragging piece
 			if dragging_piece:
 				dragging_piece.queue_free()
 			dragging_piece = null
@@ -327,20 +625,24 @@ func end_drag(drop_position: Vector2):
 			update_board_display()
 			update_score_display()
 		else:
-			# Move failed - show red flash on target square and return piece
+			# Move invalid - flash red and return piece
 			if dropped_on_square != Vector2i(-1, -1):
 				flash_square_red(dropped_on_square)
 			return_piece_to_original_position()
 	else:
-		# Dropped outside board or invalid
+		# Dropped outside board - return piece to original position
 		return_piece_to_original_position()
 
 func return_piece_to_original_position():
+	"""
+	Returns a dragged piece back to its original square.
+	Called when a drag operation is cancelled or an invalid move is attempted.
+	"""
 	if dragging_piece and original_parent:
 		dragging_piece.reparent(original_parent)
 		dragging_piece.z_index = 0
 
-	# Clean up drag state
+	# Reset all drag state
 	dragging_piece = null
 	is_dragging = false
 	original_parent = null
@@ -348,88 +650,154 @@ func return_piece_to_original_position():
 	selected_square = Vector2i(-1, -1)
 	update_board_display()
 
+# ============================================================================
+# VISUAL FEEDBACK FUNCTIONS
+# ============================================================================
+
 func flash_square_red(pos: Vector2i):
+	"""
+	Flashes a square red to indicate an invalid move attempt.
+	The square fades from red back to its original color over 1 second.
+
+	Args:
+		pos: The board position to flash
+	"""
+	# Validate position
 	if pos.x < 0 or pos.x >= 8 or pos.y < 0 or pos.y >= 8:
 		return
 
 	var square = board_squares[pos.x][pos.y]
 	var original_color: Color
 
-	# Get original square color
+	# Get the original themed color for this square
+	# TODO: Update this to use theme colors instead of hardcoded classic colors
 	if (pos.x + pos.y) % 2 == 0:
 		original_color = Color(0.9, 0.9, 0.8, 1)  # Light square
 	else:
 		original_color = Color(0.5, 0.4, 0.3, 1)  # Dark square
 
-	# Create red flash style
+	# Apply bright red flash
 	var red_style = StyleBoxFlat.new()
-	red_style.bg_color = Color(1, 0, 0, 0.7)  # Bright red
+	red_style.bg_color = Color(1, 0, 0, 0.7)
 	square.add_theme_stylebox_override("normal", red_style)
 
-	# Create tween for smooth color transition back
+	# Animate transition back to original color
 	var tween = create_tween()
 	tween.set_ease(Tween.EASE_OUT)
 	tween.set_trans(Tween.TRANS_CUBIC)
 
-	# Animate back to original color over 1 second
+	# Gradually lerp from red to original color over 1 second
 	tween.tween_method(func(value: float):
 		var current_style = StyleBoxFlat.new()
 		current_style.bg_color = Color(1, 0, 0, 0.7).lerp(original_color, value)
 		square.add_theme_stylebox_override("normal", current_style)
 	, 0.0, 1.0, 1.0)
 
-	# Restore original color at the end
+	# Ensure original color is fully restored at the end
 	tween.tween_callback(func():
 		var final_style = StyleBoxFlat.new()
 		final_style.bg_color = original_color
 		square.add_theme_stylebox_override("normal", final_style)
 	)
 
+# ============================================================================
+# CHESS BOARD EVENT HANDLERS (SIGNALS)
+# ============================================================================
+
 func _on_piece_moved(from_pos: Vector2i, to_pos: Vector2i, piece: ChessPiece):
+	"""
+	Called when a piece is successfully moved on the board.
+	Connected to the chess_board.piece_moved signal.
+
+	Args:
+		from_pos: Starting position of the piece
+		to_pos: Ending position of the piece
+		piece: The piece that was moved
+	"""
 	print("Piece moved from ", from_pos, " to ", to_pos)
 
 func _on_piece_captured(piece: ChessPiece, captured_by: ChessPiece):
+	"""
+	Called when a piece is captured.
+	Updates the captured pieces display.
+	Connected to the chess_board.piece_captured signal.
+
+	Args:
+		piece: The piece that was captured
+		captured_by: The piece that captured it
+	"""
 	print(captured_by.get_piece_name(), " captured ", piece.get_piece_name())
 	update_captured_display()
 
 func _on_turn_changed(is_white_turn: bool):
+	"""
+	Called when the turn changes between players.
+	Updates the turn indicator in the score panel.
+	Connected to the chess_board.turn_changed signal.
+
+	Args:
+		is_white_turn: True if it's now white's turn, False for black's turn
+	"""
 	var turn_text = "White's Turn" if is_white_turn else "Black's Turn"
 	turn_indicator.text = turn_text
 	print(turn_text)
 
 func _on_game_over(result: String):
+	"""
+	Called when the game ends (checkmate, stalemate, etc.).
+	Shows the game summary dialog.
+	Connected to the chess_board.game_over signal.
+
+	Args:
+		result: The game result string (e.g., "checkmate_white", "stalemate")
+	"""
 	print("Game Over! Result: ", result)
 	game_ended = true
-	# Show game summary dialog
 	show_game_summary(result)
 
+# ============================================================================
+# TIMER FUNCTIONS
+# ============================================================================
+
 func initialize_timers():
-	# Initialize timer values from GameState
+	"""
+	Initializes the game timers based on the selected time limit.
+	If no time limit was selected, timers are hidden.
+	"""
 	if GameState.player_time_limit > 0:
+		# Set timer values from configured limit
 		GameState.player1_time_remaining = float(GameState.player_time_limit)
 		GameState.player2_time_remaining = float(GameState.player_time_limit)
 	else:
+		# No timer set - hide timer labels
 		GameState.player1_time_remaining = 0.0
 		GameState.player2_time_remaining = 0.0
-		# Hide timer labels if no timer is set
 		player1_timer_label.visible = false
 		player2_timer_label.visible = false
 
 func update_timer_display():
+	"""
+	Updates the timer display labels with current remaining time.
+	Colors the timer text based on urgency:
+	- Green: > 60 seconds remaining
+	- Yellow: 30-60 seconds remaining
+	- Red: < 30 seconds remaining
+	"""
+	# Skip if no timer is active
 	if GameState.player_time_limit == 0:
 		return
 
-	# Format and display Player 1 time
+	# Format Player 1's time as MM:SS
 	var p1_minutes = int(GameState.player1_time_remaining) / 60
 	var p1_seconds = int(GameState.player1_time_remaining) % 60
 	player1_timer_label.text = "Time: %02d:%02d" % [p1_minutes, p1_seconds]
 
-	# Format and display Player 2 time
+	# Format Player 2's time as MM:SS
 	var p2_minutes = int(GameState.player2_time_remaining) / 60
 	var p2_seconds = int(GameState.player2_time_remaining) % 60
 	player2_timer_label.text = "Time: %02d:%02d" % [p2_minutes, p2_seconds]
 
-	# Color coding: red if less than 30 seconds, yellow if less than 60 seconds
+	# Apply color coding to Player 1's timer
 	if GameState.player1_time_remaining <= 30:
 		player1_timer_label.add_theme_color_override("font_color", Color(1, 0, 0, 1))  # Red
 	elif GameState.player1_time_remaining <= 60:
@@ -437,6 +805,7 @@ func update_timer_display():
 	else:
 		player1_timer_label.add_theme_color_override("font_color", Color(0.3, 1, 0.3, 1))  # Green
 
+	# Apply color coding to Player 2's timer
 	if GameState.player2_time_remaining <= 30:
 		player2_timer_label.add_theme_color_override("font_color", Color(1, 0, 0, 1))  # Red
 	elif GameState.player2_time_remaining <= 60:
@@ -445,65 +814,119 @@ func update_timer_display():
 		player2_timer_label.add_theme_color_override("font_color", Color(0.3, 1, 0.3, 1))  # Green
 
 func handle_time_expired(is_white: bool):
+	"""
+	Handles the event when a player's time runs out.
+	The player who ran out of time loses the game.
+
+	Args:
+		is_white: True if white player ran out of time, False if black player
+	"""
 	if game_ended:
 		return
 
+	# Set game as ended
 	game_ended = true
 	var result = "timeout_black_wins" if is_white else "timeout_white_wins"
 	GameState.game_result = result
 
-	# Show game over
-	var result_text = "Time's Up! Black Wins!" if is_white else "Time's Up! White Wins!"
+	# Show game over dialog
 	show_game_summary(result)
 
+# ============================================================================
+# SCORE PANEL FUNCTIONS
+# ============================================================================
+
 func setup_score_toggle():
+	"""
+	Initializes the score panel toggle button.
+	The score panel starts hidden by default and can be toggled with a floating button.
+	The toggle button is positioned as a floating element that doesn't affect layout.
+	"""
+	# Hide score panel by default
+	score_panel.visible = false
+
+	# Make toggle button floating (independent of layout)
+	score_toggle_button.position = Vector2(score_toggle_button.position.x, score_toggle_button.position.y)
+	score_toggle_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	score_toggle_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+
 	# Connect the toggle button signal
 	score_toggle_button.pressed.connect(_on_score_toggle_pressed)
-	# Set initial text - panel is visible by default, so show collapse arrow
-	score_toggle_button.text = "<"
+
+	# Set initial text - panel is hidden, so show expand arrow
+	score_toggle_button.text = ">"
+
+	print("Score panel initialized as hidden")
 
 func _on_score_toggle_pressed():
+	"""
+	Handles clicks on the score panel toggle button.
+	Toggles the score panel visibility state.
+	"""
 	score_panel_visible = !score_panel_visible
 	toggle_score_panel()
 
 func toggle_score_panel():
+	"""
+	Animates the score panel sliding in/out.
+	When hidden, the panel slides out to the right.
+	When shown, the panel slides in from its original position (not from far left).
+	The panel stays in the same place in the layout - it just becomes visible/invisible.
+	"""
 	var tween = create_tween()
 	tween.set_ease(Tween.EASE_IN_OUT)
 	tween.set_trans(Tween.TRANS_CUBIC)
 
 	if score_panel_visible:
-		# Show panel - slide in from right
+		# Show panel - fade in at current position
 		score_panel.visible = true
 		score_panel.modulate.a = 0.0
-		score_panel.position.x = score_panel.size.x
 		tween.tween_property(score_panel, "modulate:a", 1.0, 0.3)
-		tween.parallel().tween_property(score_panel, "position:x", 0, 0.3)
 	else:
-		# Hide panel - slide out to right
+		# Hide panel - fade out at current position
 		tween.tween_property(score_panel, "modulate:a", 0.0, 0.3)
-		tween.parallel().tween_property(score_panel, "position:x", score_panel.size.x, 0.3)
 		tween.tween_callback(func(): score_panel.visible = false)
 
 	update_score_toggle_text()
 
 func update_score_toggle_text():
+	"""
+	Updates the toggle button text based on panel visibility.
+	< means panel is visible (click to hide)
+	> means panel is hidden (click to show)
+	"""
 	if score_panel_visible:
 		score_toggle_button.text = "<"
 	else:
 		score_toggle_button.text = ">"
 
+# ============================================================================
+# MENU AND GAME OVER FUNCTIONS
+# ============================================================================
+
 func _on_menu_button_pressed():
-	# Return to character selection or main menu
+	"""
+	Handles the MENU button press in the score panel.
+	Returns the player to the login/main menu screen.
+	"""
 	get_tree().change_scene_to_file("res://scenes/ui/login_page.tscn")
 
 func show_game_summary(result: String):
-	# Create a popup dialog for game summary
+	"""
+	Displays the game over dialog with complete game statistics.
+	Shows the result, scores, move count, and full move history.
+	When closed, returns to the main menu.
+
+	Args:
+		result: The game result string (e.g., "checkmate_white", "stalemate", "timeout_black_wins")
+	"""
+	# Create popup dialog
 	var dialog = AcceptDialog.new()
 	dialog.title = "Game Over!"
 	dialog.dialog_autowrap = true
 	dialog.size = Vector2(600, 800)
 
-	# Determine winner text
+	# Determine result message based on game outcome
 	var result_text = ""
 	match result:
 		"checkmate_white":
@@ -514,31 +937,36 @@ func show_game_summary(result: String):
 			result_text = "Stalemate! It's a Draw!"
 		"draw":
 			result_text = "Draw!"
+		"timeout_white_wins":
+			result_text = "Time's Up! White Wins!"
+		"timeout_black_wins":
+			result_text = "Time's Up! Black Wins!"
 		_:
 			result_text = "Game Over!"
 
-	# Create content
+	# Create content container
 	var content = VBoxContainer.new()
 	content.add_theme_constant_override("separation", 15)
 
-	# Result label
+	# Display result heading
 	var result_label = Label.new()
 	result_label.text = result_text
 	result_label.add_theme_font_size_override("font_size", 28)
 	result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	content.add_child(result_label)
 
-	# Separator
+	# Add separator
 	var sep1 = HSeparator.new()
 	content.add_child(sep1)
 
-	# Stats section
+	# Game statistics section
 	var stats_label = Label.new()
 	stats_label.text = "Game Statistics"
 	stats_label.add_theme_font_size_override("font_size", 22)
 	stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	content.add_child(stats_label)
 
+	# Display game statistics
 	var stats_text = Label.new()
 	stats_text.text = "Total Moves: " + str(GameState.move_count) + "\n"
 	stats_text.text += "Player 1 Score: " + str(GameState.player1_score) + "\n"
@@ -548,7 +976,7 @@ func show_game_summary(result: String):
 	stats_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	content.add_child(stats_text)
 
-	# Separator
+	# Add separator
 	var sep2 = HSeparator.new()
 	content.add_child(sep2)
 
@@ -559,17 +987,20 @@ func show_game_summary(result: String):
 	history_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	content.add_child(history_label)
 
-	# Create scrollable container for moves
+	# Create scrollable container for move history
 	var scroll = ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(550, 300)
 
+	# Format move history in chess notation style
 	var moves_label = Label.new()
 	var moves_text = ""
 	for i in range(GameState.move_history.size()):
-		var move_num = (i / 2) + 1
+		var move_num = (i / 2) + 1  # Calculate move number
 		if i % 2 == 0:
+			# White's move
 			moves_text += str(move_num) + ". " + GameState.move_history[i]
 			if i + 1 < GameState.move_history.size():
+				# Add black's move on the same line
 				moves_text += "  " + GameState.move_history[i + 1] + "\n"
 			else:
 				moves_text += "\n"
@@ -580,9 +1011,10 @@ func show_game_summary(result: String):
 	scroll.add_child(moves_label)
 	content.add_child(scroll)
 
+	# Add content to dialog and show it
 	dialog.add_child(content)
 	add_child(dialog)
 	dialog.popup_centered()
 
-	# When dialog is closed, return to menu
+	# Return to menu when dialog is closed
 	dialog.confirmed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/login_page.tscn"))
