@@ -107,13 +107,6 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="ScoreToggleButton" type="Button" parent="MainContainer/GameArea"]
-custom_minimum_size = Vector2(40, 60)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_font_sizes/font_size = 24
-text = ">"
-
 [node name="ChessboardContainer" type="PanelContainer" parent="MainContainer/GameArea"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -226,6 +219,13 @@ text = "Captured Pieces: 0"
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "MENU"
+
+[node name="ScoreToggleButton" type="Button" parent="MainContainer/GameArea"]
+custom_minimum_size = Vector2(40, 60)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
+text = ">"
 
 [node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
 custom_minimum_size = Vector2(0, 220)

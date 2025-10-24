@@ -275,15 +275,22 @@ func start_drag(pos: Vector2i):
 			# Get mouse position
 			var mouse_pos = get_viewport().get_mouse_position()
 
-			# Calculate offset from piece center
-			var piece_center = piece_label.global_position + piece_label.size / 2
-			drag_offset = mouse_pos - piece_center
+			# Calculate offset to center piece on cursor
+			# Use the square size since the label fills the square
+			drag_offset = square.size / 2
 
 			# Reparent to root to move freely
 			piece_label.reparent(self)
 			piece_label.z_index = 100  # Draw on top
 
-			# Set position to follow cursor
+			# Reset anchors and set size to match square
+			piece_label.anchor_left = 0
+			piece_label.anchor_top = 0
+			piece_label.anchor_right = 0
+			piece_label.anchor_bottom = 0
+			piece_label.size = square.size
+
+			# Set position to follow cursor with piece centered
 			piece_label.global_position = mouse_pos - drag_offset
 
 			dragging_piece = piece_label
@@ -452,7 +459,8 @@ func handle_time_expired(is_white: bool):
 func setup_score_toggle():
 	# Connect the toggle button signal
 	score_toggle_button.pressed.connect(_on_score_toggle_pressed)
-	update_score_toggle_text()
+	# Set initial text - panel is visible by default, so show collapse arrow
+	score_toggle_button.text = "<"
 
 func _on_score_toggle_pressed():
 	score_panel_visible = !score_panel_visible
@@ -465,22 +473,24 @@ func toggle_score_panel():
 
 	if score_panel_visible:
 		# Show panel - slide in from right
-		tween.tween_property(score_panel, "modulate:a", 1.0, 0.3)
-		tween.parallel().tween_property(score_panel, "position:x", 0, 0.3).from(320)
 		score_panel.visible = true
+		score_panel.modulate.a = 0.0
+		score_panel.position.x = score_panel.size.x
+		tween.tween_property(score_panel, "modulate:a", 1.0, 0.3)
+		tween.parallel().tween_property(score_panel, "position:x", 0, 0.3)
 	else:
 		# Hide panel - slide out to right
 		tween.tween_property(score_panel, "modulate:a", 0.0, 0.3)
-		tween.parallel().tween_property(score_panel, "position:x", 320, 0.3).from(0)
+		tween.parallel().tween_property(score_panel, "position:x", score_panel.size.x, 0.3)
 		tween.tween_callback(func(): score_panel.visible = false)
 
 	update_score_toggle_text()
 
 func update_score_toggle_text():
 	if score_panel_visible:
-		score_toggle_button.text = ">"
-	else:
 		score_toggle_button.text = "<"
+	else:
+		score_toggle_button.text = ">"
 
 func _on_menu_button_pressed():
 	# Return to character selection or main menu
