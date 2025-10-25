@@ -66,8 +66,8 @@ var game_ended: bool = false
 # DRAG AND DROP SYSTEM VARIABLES
 # ============================================================================
 
-# Reference to the piece currently being dragged
-var dragging_piece: Label = null
+# Reference to the piece currently being dragged (TextureRect or Label)
+var dragging_piece: Control = null
 
 # Offset from mouse position to piece center for smooth dragging
 var drag_offset: Vector2 = Vector2.ZERO
@@ -75,8 +75,14 @@ var drag_offset: Vector2 = Vector2.ZERO
 # Original parent node to return piece to if drag is cancelled
 var original_parent: Control = null
 
+# Original scale of the piece before dragging
+var original_scale: Vector2 = Vector2.ONE
+
 # Flag indicating if a drag operation is in progress
 var is_dragging: bool = false
+
+# Shadow/glow effect node for visual feedback during drag
+var drag_shadow: Control = null
 
 # ============================================================================
 # INITIALIZATION FUNCTIONS
@@ -139,6 +145,7 @@ func _ready():
 	setup_chessboard()           # Create the 8x8 grid of squares
 	update_character_displays()   # Show selected characters
 	load_character_assets()       # Load themed assets (backgrounds, videos)
+	validate_all_media()          # Validate all media assets and report errors
 	update_board_display()        # Place pieces on the board
 	update_score_display()        # Initialize score panel
 	setup_score_toggle()          # Configure score panel toggle button
@@ -245,31 +252,30 @@ func _input(event):
 	"""
 	Handles all input events, primarily for drag-and-drop piece movement.
 	Supports both mouse (desktop) and touch (mobile) input.
-	Currently disabled in favor of click-to-move interface.
+	Pieces stick to the mouse/finger with smooth visual feedback.
 
 	Args:
 		event: The input event to process
 	"""
-	# Drag-and-drop functionality temporarily disabled
-	# Using simple click-to-select, click-to-move interface instead
-	pass
+	# Only process input if a piece is currently being dragged
+	if is_dragging and dragging_piece:
+		# Handle mouse movement or touch drag - update piece position
+		if event is InputEventMouseMotion or event is InputEventScreenDrag:
+			var mouse_pos = get_viewport().get_mouse_position()
+			# Make piece stick to cursor with offset for natural feel
+			dragging_piece.global_position = mouse_pos - drag_offset
+			# Update shadow to follow the piece
+			update_drag_shadow()
 
-	# # Only process input if a piece is currently being dragged
-	# if is_dragging and dragging_piece:
-	# 	# Handle mouse movement or touch drag - update piece position
-	# 	if event is InputEventMouseMotion or event is InputEventScreenDrag:
-	# 		var mouse_pos = get_viewport().get_mouse_position()
-	# 		dragging_piece.global_position = mouse_pos - drag_offset
-	#
-	# 	# Handle mouse button release
-	# 	elif event is InputEventMouseButton:
-	# 		if not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-	# 			end_drag(event.position)
-	#
-	# 	# Handle touch release (mobile)
-	# 	elif event is InputEventScreenTouch:
-	# 		if not event.pressed:
-	# 			end_drag(event.position)
+		# Handle mouse button release
+		elif event is InputEventMouseButton:
+			if not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				end_drag(event.position)
+
+		# Handle touch release (mobile)
+		elif event is InputEventScreenTouch:
+			if not event.pressed:
+				end_drag(event.position)
 
 # ============================================================================
 # CHESSBOARD SETUP FUNCTIONS
@@ -449,6 +455,220 @@ func load_character_media(display_node: ColorRect, area_node: PanelContainer, vi
 			print("Loaded background image: ", bg_path)
 	else:
 		print("Warning: Character background not found: ", bg_path)
+
+# ============================================================================
+# MEDIA VALIDATION FUNCTIONS
+# ============================================================================
+
+class MediaValidationResult:
+	"""
+	Data structure to store media validation results.
+	Tracks success/failure status and detailed error messages.
+	"""
+	var success: bool = true
+	var errors: Array = []
+	var warnings: Array = []
+	var media_type: String = ""
+
+	func add_error(message: String):
+		"""Adds an error message and marks validation as failed."""
+		errors.append(message)
+		success = false
+
+	func add_warning(message: String):
+		"""Adds a warning message without failing validation."""
+		warnings.append(message)
+
+	func get_report() -> String:
+		"""Returns a formatted report of the validation results."""
+		var report = "=== %s VALIDATION REPORT ===" % media_type.to_upper()
+		report += "\nStatus: " + ("PASS" if success else "FAIL")
+
+		if errors.size() > 0:
+			report += "\n\nERRORS:"
+			for error in errors:
+				report += "\n  - " + error
+
+		if warnings.size() > 0:
+			report += "\n\nWARNINGS:"
+			for warning in warnings:
+				report += "\n  - " + warning
+
+		report += "\n" + "=".repeat(50)
+		return report
+
+func validate_game_background() -> MediaValidationResult:
+	"""
+	Validates that game background images exist and can be loaded.
+	Checks the backgrounds folder for valid image files.
+
+	Returns:
+		MediaValidationResult with validation status and any errors/warnings
+	"""
+	var result = MediaValidationResult.new()
+	result.media_type = "Game Background"
+
+	var backgrounds_path = "res://assets/backgrounds/"
+	var background_files = []
+
+	# Check if backgrounds directory exists
+	var dir = DirAccess.open(backgrounds_path)
+	if not dir:
+		result.add_error("Backgrounds directory not found: " + backgrounds_path)
+		return result
+
+	# Scan for valid image files
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	while file_name != "":
+		if not dir.current_is_dir() and not file_name.begins_with(".") and not file_name.ends_with(".md"):
+			if file_name.ends_with(".png") or file_name.ends_with(".jpg") or file_name.ends_with(".jpeg"):
+				background_files.append(backgrounds_path + file_name)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+
+	# Validate that at least one background exists
+	if background_files.size() == 0:
+		result.add_warning("No background images found in " + backgrounds_path)
+		result.add_warning("Add PNG or JPG images to display game backgrounds")
+		return result
+
+	# Validate each background file can be loaded
+	var loaded_count = 0
+	for bg_path in background_files:
+		if FileAccess.file_exists(bg_path):
+			var texture = load(bg_path)
+			if texture:
+				loaded_count += 1
+			else:
+				result.add_error("Failed to load background texture: " + bg_path)
+		else:
+			result.add_error("Background file does not exist: " + bg_path)
+
+	if loaded_count > 0:
+		result.add_warning("Successfully validated %d background image(s)" % loaded_count)
+
+	return result
+
+func validate_character_media(character_id: int, player_name: String) -> MediaValidationResult:
+	"""
+	Validates character-specific media assets (animations and backgrounds).
+	Checks for MP4 animation and PNG background image.
+
+	Args:
+		character_id: The character ID (0, 1, or 2)
+		player_name: Display name for the player (for error messages)
+
+	Returns:
+		MediaValidationResult with validation status and any errors/warnings
+	"""
+	var result = MediaValidationResult.new()
+	result.media_type = "Character %d Media (%s)" % [character_id + 1, player_name]
+
+	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
+
+	# Validate MP4 animation
+	var video_path = char_path + "animations/character_idle.mp4"
+	if FileAccess.file_exists(video_path):
+		var video_stream = load(video_path)
+		if video_stream:
+			result.add_warning("MP4 animation loaded successfully: " + video_path)
+		else:
+			result.add_error("Failed to load MP4 animation: " + video_path)
+	else:
+		result.add_error("MP4 animation not found: " + video_path)
+
+	# Validate background image
+	var bg_path = char_path + "backgrounds/character_background.png"
+	if FileAccess.file_exists(bg_path):
+		var texture = load(bg_path)
+		if texture:
+			result.add_warning("Background image loaded successfully: " + bg_path)
+		else:
+			result.add_error("Failed to load background image: " + bg_path)
+	else:
+		result.add_error("Background image not found: " + bg_path)
+
+	return result
+
+func validate_all_media() -> void:
+	"""
+	Comprehensive validation of all media assets used in the game.
+	Validates:
+	- Game background images
+	- Player 1 character media (animation + background)
+	- Player 2 character media (animation + background)
+
+	Prints detailed reports to console and shows error dialog if critical failures occur.
+	"""
+	print("\n" + "=".repeat(60))
+	print("MEDIA VALIDATION: Starting comprehensive media check")
+	print("=".repeat(60))
+
+	var all_results = []
+	var has_critical_errors = false
+
+	# Validate game backgrounds
+	var bg_result = validate_game_background()
+	all_results.append(bg_result)
+	print(bg_result.get_report())
+	if not bg_result.success:
+		has_critical_errors = true
+
+	# Validate Player 1 character media
+	var player1_name = GameState.get_player_display_name(1)
+	var p1_result = validate_character_media(GameState.player1_character, player1_name)
+	all_results.append(p1_result)
+	print(p1_result.get_report())
+	if not p1_result.success:
+		has_critical_errors = true
+
+	# Validate Player 2 character media
+	var player2_name = GameState.get_player_display_name(2)
+	var p2_result = validate_character_media(GameState.player2_character, player2_name)
+	all_results.append(p2_result)
+	print(p2_result.get_report())
+	if not p2_result.success:
+		has_critical_errors = true
+
+	# Print summary
+	print("\n" + "=".repeat(60))
+	if has_critical_errors:
+		print("MEDIA VALIDATION: FAILED - Critical errors detected")
+		show_media_validation_error(all_results)
+	else:
+		print("MEDIA VALIDATION: PASSED - All media loaded successfully")
+	print("=".repeat(60) + "\n")
+
+func show_media_validation_error(results: Array):
+	"""
+	Displays a dialog showing media validation errors to the user.
+
+	Args:
+		results: Array of MediaValidationResult objects
+	"""
+	var error_dialog = AcceptDialog.new()
+	error_dialog.title = "Media Asset Warning"
+
+	var error_text = "Some media assets could not be loaded:\n\n"
+
+	for result in results:
+		if not result.success or result.warnings.size() > 0:
+			error_text += result.media_type + ":\n"
+			for error in result.errors:
+				error_text += "  ERROR: " + error + "\n"
+			for warning in result.warnings:
+				error_text += "  INFO: " + warning + "\n"
+			error_text += "\n"
+
+	error_text += "The game will continue with fallback visuals."
+
+	error_dialog.dialog_text = error_text
+	error_dialog.ok_button_text = "Continue"
+	add_child(error_dialog)
+	error_dialog.popup_centered()
+
+	print("Media validation error dialog displayed")
 
 # ============================================================================
 # CHARACTER AND UI UPDATE FUNCTIONS
@@ -668,7 +888,7 @@ func _on_square_clicked(pos: Vector2i):
 func attempt_select_piece(pos: Vector2i):
 	"""
 	Attempts to select a chess piece at the given position.
-	If successful, highlights valid moves.
+	If successful, highlights valid moves and starts drag operation.
 
 	Args:
 		pos: The board position to select from
@@ -677,8 +897,8 @@ func attempt_select_piece(pos: Vector2i):
 	if chess_board.select_piece(pos):
 		selected_square = pos
 		highlight_valid_moves()
-		# Drag functionality disabled for now - using click-to-move interface
-		# start_drag(pos)
+		# Start drag operation with visual feedback
+		start_drag(pos)
 
 # ============================================================================
 # BOARD HIGHLIGHTING FUNCTIONS
@@ -826,41 +1046,98 @@ func create_captured_piece_visual(piece: ChessPiece) -> Control:
 # DRAG AND DROP FUNCTIONS
 # ============================================================================
 
+func create_drag_shadow(piece_node: Control):
+	"""
+	Creates a shadow/glow effect behind the dragged piece for visual feedback.
+	The shadow follows the piece during dragging.
+
+	Args:
+		piece_node: The piece node being dragged
+	"""
+	# Remove any existing shadow
+	if drag_shadow:
+		drag_shadow.queue_free()
+		drag_shadow = null
+
+	# Create a ColorRect as shadow
+	drag_shadow = ColorRect.new()
+	drag_shadow.color = Color(0, 0, 0, 0.3)  # Semi-transparent black shadow
+	drag_shadow.z_index = 99  # Just behind the dragged piece
+
+	# Match the piece's size and position
+	drag_shadow.custom_minimum_size = piece_node.size
+	drag_shadow.size = piece_node.size
+	drag_shadow.global_position = piece_node.global_position + Vector2(5, 5)  # Offset for shadow effect
+
+	# Add shadow to the scene
+	add_child(drag_shadow)
+
+func update_drag_shadow():
+	"""
+	Updates the shadow position to follow the dragged piece.
+	Called during dragging in _input().
+	"""
+	if drag_shadow and dragging_piece:
+		drag_shadow.global_position = dragging_piece.global_position + Vector2(8, 8)  # Shadow offset
+
+func remove_drag_shadow():
+	"""
+	Removes the drag shadow effect when dragging ends.
+	"""
+	if drag_shadow:
+		drag_shadow.queue_free()
+		drag_shadow = null
+
 func start_drag(pos: Vector2i):
 	"""
 	Initiates a drag operation for the piece at the given position.
-	Uses a simpler approach without reparenting to avoid layout issues.
+	Adds visual feedback including scaling, transparency, and shadow effect.
+	Works with both TextureRect (images) and Label (Unicode fallback) pieces.
 
 	Args:
 		pos: Board position of the piece to start dragging
 	"""
 	var square = board_squares[pos.x][pos.y]
 	if square.get_child_count() > 0:
-		var piece_label = square.get_child(0)
-		if piece_label is Label:
+		var piece_node = square.get_child(0)
+
+		# Support both TextureRect and Label pieces
+		if piece_node is TextureRect or piece_node is Label:
 			# Store reference to the piece and its original position
-			dragging_piece = piece_label
+			dragging_piece = piece_node
 			original_parent = square
+			original_scale = piece_node.scale
 
 			# Get current mouse/touch position
 			var mouse_pos = get_viewport().get_mouse_position()
 
 			# Calculate offset from mouse to piece center for smooth dragging
-			var piece_center = piece_label.global_position + (piece_label.size / 2)
+			var piece_center = piece_node.global_position + (piece_node.size / 2)
 			drag_offset = piece_center - mouse_pos
 
-			# Make piece semi-transparent during drag
-			piece_label.modulate = Color(1, 1, 1, 0.7)
+			# Create shadow/glow effect behind the piece
+			create_drag_shadow(piece_node)
 
-			# Bring piece to front
-			piece_label.z_index = 100
+			# Apply visual effects for dragging
+			# 1. Scale up slightly (1.2x) for emphasis
+			var tween_scale = create_tween()
+			tween_scale.tween_property(piece_node, "scale", original_scale * 1.2, 0.1)
+
+			# 2. Make piece semi-transparent (80% opacity)
+			piece_node.modulate = Color(1, 1, 1, 0.8)
+
+			# 3. Bring piece to front (above all other elements)
+			piece_node.z_index = 100
 
 			# Update drag state
 			is_dragging = true
 
+			print("Started dragging piece at ", pos)
+
 func end_drag(drop_position: Vector2):
 	"""
 	Ends a drag operation and attempts to place the piece on a square.
+	Restores visual effects (scale, opacity, shadow) and validates the move.
 	If the move is valid, the piece is moved. Otherwise, it returns to its original position.
 
 	Args:
@@ -869,9 +1146,19 @@ func end_drag(drop_position: Vector2):
 	if not is_dragging or dragging_piece == null:
 		return
 
-	# Restore piece appearance
+	# Remove the shadow effect
+	remove_drag_shadow()
+
+	# Restore piece appearance with smooth animation
 	if dragging_piece:
+		# Restore scale to original with animation
+		var tween_scale = create_tween()
+		tween_scale.tween_property(dragging_piece, "scale", original_scale, 0.1)
+
+		# Restore full opacity
 		dragging_piece.modulate = Color(1, 1, 1, 1)
+
+		# Reset z-index to normal
 		dragging_piece.z_index = 0
 
 	# Find which square the piece was dropped on
@@ -897,22 +1184,36 @@ func end_drag(drop_position: Vector2):
 			original_parent = null
 			update_board_display()
 			update_score_display()
+			print("Piece moved successfully to ", dropped_on_square)
 		else:
 			# Move invalid - flash red and return piece
 			if dropped_on_square != Vector2i(-1, -1):
 				flash_square_red(dropped_on_square)
 			return_piece_to_original_position()
+			print("Invalid move attempted to ", dropped_on_square)
 	else:
 		# Dropped outside board - return piece to original position
 		return_piece_to_original_position()
+		print("Piece dropped outside board - returning to origin")
 
 func return_piece_to_original_position():
 	"""
-	Returns a dragged piece back to its original square.
+	Returns a dragged piece back to its original square with smooth animation.
+	Restores all visual effects (scale, opacity, shadow).
 	Called when a drag operation is cancelled or an invalid move is attempted.
 	"""
+	# Remove shadow effect
+	remove_drag_shadow()
+
 	if dragging_piece:
+		# Restore scale to original with animation
+		var tween_scale = create_tween()
+		tween_scale.tween_property(dragging_piece, "scale", original_scale, 0.15)
+
+		# Restore full opacity
 		dragging_piece.modulate = Color(1, 1, 1, 1)
+
+		# Reset z-index
 		dragging_piece.z_index = 0
 
 	# Reset all drag state
@@ -921,6 +1222,8 @@ func return_piece_to_original_position():
 	original_parent = null
 	clear_highlights()
 	selected_square = Vector2i(-1, -1)
+
+	print("Piece returned to original position")
 
 # ============================================================================
 # VISUAL FEEDBACK FUNCTIONS
