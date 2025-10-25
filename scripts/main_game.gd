@@ -135,6 +135,7 @@ func _ready():
 
 	# STEP 7: Initialize all game components
 	print("\nSTEP 7: Initializing game components...")
+	load_random_game_background() # Load random background for the game
 	setup_chessboard()           # Create the 8x8 grid of squares
 	update_character_displays()   # Show selected characters
 	load_character_assets()       # Load themed assets (backgrounds, videos)
@@ -276,34 +277,15 @@ func _input(event):
 
 func setup_chessboard():
 	"""
-	Creates the 8x8 chessboard grid with themed backgrounds.
-	The board is split in half vertically:
-	- Bottom half (rows 0-3): Player 1's theme
-	- Top half (rows 4-7): Player 2's theme
+	Creates the 8x8 chessboard grid with simple classic checkerboard pattern.
 	Each square is a Panel node with custom styling.
-	Uses a simpler, more reliable rendering method.
+	Uses a simpler, more reliable rendering method with unified theme.
 	"""
 	board_squares = []
 
-	# Get player character themes for split board coloring
-	var player1_theme = GameState.get_character_piece_style(GameState.player1_character)
-	var player2_theme = GameState.get_character_piece_style(GameState.player2_character)
-
-	# Define theme color schemes for board squares
-	var theme_colors = {
-		"classic": {
-			"light": Color(0.9, 0.9, 0.8, 1),    # Cream
-			"dark": Color(0.5, 0.4, 0.3, 1)      # Brown
-		},
-		"modern": {
-			"light": Color(0.85, 0.92, 0.98, 1), # Light blue
-			"dark": Color(0.2, 0.3, 0.5, 1)      # Dark blue
-		},
-		"fantasy": {
-			"light": Color(0.95, 0.9, 0.75, 1),  # Golden
-			"dark": Color(0.5, 0.2, 0.4, 1)      # Purple
-		}
-	}
+	# Use classic chess colors for all squares
+	var light_color = Color(0.9, 0.9, 0.8, 0.7)    # Cream with transparency
+	var dark_color = Color(0.5, 0.4, 0.3, 0.7)     # Brown with transparency
 
 	# Create 8x8 grid of squares using Panel nodes (lighter than Button)
 	for row in range(8):
@@ -314,19 +296,13 @@ func setup_chessboard():
 			square.custom_minimum_size = Vector2(80, 80)
 			square.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow mouse events to pass through
 
-			# Determine which player's theme to use based on row
-			# Rows 0-3 (bottom): Player 1's theme
-			# Rows 4-7 (top): Player 2's theme
-			var current_theme = player1_theme if row < 4 else player2_theme
-			var colors = theme_colors.get(current_theme, theme_colors["classic"])
-
-			# Create background style with theme colors
+			# Create background style with classic colors
 			var style_box = StyleBoxFlat.new()
 			# Alternate light and dark squares for checkerboard pattern
 			if (row + col) % 2 == 0:
-				style_box.bg_color = colors["light"]
+				style_box.bg_color = light_color
 			else:
-				style_box.bg_color = colors["dark"]
+				style_box.bg_color = dark_color
 
 			# Apply style to panel
 			square.add_theme_stylebox_override("panel", style_box)
@@ -346,7 +322,7 @@ func setup_chessboard():
 
 	# Ensure chessboard is visible
 	chessboard.visible = true
-	print("Chessboard created with themed backgrounds: ", player1_theme, " (bottom) and ", player2_theme, " (top)")
+	print("Chessboard created with classic checkerboard pattern")
 
 func load_character_assets():
 	"""
@@ -372,6 +348,62 @@ func load_character_assets():
 	load_character_media(player2_character_display, player2_area, p2_video_path, p2_bg_path)
 
 	print("Character assets loaded for Player 1 (", GameState.player1_character, ") and Player 2 (", GameState.player2_character, ")")
+
+func load_random_game_background():
+	"""
+	Loads a random background image from the backgrounds folder and applies it
+	to cover the entire game screen. The background is placed behind all other elements.
+	"""
+	var backgrounds_path = "res://assets/backgrounds/"
+	var background_files = []
+
+	# Get all files in the backgrounds directory
+	var dir = DirAccess.open(backgrounds_path)
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			# Check if it's a valid image file (not a directory or hidden file)
+			if not dir.current_is_dir() and not file_name.begins_with(".") and not file_name.ends_with(".md"):
+				# Check for valid image extensions
+				if file_name.ends_with(".png") or file_name.ends_with(".jpg") or file_name.ends_with(".jpeg"):
+					background_files.append(backgrounds_path + file_name)
+			file_name = dir.get_next()
+		dir.list_dir_end()
+
+	# If no backgrounds found, print warning and return
+	if background_files.size() == 0:
+		print("Warning: No background images found in ", backgrounds_path)
+		print("Please add PNG or JPG images to the backgrounds folder")
+		return
+
+	# Select a random background
+	var random_index = randi() % background_files.size()
+	var selected_background = background_files[random_index]
+	print("Selected random background: ", selected_background)
+
+	# Load and display the background
+	if FileAccess.file_exists(selected_background):
+		var texture = load(selected_background)
+		if texture:
+			# Create TextureRect to cover the entire screen
+			var background_rect = TextureRect.new()
+			background_rect.texture = texture
+			background_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			background_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			background_rect.anchor_right = 1.0
+			background_rect.anchor_bottom = 1.0
+			background_rect.z_index = -100  # Place far behind everything
+			background_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+			# Add to the root control node (self)
+			add_child(background_rect)
+			move_child(background_rect, 0)  # Move to the very back
+			print("Random game background loaded successfully")
+		else:
+			print("Error: Could not load background texture: ", selected_background)
+	else:
+		print("Error: Background file does not exist: ", selected_background)
 
 func load_character_media(display_node: ColorRect, area_node: PanelContainer, video_path: String, bg_path: String):
 	"""
@@ -680,44 +712,24 @@ func highlight_valid_moves():
 
 func clear_highlights():
 	"""
-	Removes all move highlights and restores the themed chessboard colors.
+	Removes all move highlights and restores the classic chessboard colors.
 	This function is called after a move is made or selection is cancelled.
 	"""
-	# Get player themes for restoring themed colors
-	var player1_theme = GameState.get_character_piece_style(GameState.player1_character)
-	var player2_theme = GameState.get_character_piece_style(GameState.player2_character)
+	# Use classic chess colors (must match setup_chessboard)
+	var light_color = Color(0.9, 0.9, 0.8, 0.7)    # Cream with transparency
+	var dark_color = Color(0.5, 0.4, 0.3, 0.7)     # Brown with transparency
 
-	# Theme color definitions (must match setup_chessboard)
-	var theme_colors = {
-		"classic": {
-			"light": Color(0.9, 0.9, 0.8, 1),
-			"dark": Color(0.5, 0.4, 0.3, 1)
-		},
-		"modern": {
-			"light": Color(0.85, 0.92, 0.98, 1),
-			"dark": Color(0.2, 0.3, 0.5, 1)
-		},
-		"fantasy": {
-			"light": Color(0.95, 0.9, 0.75, 1),
-			"dark": Color(0.5, 0.2, 0.4, 1)
-		}
-	}
-
-	# Restore themed colors to all squares
+	# Restore classic colors to all squares
 	for row in range(8):
 		for col in range(8):
 			var square = board_squares[row][col]
 
-			# Determine theme based on row (bottom half = player1, top half = player2)
-			var current_theme = player1_theme if row < 4 else player2_theme
-			var colors = theme_colors.get(current_theme, theme_colors["classic"])
-
 			var style_box = StyleBoxFlat.new()
-			# Restore checkerboard pattern with themed colors
+			# Restore checkerboard pattern with classic colors
 			if (row + col) % 2 == 0:
-				style_box.bg_color = colors["light"]
+				style_box.bg_color = light_color
 			else:
-				style_box.bg_color = colors["dark"]
+				style_box.bg_color = dark_color
 
 			square.add_theme_stylebox_override("panel", style_box)
 
@@ -734,30 +746,81 @@ func update_score_display():
 func update_captured_display():
 	"""
 	Updates the visual display of captured pieces for both players.
-	Shows piece symbols in the player info areas at top and bottom of screen.
+	Shows piece images in the player info areas at top and bottom of screen.
+	Captured pieces are displayed using the same images as the pieces on the board.
 	Called whenever a piece is captured.
 	"""
-	# Clear existing captured pieces labels
+	# Clear existing captured pieces
 	for child in player1_captured_container.get_children():
 		child.queue_free()
 	for child in player2_captured_container.get_children():
 		child.queue_free()
 
-	# Display pieces captured by Player 1 (White pieces captured)
+	# Display pieces captured by Player 1 (Black pieces that were captured)
 	for piece in chess_board.get_captured_by_white():
-		var label = Label.new()
-		label.text = piece.get_piece_symbol()
-		label.add_theme_font_size_override("font_size", 20)
-		label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
-		player1_captured_container.add_child(label)
+		var captured_piece_visual = create_captured_piece_visual(piece)
+		if captured_piece_visual:
+			player1_captured_container.add_child(captured_piece_visual)
 
-	# Display pieces captured by Player 2 (Black pieces captured)
+	# Display pieces captured by Player 2 (White pieces that were captured)
 	for piece in chess_board.get_captured_by_black():
-		var label = Label.new()
-		label.text = piece.get_piece_symbol()
-		label.add_theme_font_size_override("font_size", 20)
-		label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
-		player2_captured_container.add_child(label)
+		var captured_piece_visual = create_captured_piece_visual(piece)
+		if captured_piece_visual:
+			player2_captured_container.add_child(captured_piece_visual)
+
+func create_captured_piece_visual(piece: ChessPiece) -> Control:
+	"""
+	Creates a visual representation of a captured piece using the same image as on the board.
+
+	Args:
+		piece: The captured ChessPiece object
+
+	Returns:
+		A Control node with the piece image, or null if image not found
+	"""
+	# Determine which character's assets to use based on piece color
+	var character_id = GameState.player1_character if piece.piece_color == ChessPiece.PieceColor.WHITE else GameState.player2_character
+
+	# Get piece type name
+	var piece_type_name = ChessPiece.PieceType.keys()[piece.piece_type].to_lower()
+
+	# Construct path to piece image
+	var piece_image_path = "res://assets/characters/character_%d/pieces/white_%s.png" % [character_id + 1, piece_type_name]
+
+	# Try to load the custom piece image
+	if FileAccess.file_exists(piece_image_path):
+		var texture = load(piece_image_path)
+		if texture:
+			# Create TextureRect to display the captured piece image
+			var visual_piece = TextureRect.new()
+			visual_piece.texture = texture
+			visual_piece.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+			visual_piece.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			visual_piece.custom_minimum_size = Vector2(30, 30)  # Smaller size for captured pieces
+			visual_piece.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+
+			# Apply color modulation for black pieces (same as on board)
+			if piece.piece_color == ChessPiece.PieceColor.BLACK:
+				# Define theme-based tint colors for black pieces
+				var tint_colors = {
+					"classic": Color(0.3, 0.3, 0.3),
+					"modern": Color(0.2, 0.3, 0.5),
+					"fantasy": Color(0.5, 0.2, 0.4)
+				}
+				var style = piece.character_style
+				if style in tint_colors:
+					visual_piece.modulate = tint_colors[style]
+				else:
+					visual_piece.modulate = Color(0.3, 0.3, 0.3)
+
+			return visual_piece
+
+	# Fallback to Unicode symbol if image not found
+	var label = Label.new()
+	label.text = piece.get_piece_symbol()
+	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	return label
 
 # ============================================================================
 # DRAG AND DROP FUNCTIONS
@@ -877,28 +940,10 @@ func flash_square_red(pos: Vector2i):
 
 	var square = board_squares[pos.x][pos.y]
 
-	# Get the original themed color for this square
-	var player1_theme = GameState.get_character_piece_style(GameState.player1_character)
-	var player2_theme = GameState.get_character_piece_style(GameState.player2_character)
-	var current_theme = player1_theme if pos.x < 4 else player2_theme
-
-	var theme_colors = {
-		"classic": {
-			"light": Color(0.9, 0.9, 0.8, 1),
-			"dark": Color(0.5, 0.4, 0.3, 1)
-		},
-		"modern": {
-			"light": Color(0.85, 0.92, 0.98, 1),
-			"dark": Color(0.2, 0.3, 0.5, 1)
-		},
-		"fantasy": {
-			"light": Color(0.95, 0.9, 0.75, 1),
-			"dark": Color(0.5, 0.2, 0.4, 1)
-		}
-	}
-
-	var colors = theme_colors.get(current_theme, theme_colors["classic"])
-	var original_color = colors["light"] if (pos.x + pos.y) % 2 == 0 else colors["dark"]
+	# Get the original classic color for this square
+	var light_color = Color(0.9, 0.9, 0.8, 0.7)    # Cream with transparency
+	var dark_color = Color(0.5, 0.4, 0.3, 0.7)     # Brown with transparency
+	var original_color = light_color if (pos.x + pos.y) % 2 == 0 else dark_color
 
 	# Apply bright red flash
 	var red_style = StyleBoxFlat.new()
