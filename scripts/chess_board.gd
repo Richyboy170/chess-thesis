@@ -131,6 +131,11 @@ func try_move_piece(from_pos: Vector2i, to_pos: Vector2i) -> bool:
 		game_over.emit(result)
 		return true
 
+	# Check if the opponent king is in check
+	var opponent_color = ChessPiece.PieceColor.WHITE if is_white_turn else ChessPiece.PieceColor.BLACK
+	if is_king_in_check(opponent_color):
+		check_detected.emit(opponent_color)
+
 	# Check for checkmate or stalemate
 	check_game_state()
 

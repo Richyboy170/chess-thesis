@@ -47,7 +47,7 @@ func get_piece_symbol() -> String:
 	return symbols[piece_type][color_idx]
 
 # Virtual method - override in specific piece types
-func get_valid_moves(board_state: Array) -> Array:
+func get_valid_moves(_board_state: Array) -> Array:
 	return []
 
 # Helper function to check if a position is on the board
