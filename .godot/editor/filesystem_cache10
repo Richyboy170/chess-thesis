@@ -1,8 +1,8 @@
 72322a848ab928aa5c89f0cb78209805
-::res://::1761394182
+::res://::1761395105
 icon.svg::CompressedTexture2D::9163571773598486904::1761329922::1761329980::1::::<><><>0<>0<>aa6695caa7bb4c4fddf78e8cf7d1048a<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
 README.md::TextFile::-1::1761333367::0::1::::<><><>0<>0<><>::
-::res://assets/::1761337571
+::res://assets/::1761395067
 ASSET_CHECKLIST.md::TextFile::-1::1761337466::0::1::::<><><>0<>0<><>::
 ::res://assets/characters/::1761337573
 ::res://assets/characters/character_1/::1761337576
@@ -46,6 +46,8 @@ white_queen.png::CompressedTexture2D::8406350873958252821::1761394059::176139406
 white_rook.png::CompressedTexture2D::6129880596945746281::1761394059::1761394068::1::::<><><>0<>0<>5ae520c294a3ed65970171544bae5a55<>res://.godot/imported/white_rook.png-238730c5bc8d4c8ff46c3792d18a5bfd.ctex::
 ::res://assets/chessboards/::1761337466
 README.md::TextFile::-1::1761337466::0::1::::<><><>0<>0<><>::
+::res://assets/fonts/::1761395086
+Bangers-Regular.ttf::FontFile::1347412995774912906::1761395067::1761395086::1::::<><><>0<>0<>5518e2eabe1d20b85c7fc5cb06add99c<>res://.godot/imported/Bangers-Regular.ttf-1096e4d6e36d932f856599d7c9cc030f.fontdata::
 ::res://references/::1761330589
 S__20307976_0.jpg::CompressedTexture2D::6034405289214065745::1761330228::1761330589::1::::<><><>0<>0<>0cbcbdf4d98f82037d77d4e3f9ec9407<>res://.godot/imported/S__20307976_0.jpg-1c2a56df95b68a0c112bb1eebee0be4b.ctex::
 S__20307977_0.jpg::CompressedTexture2D::6520078883704490666::1761330228::1761330589::1::::<><><>0<>0<>c6c0fcd23ead4ae619395baa8990774d<>res://.godot/imported/S__20307977_0.jpg-1d2f18e891a6d0da8a6bcdcebc9ba050.ctex::
@@ -55,8 +57,8 @@ main_game.tscn::PackedScene::68356272596805699::1761345931::0::1::::<><><>0<>0<>
 ::res://scenes/ui/::1761334929
 character_selection.tscn::PackedScene::6385717420630671164::1761329922::0::1::::<><><>0<>0<><>::res://scripts/character_selection.gd
 login_page.tscn::PackedScene::4047925081359635663::1761334929::0::1::::<><><>0<>0<><>::res://scripts/login_page.gd
-::res://scripts/::1761394059
-character_selection.gd::GDScript::1580051330443687543::1761329922::0::1::::<>Control<><>0<>0<><>::
+::res://scripts/::1761395086
+character_selection.gd::GDScript::1580051330443687543::1761395067::0::1::::<>Control<><>0<>0<><>::
 chessboard_factory.gd::GDScript::438792594509836754::1761392078::0::1::::ChessboardFactory<>Node<><>0<>0<><>::
 chessboard_storage.gd::GDScript::1736549318767800456::1761392078::0::1::::<>Node<><>0<>0<><>::
 chessboard_validator.gd::GDScript::911490096036248677::1761392869::0::1::::ChessboardValidator<>Node<><>0<>0<><>::
@@ -65,5 +67,6 @@ chess_piece.gd::GDScript::2174625388039789211::1761392328::0::1::::ChessPiece<>N
 chess_pieces.gd::GDScript::5278464903077807793::1761332362::0::1::::<>Node<><>0<>0<><>::
 game_state.gd::GDScript::7170636022792330861::1761334929::0::1::::<>Node<><>0<>0<><>::
 login_page.gd::GDScript::8146014109777437171::1761334929::0::1::::<>Control<><>0<>0<><>::
-main_game.gd::GDScript::1063598807600793956::1761394059::0::1::::<>Control<><>0<>0<><>::
+main_game.gd::GDScript::1063598807600793956::1761395067::0::1::::<>Control<><>0<>0<><>::
+theme_manager.gd::GDScript::7670422072006327044::1761395067::0::1::::<>Node<><>0<>0<><>::
 visual_chess_piece.gd::GDScript::3187258787519199654::1761332362::0::1::::VisualChessPiece<>Button<><>0<>0<><>::
