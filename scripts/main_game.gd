@@ -82,18 +82,55 @@ func _ready():
 	"""
 	Called when the node is added to the scene tree.
 	Initializes the chess game, connects signals, and sets up the UI.
+	Uses the new ChessboardFactory and ChessboardStorage infrastructure
+	with full validation and error reporting.
 	"""
-	# Create the chess board logic instance
-	chess_board = ChessBoard.new()
-	add_child(chess_board)
+	print("\n" + "="*60)
+	print("MAIN GAME: Starting initialization")
+	print("="*60)
 
-	# Connect chess board signals to our handler functions
+	# STEP 1: Create and validate the chessboard using the factory
+	print("\nSTEP 1: Creating chessboard with factory pattern...")
+	var creation_success = ChessboardStorage.create_and_store_chessboard()
+
+	# STEP 2: Check if chessboard was created successfully
+	if not creation_success:
+		_handle_chessboard_creation_failure()
+		return  # Stop initialization if board creation failed
+
+	print("\nSTEP 2: Chessboard creation verified ✓")
+
+	# STEP 3: Retrieve the validated chessboard from storage
+	chess_board = ChessboardStorage.get_chessboard()
+
+	if chess_board == null:
+		push_error("CRITICAL: ChessboardStorage returned null despite successful creation!")
+		_handle_chessboard_creation_failure()
+		return
+
+	print("STEP 3: Chessboard retrieved from storage ✓")
+
+	# STEP 4: Add the validated board to the scene tree
+	add_child(chess_board)
+	print("STEP 4: Chessboard added to scene tree ✓")
+
+	# STEP 5: Perform final health check
+	if not ChessboardStorage.health_check():
+		push_error("CRITICAL: Chessboard failed health check!")
+		_handle_chessboard_creation_failure()
+		return
+
+	print("STEP 5: Health check passed ✓")
+
+	# STEP 6: Connect chess board signals to our handler functions
 	chess_board.piece_moved.connect(_on_piece_moved)
 	chess_board.piece_captured.connect(_on_piece_captured)
 	chess_board.turn_changed.connect(_on_turn_changed)
 	chess_board.game_over.connect(_on_game_over)
+	print("STEP 6: Signals connected ✓")
 
-	# Initialize all game components
+	# STEP 7: Initialize all game components
+	print("\nSTEP 7: Initializing game components...")
 	setup_chessboard()           # Create the 8x8 grid of squares
 	update_character_displays()   # Show selected characters
 	load_character_assets()       # Load themed assets (backgrounds, videos)
@@ -102,6 +139,65 @@ func _ready():
 	setup_score_toggle()          # Configure score panel toggle button
 	initialize_timers()           # Set up game timers
 	update_timer_display()        # Display initial timer values
+
+	print("\n" + "="*60)
+	print("MAIN GAME: Initialization complete ✓")
+	print("="*60 + "\n")
+
+	# Print final status
+	ChessboardStorage.print_status()
+
+func _handle_chessboard_creation_failure():
+	"""
+	Handles the critical failure case where chessboard creation or validation failed.
+	Displays error information and provides fallback behavior.
+	"""
+	print("\n" + "!"*60)
+	print("CRITICAL ERROR: Chessboard creation failed!")
+	print("!"*60)
+
+	# Get detailed error report
+	var result = ChessboardStorage.get_last_result()
+	if result != null:
+		print(result.get_error_report())
+	else:
+		print("No error details available")
+
+	# Print storage status
+	ChessboardStorage.print_status()
+
+	# Display error to user via dialog
+	var error_dialog = AcceptDialog.new()
+	error_dialog.title = "Chessboard Initialization Error"
+
+	var error_text = "Failed to create the chessboard!\n\n"
+	if result != null:
+		error_text += result.error_message + "\n\n"
+		if result.validation_details.size() > 0:
+			error_text += "Details:\n"
+			for detail in result.validation_details:
+				error_text += "• " + detail + "\n"
+
+	error_text += "\nThe game cannot start. Please restart the application."
+
+	error_dialog.dialog_text = error_text
+	error_dialog.ok_button_text = "Close"
+	add_child(error_dialog)
+	error_dialog.popup_centered()
+
+	# Connect to close button to return to main menu
+	error_dialog.confirmed.connect(_on_error_dialog_closed)
+
+	print("Error dialog displayed to user")
+	print("!"*60 + "\n")
+
+func _on_error_dialog_closed():
+	"""
+	Called when the user closes the error dialog.
+	Returns to the main menu/login page.
+	"""
+	print("User acknowledged error - returning to login page")
+	get_tree().change_scene_to_file("res://scenes/ui/login_page.tscn")
 
 # ============================================================================
 # FRAME UPDATE FUNCTIONS
