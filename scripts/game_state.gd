@@ -4,6 +4,10 @@ extends Node
 var player1_character: int = -1
 var player2_character: int = -1
 
+# Player names (username support)
+var player1_name: String = ""
+var player2_name: String = ""
+
 # Game state
 var player1_score: int = 0
 var player2_score: int = 0
@@ -69,3 +73,20 @@ func get_character_piece_style(character_id: int) -> String:
 	if character_id >= 0 and character_id < character_data.size():
 		return character_data[character_id]["piece_style"]
 	return "classic"
+
+func get_player_display_name(player_number: int) -> String:
+	"""
+	Returns the display name for a player.
+	Uses username if available, otherwise returns "Player 1" or "Player 2".
+
+	Args:
+		player_number: 1 for player 1 (white), 2 for player 2 (black)
+
+	Returns:
+		The display name for the player
+	"""
+	if player_number == 1:
+		return player1_name if player1_name != "" else "Player 1"
+	elif player_number == 2:
+		return player2_name if player2_name != "" else "Player 2"
+	return "Unknown Player"

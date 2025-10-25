@@ -1151,20 +1151,24 @@ func show_game_summary(result: String):
 	dialog.size = Vector2(600, 800)
 
 	# Determine result message based on game outcome
+	# Use player names (username or "Player 1/2") instead of White/Black
+	var player1_name = GameState.get_player_display_name(1)
+	var player2_name = GameState.get_player_display_name(2)
+
 	var result_text = ""
 	match result:
 		"checkmate_white":
-			result_text = "Checkmate! White Wins!"
+			result_text = "Checkmate! " + player1_name + " Wins!"
 		"checkmate_black":
-			result_text = "Checkmate! Black Wins!"
+			result_text = "Checkmate! " + player2_name + " Wins!"
 		"stalemate":
 			result_text = "Stalemate! It's a Draw!"
 		"draw":
 			result_text = "Draw!"
 		"timeout_white_wins":
-			result_text = "Time's Up! White Wins!"
+			result_text = "Time's Up! " + player1_name + " Wins!"
 		"timeout_black_wins":
-			result_text = "Time's Up! Black Wins!"
+			result_text = "Time's Up! " + player2_name + " Wins!"
 		_:
 			result_text = "Game Over!"
 
