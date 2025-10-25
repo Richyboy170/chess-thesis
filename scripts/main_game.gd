@@ -344,14 +344,14 @@ func load_character_assets():
 	var char2_path = "res://assets/characters/character_" + str(GameState.player2_character + 1) + "/"
 
 	# Load Player 1 assets
-	var p1_video_path = char1_path + "animations/character_idle.mp4"
+	var p1_anim_path = char1_path + "animations/"
 	var p1_bg_path = char1_path + "backgrounds/character_background.png"
-	load_character_media(player1_character_display, player1_area, p1_video_path, p1_bg_path)
+	load_character_media(player1_character_display, player1_area, p1_anim_path, p1_bg_path)
 
 	# Load Player 2 assets
-	var p2_video_path = char2_path + "animations/character_idle.mp4"
+	var p2_anim_path = char2_path + "animations/"
 	var p2_bg_path = char2_path + "backgrounds/character_background.png"
-	load_character_media(player2_character_display, player2_area, p2_video_path, p2_bg_path)
+	load_character_media(player2_character_display, player2_area, p2_anim_path, p2_bg_path)
 
 	print("Character assets loaded for Player 1 (", GameState.player1_character, ") and Player 2 (", GameState.player2_character, ")")
 
@@ -411,7 +411,7 @@ func load_random_game_background():
 	else:
 		print("Error: Background file does not exist: ", selected_background)
 
-func load_character_media(display_node: ColorRect, area_node: PanelContainer, video_path: String, bg_path: String):
+func load_character_media(display_node: ColorRect, area_node: PanelContainer, animations_dir: String, bg_path: String):
 	"""
 	Helper function to load and display character media.
 	- Video animations are displayed in the CharacterDisplay node
@@ -420,23 +420,34 @@ func load_character_media(display_node: ColorRect, area_node: PanelContainer, vi
 	Args:
 		display_node: The ColorRect node to display video animations
 		area_node: The PanelContainer to display background images
-		video_path: Path to the character's .mp4 video file
+		animations_dir: Path to the character's animations directory
 		bg_path: Path to the character background image
 	"""
-	# Load video animation into CharacterDisplay if available
-	if FileAccess.file_exists(video_path):
-		var video_stream = load(video_path)
-		if video_stream:
-			# Create VideoStreamPlayer to display the animation
-			var video_player = VideoStreamPlayer.new()
-			video_player.stream = video_stream
-			video_player.autoplay = true
-			video_player.loop = true
-			video_player.expand = true
-			video_player.anchor_right = 1.0
-			video_player.anchor_bottom = 1.0
-			display_node.add_child(video_player)
-			print("Loaded character animation: ", video_path)
+	# Try to load video animation (only supported formats: .webm, .ogv)
+	# Godot does NOT support .mp4 natively
+	var supported_video_extensions = [".webm", ".ogv"]
+	var video_loaded = false
+
+	for ext in supported_video_extensions:
+		var video_path = animations_dir + "character_idle" + ext
+		if FileAccess.file_exists(video_path):
+			var video_stream = load(video_path)
+			if video_stream:
+				# Create VideoStreamPlayer to display the animation
+				var video_player = VideoStreamPlayer.new()
+				video_player.stream = video_stream
+				video_player.autoplay = true
+				video_player.loop = true
+				video_player.expand = true
+				video_player.anchor_right = 1.0
+				video_player.anchor_bottom = 1.0
+				display_node.add_child(video_player)
+				print("Loaded character animation: ", video_path)
+				video_loaded = true
+				break
+
+	if not video_loaded:
+		print("No supported video animation found (checked .webm, .ogv)")
 
 	# Load background image into player area
 	if FileAccess.file_exists(bg_path):
@@ -553,7 +564,8 @@ func validate_game_background() -> MediaValidationResult:
 func validate_character_media(character_id: int, player_name: String) -> MediaValidationResult:
 	"""
 	Validates character-specific media assets (animations and backgrounds).
-	Checks for MP4 animation and PNG background image.
+	Checks for supported video formats (.webm, .ogv) and PNG background image.
+	Note: Godot does NOT support .mp4 natively - only .webm and .ogv are supported.
 
 	Args:
 		character_id: The character ID (0, 1, or 2)
@@ -567,16 +579,29 @@ func validate_character_media(character_id: int, player_name: String) -> MediaVa
 
 	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
 
-	# Validate MP4 animation
-	var video_path = char_path + "animations/character_idle.mp4"
-	if FileAccess.file_exists(video_path):
-		var video_stream = load(video_path)
-		if video_stream:
-			result.add_warning("MP4 animation loaded successfully: " + video_path)
+	# Validate video animation (check for supported formats only)
+	var supported_video_extensions = [".webm", ".ogv"]
+	var video_found = false
+	var animations_dir = char_path + "animations/"
+
+	for ext in supported_video_extensions:
+		var video_path = animations_dir + "character_idle" + ext
+		if FileAccess.file_exists(video_path):
+			var video_stream = load(video_path)
+			if video_stream:
+				result.add_warning("Video animation loaded successfully: " + video_path)
+				video_found = true
+				break
+			else:
+				result.add_error("Failed to load video animation: " + video_path)
+
+	if not video_found:
+		# Check if there's an unsupported MP4 file
+		var mp4_path = animations_dir + "character_idle.mp4"
+		if FileAccess.file_exists(mp4_path):
+			result.add_warning("MP4 file found but not supported. Convert to .webm or .ogv: " + mp4_path)
 		else:
-			result.add_error("Failed to load MP4 animation: " + video_path)
-	else:
-		result.add_error("MP4 animation not found: " + video_path)
+			result.add_warning("No supported video animation found (checked .webm, .ogv)")
 
 	# Validate background image
 	var bg_path = char_path + "backgrounds/character_background.png"

@@ -35,7 +35,6 @@ func load_character_preview_on_button(button: Button, character_id: int):
 		character_id: The character ID (0-2)
 	"""
 	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
-	var video_path = char_path + "animations/character_idle.mp4"
 	var bg_path = char_path + "backgrounds/character_background.png"
 
 	# Create a container for the preview that doesn't interfere with button functionality
@@ -46,41 +45,49 @@ func load_character_preview_on_button(button: Button, character_id: int):
 	preview_container.anchor_bottom = 1.0
 	preview_container.z_index = -1  # Place behind button text
 
-	# Try to load video animation first
-	if FileAccess.file_exists(video_path):
-		var video_stream = load(video_path)
-		if video_stream:
-			var video_player = VideoStreamPlayer.new()
-			video_player.stream = video_stream
-			video_player.autoplay = true
-			video_player.loop = true
-			video_player.expand = true
-			video_player.anchor_right = 1.0
-			video_player.anchor_bottom = 1.0
-			video_player.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			preview_container.add_child(video_player)
-			button.add_child(preview_container)
-			button.move_child(preview_container, 0)  # Move to back
-			print("Loaded character preview video for character ", character_id + 1)
-			return
+	# Try to load video animation first (only supported formats: .webm, .ogv)
+	# Godot does NOT support .mp4 natively
+	var supported_video_extensions = [".webm", ".ogv"]
+	var video_loaded = false
 
-	# Fallback to background image
-	if FileAccess.file_exists(bg_path):
-		var texture = load(bg_path)
-		if texture:
-			var texture_rect = TextureRect.new()
-			texture_rect.texture = texture
-			texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-			texture_rect.anchor_right = 1.0
-			texture_rect.anchor_bottom = 1.0
-			texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			preview_container.add_child(texture_rect)
-			button.add_child(preview_container)
-			button.move_child(preview_container, 0)  # Move to back
-			print("Loaded character preview image for character ", character_id + 1)
-	else:
-		print("Warning: No preview found for character ", character_id + 1)
+	for ext in supported_video_extensions:
+		var video_path = char_path + "animations/character_idle" + ext
+		if FileAccess.file_exists(video_path):
+			var video_stream = load(video_path)
+			if video_stream:
+				var video_player = VideoStreamPlayer.new()
+				video_player.stream = video_stream
+				video_player.autoplay = true
+				video_player.loop = true
+				video_player.expand = true
+				video_player.anchor_right = 1.0
+				video_player.anchor_bottom = 1.0
+				video_player.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				preview_container.add_child(video_player)
+				button.add_child(preview_container)
+				button.move_child(preview_container, 0)  # Move to back
+				print("Loaded character preview video for character ", character_id + 1, " (", ext, ")")
+				video_loaded = true
+				break
+
+	# Fallback to background image if no video was loaded
+	if not video_loaded:
+		if FileAccess.file_exists(bg_path):
+			var texture = load(bg_path)
+			if texture:
+				var texture_rect = TextureRect.new()
+				texture_rect.texture = texture
+				texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+				texture_rect.anchor_right = 1.0
+				texture_rect.anchor_bottom = 1.0
+				texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				preview_container.add_child(texture_rect)
+				button.add_child(preview_container)
+				button.move_child(preview_container, 0)  # Move to back
+				print("Loaded character preview image for character ", character_id + 1)
+		else:
+			print("Warning: No preview found for character ", character_id + 1)
 
 func _on_player1_character_selected(character_id: int):
 	player1_character = character_id
