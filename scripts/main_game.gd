@@ -32,9 +32,13 @@ extends Control
 @onready var player1_timer_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
 @onready var player2_timer_label = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
 
-# Player character display areas (for video backgrounds)
+# Player character display areas (for video animations)
 @onready var player1_character_display = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
 @onready var player2_character_display = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
+
+# Player area containers (for background images)
+@onready var player1_area = $MainContainer/BottomPlayerArea
+@onready var player2_area = $MainContainer/TopPlayerArea
 
 # ============================================================================
 # GAME STATE VARIABLES
@@ -143,6 +147,9 @@ func _ready():
 	print("\n" + "=".repeat(60))
 	print("MAIN GAME: Initialization complete ✓")
 	print("=".repeat(60) + "\n")
+
+	# Apply anime font theme to all UI elements
+	ThemeManager.apply_theme_to_container(self, true)
 
 	# Print final status
 	ChessboardStorage.print_status()
@@ -344,8 +351,8 @@ func setup_chessboard():
 func load_character_assets():
 	"""
 	Loads themed assets for both players including:
-	- Character background images
-	- Character animation videos (.mp4)
+	- Character background images (displayed in player area)
+	- Character animation videos (.mp4) (displayed in CharacterDisplay)
 	- Custom chess piece sprites
 	This function will attempt to load assets from the assets/ folder structure.
 	If assets are not found, it will use default placeholders.
@@ -354,28 +361,31 @@ func load_character_assets():
 	var char1_path = "res://assets/characters/character_" + str(GameState.player1_character + 1) + "/"
 	var char2_path = "res://assets/characters/character_" + str(GameState.player2_character + 1) + "/"
 
-	# Try to load Player 1 character video/background
+	# Load Player 1 assets
 	var p1_video_path = char1_path + "animations/character_idle.mp4"
 	var p1_bg_path = char1_path + "backgrounds/character_background.png"
-	load_character_media(player1_character_display, p1_video_path, p1_bg_path)
+	load_character_media(player1_character_display, player1_area, p1_video_path, p1_bg_path)
 
-	# Try to load Player 2 character video/background
+	# Load Player 2 assets
 	var p2_video_path = char2_path + "animations/character_idle.mp4"
 	var p2_bg_path = char2_path + "backgrounds/character_background.png"
-	load_character_media(player2_character_display, p2_video_path, p2_bg_path)
+	load_character_media(player2_character_display, player2_area, p2_video_path, p2_bg_path)
 
 	print("Character assets loaded for Player 1 (", GameState.player1_character, ") and Player 2 (", GameState.player2_character, ")")
 
-func load_character_media(display_node: ColorRect, video_path: String, bg_path: String):
+func load_character_media(display_node: ColorRect, area_node: PanelContainer, video_path: String, bg_path: String):
 	"""
-	Helper function to load and display character media (video or background image).
+	Helper function to load and display character media.
+	- Video animations are displayed in the CharacterDisplay node
+	- Background images are displayed in the player area container
 
 	Args:
-		display_node: The ColorRect node to display the media on
+		display_node: The ColorRect node to display video animations
+		area_node: The PanelContainer to display background images
 		video_path: Path to the character's .mp4 video file
-		bg_path: Fallback path to a background image if video is not available
+		bg_path: Path to the character background image
 	"""
-	# Try to load video file first
+	# Load video animation into CharacterDisplay if available
 	if FileAccess.file_exists(video_path):
 		var video_stream = load(video_path)
 		if video_stream:
@@ -388,24 +398,25 @@ func load_character_media(display_node: ColorRect, video_path: String, bg_path: 
 			video_player.anchor_right = 1.0
 			video_player.anchor_bottom = 1.0
 			display_node.add_child(video_player)
-			print("Loaded video: ", video_path)
-			return
+			print("Loaded character animation: ", video_path)
 
-	# Fallback to background image if video not found
+	# Load background image into player area
 	if FileAccess.file_exists(bg_path):
 		var texture = load(bg_path)
 		if texture:
-			# Create TextureRect to display the background
+			# Create TextureRect to display the background behind everything
 			var texture_rect = TextureRect.new()
 			texture_rect.texture = texture
-			texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 			texture_rect.anchor_right = 1.0
 			texture_rect.anchor_bottom = 1.0
-			display_node.add_child(texture_rect)
+			texture_rect.z_index = -1  # Place behind other elements
+			area_node.add_child(texture_rect)
+			area_node.move_child(texture_rect, 0)  # Move to back
 			print("Loaded background image: ", bg_path)
 	else:
-		print("Character media not found: ", video_path, " or ", bg_path)
+		print("Warning: Character background not found: ", bg_path)
 
 # ============================================================================
 # CHARACTER AND UI UPDATE FUNCTIONS
@@ -456,20 +467,70 @@ func update_board_display():
 func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	"""
 	Creates a visual representation of a chess piece at the specified position.
-	Currently uses Unicode symbols (♔♕♖♗♘♙) but can be extended to use
-	custom images/sprites from the assets folder.
+	Uses custom character-themed images from the assets folder.
 
 	Args:
 		piece: The ChessPiece object containing piece data
 		pos: Board position (row, col) where the piece should be displayed
 	"""
-	# Create a Label to display the piece (using Unicode symbol for now)
+	# Determine which character's assets to use based on piece color
+	var character_id = GameState.player1_character if piece.piece_color == ChessPiece.PieceColor.WHITE else GameState.player2_character
+
+	# Get piece type name
+	var piece_type_name = ChessPiece.PieceType.keys()[piece.piece_type].to_lower()
+
+	# Construct path to piece image
+	var piece_image_path = "res://assets/characters/character_%d/pieces/white_%s.png" % [character_id + 1, piece_type_name]
+
+	# Try to load the custom piece image
+	if FileAccess.file_exists(piece_image_path):
+		var texture = load(piece_image_path)
+		if texture:
+			# Create TextureRect to display the piece image
+			var visual_piece = TextureRect.new()
+			visual_piece.texture = texture
+			visual_piece.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+			visual_piece.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS
+
+			# Center the piece within its square using anchors
+			visual_piece.anchor_left = 0.0
+			visual_piece.anchor_top = 0.0
+			visual_piece.anchor_right = 1.0
+			visual_piece.anchor_bottom = 1.0
+			visual_piece.offset_left = 0
+			visual_piece.offset_top = 0
+			visual_piece.offset_right = 0
+			visual_piece.offset_bottom = 0
+			visual_piece.grow_horizontal = Control.GROW_DIRECTION_BOTH
+			visual_piece.grow_vertical = Control.GROW_DIRECTION_BOTH
+
+			# Apply color modulation for black pieces
+			if piece.piece_color == ChessPiece.PieceColor.BLACK:
+				# Define theme-based tint colors for black pieces
+				var tint_colors = {
+					"classic": Color(0.3, 0.3, 0.3),    # Dark gray
+					"modern": Color(0.2, 0.3, 0.5),     # Dark blue
+					"fantasy": Color(0.5, 0.2, 0.4)     # Dark purple
+				}
+				var style = piece.character_style
+				if style in tint_colors:
+					visual_piece.modulate = tint_colors[style]
+				else:
+					visual_piece.modulate = Color(0.3, 0.3, 0.3)  # Default dark gray
+
+			# Add piece to the board square and track it
+			board_squares[pos.x][pos.y].add_child(visual_piece)
+			visual_pieces.append(visual_piece)
+			return
+
+	# Fallback to Unicode symbols if image not found
 	var visual_piece = Label.new()
 	visual_piece.text = piece.get_piece_symbol()
 	visual_piece.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	visual_piece.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	visual_piece.add_theme_font_size_override("font_size", 56)
-	visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow drag events
+	visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS
 
 	# Center the piece label within its square using anchors
 	visual_piece.anchor_left = 0.0
@@ -492,9 +553,8 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 
 	var style = piece.character_style
 	if not style in style_colors:
-		style = "classic"  # Fallback to classic if theme not found
+		style = "classic"
 
-	# Determine piece color and apply appropriate theme color
 	var color_key = "white" if piece.piece_color == ChessPiece.PieceColor.WHITE else "black"
 	visual_piece.add_theme_color_override("font_color", style_colors[style][color_key])
 
@@ -502,8 +562,7 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	board_squares[pos.x][pos.y].add_child(visual_piece)
 	visual_pieces.append(visual_piece)
 
-	# TODO: Replace Unicode symbols with custom sprite/image when assets are available
-	# Example: load texture from res://assets/characters/character_X/pieces/white_king.png
+	print("Warning: Could not load piece image: ", piece_image_path, " - using Unicode fallback")
 
 # ============================================================================
 # SQUARE CLICK AND PIECE SELECTION FUNCTIONS
