@@ -375,8 +375,23 @@ func load_character_media(display_node: ColorRect, video_path: String, bg_path: 
 		video_path: Path to the character's .mp4 video file
 		bg_path: Fallback path to a background image if video is not available
 	"""
-	# TODO: Implement video player when artist provides .mp4 files
-	# For now, try to load background image
+	# Try to load video file first
+	if FileAccess.file_exists(video_path):
+		var video_stream = load(video_path)
+		if video_stream:
+			# Create VideoStreamPlayer to display the animation
+			var video_player = VideoStreamPlayer.new()
+			video_player.stream = video_stream
+			video_player.autoplay = true
+			video_player.loop = true
+			video_player.expand = true
+			video_player.anchor_right = 1.0
+			video_player.anchor_bottom = 1.0
+			display_node.add_child(video_player)
+			print("Loaded video: ", video_path)
+			return
+
+	# Fallback to background image if video not found
 	if FileAccess.file_exists(bg_path):
 		var texture = load(bg_path)
 		if texture:
@@ -388,6 +403,7 @@ func load_character_media(display_node: ColorRect, video_path: String, bg_path: 
 			texture_rect.anchor_right = 1.0
 			texture_rect.anchor_bottom = 1.0
 			display_node.add_child(texture_rect)
+			print("Loaded background image: ", bg_path)
 	else:
 		print("Character media not found: ", video_path, " or ", bg_path)
 
