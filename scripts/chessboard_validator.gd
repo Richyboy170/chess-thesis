@@ -62,13 +62,10 @@ static func validate_board(board: ChessBoard, strict: bool = true) -> Validation
 			return result
 
 	# Validation 6: Check turn state
-	if board.current_turn == null:
-		result.add_error("Current turn is null")
-	else:
-		result.add_detail("Current turn: " + str(board.current_turn))
+	result.add_detail("Current turn: White" if board.is_white_turn else "Current turn: Black")
 
 	# Validation 7: Verify arrays are initialized
-	if board.white_captured == null or board.black_captured == null:
+	if board.captured_pieces_white == null or board.captured_pieces_black == null:
 		result.add_error("Captured piece arrays are null")
 	else:
 		result.add_detail("Captured piece tracking initialized")
@@ -114,8 +111,8 @@ static func _validate_piece_positions(board: ChessBoard, result: ValidationResul
 			var piece = board.board_state[row][col]
 			if piece != null:
 				# Check piece has correct position stored
-				if piece.row != row or piece.col != col:
-					var error = "Piece at [%d,%d] thinks it's at [%d,%d]" % [row, col, piece.row, piece.col]
+				if piece.position.x != row or piece.position.y != col:
+					var error = "Piece at [%d,%d] thinks it's at [%d,%d]" % [row, col, piece.position.x, piece.position.y]
 					if strict:
 						result.add_error(error)
 						valid = false
@@ -128,8 +125,8 @@ static func _validate_piece_positions(board: ChessBoard, result: ValidationResul
 					valid = false
 
 				# Check piece has valid color
-				if piece.color != "white" and piece.color != "black":
-					result.add_error("Piece at [%d,%d] has invalid color: %s" % [row, col, piece.color])
+				if piece.piece_color != ChessPiece.PieceColor.WHITE and piece.piece_color != ChessPiece.PieceColor.BLACK:
+					result.add_error("Piece at [%d,%d] has invalid color: %s" % [row, col, str(piece.piece_color)])
 					valid = false
 
 	if valid:
@@ -159,12 +156,28 @@ static func _validate_starting_position(board: ChessBoard, result: ValidationRes
 	var validations = []
 
 	# Check white pieces (rows 6-7)
-	validations.append(_validate_row_pieces(board, 7, "white", ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]))
-	validations.append(_validate_row_pieces(board, 6, "white", ["pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn"]))
+	validations.append(_validate_row_pieces(board, 7, ChessPiece.PieceColor.WHITE, [
+		ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP,
+		ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP,
+		ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK
+	]))
+	validations.append(_validate_row_pieces(board, 6, ChessPiece.PieceColor.WHITE, [
+		ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN,
+		ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN,
+		ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN
+	]))
 
 	# Check black pieces (rows 0-1)
-	validations.append(_validate_row_pieces(board, 0, "black", ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]))
-	validations.append(_validate_row_pieces(board, 1, "black", ["pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn", "pawn"]))
+	validations.append(_validate_row_pieces(board, 0, ChessPiece.PieceColor.BLACK, [
+		ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP,
+		ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP,
+		ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK
+	]))
+	validations.append(_validate_row_pieces(board, 1, ChessPiece.PieceColor.BLACK, [
+		ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN,
+		ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN,
+		ChessPiece.PieceType.PAWN, ChessPiece.PieceType.PAWN
+	]))
 
 	# Check empty squares (rows 2-5)
 	for row in range(2, 6):
@@ -183,17 +196,22 @@ static func _validate_starting_position(board: ChessBoard, result: ValidationRes
 	return true
 
 ## Validate pieces in a specific row
-static func _validate_row_pieces(board: ChessBoard, row: int, expected_color: String, expected_types: Array) -> Dictionary:
+static func _validate_row_pieces(board: ChessBoard, row: int, expected_color: ChessPiece.PieceColor, expected_types: Array) -> Dictionary:
 	for col in range(8):
 		var piece = board.board_state[row][col]
+		var color_name = "white" if expected_color == ChessPiece.PieceColor.WHITE else "black"
 		if piece == null:
-			return {"success": false, "error": "Expected %s %s at [%d,%d] but found empty square" % [expected_color, expected_types[col], row, col]}
+			var type_name = ChessPiece.PieceType.keys()[expected_types[col]].to_lower()
+			return {"success": false, "error": "Expected %s %s at [%d,%d] but found empty square" % [color_name, type_name, row, col]}
 
-		if piece.color != expected_color:
-			return {"success": false, "error": "Expected %s piece at [%d,%d] but found %s" % [expected_color, row, col, piece.color]}
+		if piece.piece_color != expected_color:
+			var actual_color = "white" if piece.piece_color == ChessPiece.PieceColor.WHITE else "black"
+			return {"success": false, "error": "Expected %s piece at [%d,%d] but found %s" % [color_name, row, col, actual_color]}
 
 		if piece.piece_type != expected_types[col]:
-			return {"success": false, "error": "Expected %s at [%d,%d] but found %s" % [expected_types[col], row, col, piece.piece_type]}
+			var expected_name = ChessPiece.PieceType.keys()[expected_types[col]].to_lower()
+			var actual_name = ChessPiece.PieceType.keys()[piece.piece_type].to_lower()
+			return {"success": false, "error": "Expected %s at [%d,%d] but found %s" % [expected_name, row, col, actual_name]}
 
 	return {"success": true, "error": ""}
 
