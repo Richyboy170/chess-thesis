@@ -1,5 +1,5 @@
 72322a848ab928aa5c89f0cb78209805
-::res://::1761392903
+::res://::1761393912
 icon.svg::CompressedTexture2D::9163571773598486904::1761329922::1761329980::1::::<><><>0<>0<>aa6695caa7bb4c4fddf78e8cf7d1048a<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
 README.md::TextFile::-1::1761333367::0::1::::<><><>0<>0<><>::
 ::res://assets/::1761337571
@@ -7,7 +7,7 @@ ASSET_CHECKLIST.md::TextFile::-1::1761337466::0::1::::<><><>0<>0<><>::
 ::res://assets/characters/::1761337573
 ::res://assets/characters/character_1/::1761337576
 README.md::TextFile::-1::1761337466::0::1::::<><><>0<>0<><>::
-::res://assets/characters/character_1/animations/::1761337591
+::res://assets/characters/character_1/animations/::1761393311
 ::res://assets/characters/character_1/backgrounds/::1761337466
 ::res://assets/characters/character_1/pieces/::1761337466
 ::res://assets/characters/character_2/::1761337466
@@ -31,7 +31,7 @@ main_game.tscn::PackedScene::68356272596805699::1761345931::0::1::::<><><>0<>0<>
 ::res://scenes/ui/::1761334929
 character_selection.tscn::PackedScene::6385717420630671164::1761329922::0::1::::<><><>0<>0<><>::res://scripts/character_selection.gd
 login_page.tscn::PackedScene::4047925081359635663::1761334929::0::1::::<><><>0<>0<><>::res://scripts/login_page.gd
-::res://scripts/::1761392869
+::res://scripts/::1761393115
 character_selection.gd::GDScript::1580051330443687543::1761329922::0::1::::<>Control<><>0<>0<><>::
 chessboard_factory.gd::GDScript::438792594509836754::1761392078::0::1::::ChessboardFactory<>Node<><>0<>0<><>::
 chessboard_storage.gd::GDScript::1736549318767800456::1761392078::0::1::::<>Node<><>0<>0<><>::
@@ -41,5 +41,5 @@ chess_piece.gd::GDScript::2174625388039789211::1761392328::0::1::::ChessPiece<>N
 chess_pieces.gd::GDScript::5278464903077807793::1761332362::0::1::::<>Node<><>0<>0<><>::
 game_state.gd::GDScript::7170636022792330861::1761334929::0::1::::<>Node<><>0<>0<><>::
 login_page.gd::GDScript::8146014109777437171::1761334929::0::1::::<>Control<><>0<>0<><>::
-main_game.gd::GDScript::1063598807600793956::1761392078::0::1::::<>Control<><>0<>0<><>::
+main_game.gd::GDScript::1063598807600793956::1761393115::0::1::::<>Control<><>0<>0<><>::
 visual_chess_piece.gd::GDScript::3187258787519199654::1761332362::0::1::::VisualChessPiece<>Button<><>0<>0<><>::
