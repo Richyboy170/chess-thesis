@@ -85,9 +85,9 @@ func _ready():
 	Uses the new ChessboardFactory and ChessboardStorage infrastructure
 	with full validation and error reporting.
 	"""
-	print("\n" + "="*60)
+	print("\n" + "=".repeat(60))
 	print("MAIN GAME: Starting initialization")
-	print("="*60)
+	print("=".repeat(60))
 
 	# STEP 1: Create and validate the chessboard using the factory
 	print("\nSTEP 1: Creating chessboard with factory pattern...")
@@ -140,9 +140,9 @@ func _ready():
 	initialize_timers()           # Set up game timers
 	update_timer_display()        # Display initial timer values
 
-	print("\n" + "="*60)
+	print("\n" + "=".repeat(60))
 	print("MAIN GAME: Initialization complete ✓")
-	print("="*60 + "\n")
+	print("=".repeat(60) + "\n")
 
 	# Print final status
 	ChessboardStorage.print_status()
@@ -152,9 +152,9 @@ func _handle_chessboard_creation_failure():
 	Handles the critical failure case where chessboard creation or validation failed.
 	Displays error information and provides fallback behavior.
 	"""
-	print("\n" + "!"*60)
+	print("\n" + "!".repeat(60))
 	print("CRITICAL ERROR: Chessboard creation failed!")
-	print("!"*60)
+	print("!".repeat(60))
 
 	# Get detailed error report
 	var result = ChessboardStorage.get_last_result()
@@ -189,7 +189,7 @@ func _handle_chessboard_creation_failure():
 	error_dialog.confirmed.connect(_on_error_dialog_closed)
 
 	print("Error dialog displayed to user")
-	print("!"*60 + "\n")
+	print("!".repeat(60) + "\n")
 
 func _on_error_dialog_closed():
 	"""
