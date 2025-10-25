@@ -7,10 +7,46 @@ func _ready():
 	# Apply anime font theme to all UI elements
 	ThemeManager.apply_theme_to_container(self, true)
 
+	# Validate character assets before loading
+	print("\n=== CHARACTER SELECTION: Asset Validation ===")
+	validate_character_previews()
+
 	# Load character previews on buttons
 	load_character_previews()
 
 	update_start_button()
+
+func validate_character_previews():
+	"""
+	Validates that preview assets (MP4 videos and background images) exist
+	for all three characters. Reports findings to console.
+	"""
+	for i in range(3):
+		var char_num = i + 1
+		var char_path = "res://assets/characters/character_" + str(char_num) + "/"
+		var video_path = char_path + "animations/character_idle.mp4"
+		var bg_path = char_path + "backgrounds/character_background.png"
+
+		print("\n[Character ", char_num, " Preview]")
+
+		var has_video = FileAccess.file_exists(video_path)
+		var has_background = FileAccess.file_exists(bg_path)
+
+		if has_video:
+			print("  ✓ MP4 animation available for preview")
+		else:
+			print("  ⚠ MP4 animation not found - will use background image")
+
+		if has_background:
+			print("  ✓ Background image available for preview")
+		else:
+			print("  ✗ ERROR: Background image not found at: ", bg_path)
+			print("    Character preview will not display properly!")
+
+		if not has_video and not has_background:
+			print("  ✗ CRITICAL: No preview assets found for Character ", char_num)
+
+	print("\n=== End Asset Validation ===\n")
 
 func load_character_previews():
 	"""
@@ -29,12 +65,14 @@ func load_character_previews():
 func load_character_preview_on_button(button: Button, character_id: int):
 	"""
 	Loads and displays a character preview (video or image) on a button.
+	Reports success or failure for debugging.
 
 	Args:
 		button: The button to add the preview to
 		character_id: The character ID (0-2)
 	"""
-	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
+	var char_num = character_id + 1
+	var char_path = "res://assets/characters/character_" + str(char_num) + "/"
 	var video_path = char_path + "animations/character_idle.mp4"
 	var bg_path = char_path + "backgrounds/character_background.png"
 
@@ -45,6 +83,8 @@ func load_character_preview_on_button(button: Button, character_id: int):
 	preview_container.anchor_right = 1.0
 	preview_container.anchor_bottom = 1.0
 	preview_container.z_index = -1  # Place behind button text
+
+	var preview_loaded = false
 
 	# Try to load video animation first
 	if FileAccess.file_exists(video_path):
@@ -61,8 +101,11 @@ func load_character_preview_on_button(button: Button, character_id: int):
 			preview_container.add_child(video_player)
 			button.add_child(preview_container)
 			button.move_child(preview_container, 0)  # Move to back
-			print("Loaded character preview video for character ", character_id + 1)
+			print("✓ Character ", char_num, ": Loaded MP4 preview on button")
+			preview_loaded = true
 			return
+		else:
+			print("✗ Character ", char_num, ": Failed to load video stream from: ", video_path)
 
 	# Fallback to background image
 	if FileAccess.file_exists(bg_path):
@@ -78,9 +121,13 @@ func load_character_preview_on_button(button: Button, character_id: int):
 			preview_container.add_child(texture_rect)
 			button.add_child(preview_container)
 			button.move_child(preview_container, 0)  # Move to back
-			print("Loaded character preview image for character ", character_id + 1)
-	else:
-		print("Warning: No preview found for character ", character_id + 1)
+			print("✓ Character ", char_num, ": Loaded background image preview on button")
+			preview_loaded = true
+		else:
+			print("✗ Character ", char_num, ": Failed to load texture from: ", bg_path)
+
+	if not preview_loaded:
+		print("✗ Character ", char_num, ": CRITICAL - No preview could be loaded!")
 
 func _on_player1_character_selected(character_id: int):
 	player1_character = character_id

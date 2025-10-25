@@ -133,8 +133,12 @@ func _ready():
 	chess_board.game_over.connect(_on_game_over)
 	print("STEP 6: Signals connected ✓")
 
-	# STEP 7: Initialize all game components
-	print("\nSTEP 7: Initializing game components...")
+	# STEP 7: Validate assets before loading
+	print("\nSTEP 7: Validating game assets...")
+	validate_all_assets()
+
+	# STEP 8: Initialize all game components
+	print("\nSTEP 8: Initializing game components...")
 	load_random_game_background() # Load random background for the game
 	setup_chessboard()           # Create the 8x8 grid of squares
 	update_character_displays()   # Show selected characters
@@ -206,6 +210,167 @@ func _on_error_dialog_closed():
 	"""
 	print("User acknowledged error - returning to login page")
 	get_tree().change_scene_to_file("res://scenes/ui/login_page.tscn")
+
+# ============================================================================
+# ASSET VALIDATION FUNCTIONS
+# ============================================================================
+
+func validate_all_assets():
+	"""
+	Validates all game assets including backgrounds, character animations,
+	and character images. Reports detailed information about missing or
+	found assets to help with debugging.
+	"""
+	print("\n" + "=".repeat(60))
+	print("ASSET VALIDATION REPORT")
+	print("=".repeat(60))
+
+	var validation_results = {
+		"backgrounds": validate_background_images(),
+		"character_1": validate_character_assets(1),
+		"character_2": validate_character_assets(2),
+		"character_3": validate_character_assets(3)
+	}
+
+	# Print summary
+	print("\n" + "-".repeat(60))
+	print("VALIDATION SUMMARY")
+	print("-".repeat(60))
+
+	var total_errors = 0
+	var total_warnings = 0
+
+	for category in validation_results.keys():
+		var result = validation_results[category]
+		total_errors += result.errors
+		total_warnings += result.warnings
+
+	if total_errors == 0 and total_warnings == 0:
+		print("✓ All assets validated successfully!")
+	else:
+		if total_errors > 0:
+			print("✗ Total Errors: ", total_errors)
+		if total_warnings > 0:
+			print("⚠ Total Warnings: ", total_warnings)
+
+	print("=".repeat(60) + "\n")
+
+func validate_background_images() -> Dictionary:
+	"""
+	Validates that background images exist in the backgrounds folder.
+
+	Returns:
+		Dictionary with validation results including error and warning counts
+	"""
+	print("\n[BACKGROUNDS]")
+	var backgrounds_path = "res://assets/backgrounds/"
+	var background_files = []
+	var errors = 0
+	var warnings = 0
+
+	# Check if backgrounds directory exists
+	var dir = DirAccess.open(backgrounds_path)
+	if not dir:
+		print("  ✗ ERROR: Backgrounds folder not found at: ", backgrounds_path)
+		errors += 1
+		return {"errors": errors, "warnings": warnings}
+
+	# Scan for image files
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	while file_name != "":
+		if not dir.current_is_dir() and not file_name.begins_with(".") and not file_name.ends_with(".md"):
+			if file_name.ends_with(".png") or file_name.ends_with(".jpg") or file_name.ends_with(".jpeg"):
+				background_files.append(file_name)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+
+	# Report results
+	if background_files.size() == 0:
+		print("  ⚠ WARNING: No background images found in backgrounds folder")
+		print("    Please add PNG or JPG files to: ", backgrounds_path)
+		print("    Game will use default transparent background")
+		warnings += 1
+	else:
+		print("  ✓ Found ", background_files.size(), " background image(s):")
+		for bg_file in background_files:
+			print("    - ", bg_file)
+
+	return {"errors": errors, "warnings": warnings}
+
+func validate_character_assets(character_num: int) -> Dictionary:
+	"""
+	Validates assets for a specific character including MP4 animations,
+	background images, and piece images.
+
+	Args:
+		character_num: Character number (1, 2, or 3)
+
+	Returns:
+		Dictionary with validation results
+	"""
+	print("\n[CHARACTER ", character_num, "]")
+	var char_path = "res://assets/characters/character_" + str(character_num) + "/"
+	var errors = 0
+	var warnings = 0
+
+	# Check MP4 animation
+	var mp4_path = char_path + "animations/character_idle.mp4"
+	if FileAccess.file_exists(mp4_path):
+		print("  ✓ MP4 animation found: character_idle.mp4")
+	else:
+		print("  ⚠ WARNING: MP4 animation not found at: ", mp4_path)
+		print("    Will use fallback background image")
+		warnings += 1
+
+	# Check background image
+	var bg_path = char_path + "backgrounds/character_background.png"
+	if FileAccess.file_exists(bg_path):
+		print("  ✓ Background image found: character_background.png")
+	else:
+		print("  ✗ ERROR: Background image not found at: ", bg_path)
+		errors += 1
+
+	# Check piece images
+	var piece_types = ["pawn", "rook", "knight", "bishop", "queen", "king"]
+	var missing_pieces = []
+	var found_pieces = []
+
+	for piece_type in piece_types:
+		var piece_path = char_path + "pieces/white_" + piece_type + ".png"
+		if FileAccess.file_exists(piece_path):
+			found_pieces.append(piece_type)
+		else:
+			missing_pieces.append(piece_type)
+
+	if missing_pieces.size() == 0:
+		print("  ✓ All ", piece_types.size(), " piece images found")
+	else:
+		print("  ✗ ERROR: Missing ", missing_pieces.size(), " piece image(s):")
+		for piece in missing_pieces:
+			print("    - white_", piece, ".png")
+		print("    Will use Unicode symbols as fallback")
+		errors += missing_pieces.size()
+
+	return {"errors": errors, "warnings": warnings}
+
+func check_specific_asset(asset_path: String, asset_name: String) -> bool:
+	"""
+	Checks if a specific asset file exists and reports the result.
+
+	Args:
+		asset_path: Full path to the asset file
+		asset_name: Descriptive name for logging
+
+	Returns:
+		True if asset exists, False otherwise
+	"""
+	if FileAccess.file_exists(asset_path):
+		print("  ✓ ", asset_name, " found")
+		return true
+	else:
+		print("  ✗ ", asset_name, " NOT FOUND at: ", asset_path)
+		return false
 
 # ============================================================================
 # FRAME UPDATE FUNCTIONS
@@ -417,6 +582,9 @@ func load_character_media(display_node: ColorRect, area_node: PanelContainer, vi
 		video_path: Path to the character's .mp4 video file
 		bg_path: Path to the character background image
 	"""
+	var video_loaded = false
+	var background_loaded = false
+
 	# Load video animation into CharacterDisplay if available
 	if FileAccess.file_exists(video_path):
 		var video_stream = load(video_path)
@@ -430,7 +598,13 @@ func load_character_media(display_node: ColorRect, area_node: PanelContainer, vi
 			video_player.anchor_right = 1.0
 			video_player.anchor_bottom = 1.0
 			display_node.add_child(video_player)
-			print("Loaded character animation: ", video_path)
+			print("✓ Loaded character animation: ", video_path)
+			video_loaded = true
+		else:
+			print("✗ Failed to load video stream from: ", video_path)
+	else:
+		print("⚠ MP4 animation not found at: ", video_path)
+		print("  Using fallback background image")
 
 	# Load background image into player area
 	if FileAccess.file_exists(bg_path):
@@ -446,9 +620,20 @@ func load_character_media(display_node: ColorRect, area_node: PanelContainer, vi
 			texture_rect.z_index = -1  # Place behind other elements
 			area_node.add_child(texture_rect)
 			area_node.move_child(texture_rect, 0)  # Move to back
-			print("Loaded background image: ", bg_path)
+			print("✓ Loaded background image: ", bg_path)
+			background_loaded = true
+		else:
+			print("✗ Failed to load texture from: ", bg_path)
 	else:
-		print("Warning: Character background not found: ", bg_path)
+		print("✗ ERROR: Character background not found: ", bg_path)
+
+	# Summary for this character
+	if not video_loaded and not background_loaded:
+		print("✗ CRITICAL: No media loaded for this character!")
+	elif not video_loaded:
+		print("⚠ Character loaded with background only (no animation)")
+	elif not background_loaded:
+		print("⚠ Character loaded with animation only (no background)")
 
 # ============================================================================
 # CHARACTER AND UI UPDATE FUNCTIONS
