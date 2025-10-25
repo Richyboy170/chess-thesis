@@ -82,18 +82,55 @@ func _ready():
 	"""
 	Called when the node is added to the scene tree.
 	Initializes the chess game, connects signals, and sets up the UI.
+	Uses the new ChessboardFactory and ChessboardStorage infrastructure
+	with full validation and error reporting.
 	"""
-	# Create the chess board logic instance
-	chess_board = ChessBoard.new()
-	add_child(chess_board)
+	print("\n" + "="*60)
+	print("MAIN GAME: Starting initialization")
+	print("="*60)
 
-	# Connect chess board signals to our handler functions
+	# STEP 1: Create and validate the chessboard using the factory
+	print("\nSTEP 1: Creating chessboard with factory pattern...")
+	var creation_success = ChessboardStorage.create_and_store_chessboard()
+
+	# STEP 2: Check if chessboard was created successfully
+	if not creation_success:
+		_handle_chessboard_creation_failure()
+		return  # Stop initialization if board creation failed
+
+	print("\nSTEP 2: Chessboard creation verified ✓")
+
+	# STEP 3: Retrieve the validated chessboard from storage
+	chess_board = ChessboardStorage.get_chessboard()
+
+	if chess_board == null:
+		push_error("CRITICAL: ChessboardStorage returned null despite successful creation!")
+		_handle_chessboard_creation_failure()
+		return
+
+	print("STEP 3: Chessboard retrieved from storage ✓")
+
+	# STEP 4: Add the validated board to the scene tree
+	add_child(chess_board)
+	print("STEP 4: Chessboard added to scene tree ✓")
+
+	# STEP 5: Perform final health check
+	if not ChessboardStorage.health_check():
+		push_error("CRITICAL: Chessboard failed health check!")
+		_handle_chessboard_creation_failure()
+		return
+
+	print("STEP 5: Health check passed ✓")
+
+	# STEP 6: Connect chess board signals to our handler functions
 	chess_board.piece_moved.connect(_on_piece_moved)
 	chess_board.piece_captured.connect(_on_piece_captured)
 	chess_board.turn_changed.connect(_on_turn_changed)
 	chess_board.game_over.connect(_on_game_over)
+	print("STEP 6: Signals connected ✓")
 
-	# Initialize all game components
+	# STEP 7: Initialize all game components
+	print("\nSTEP 7: Initializing game components...")
 	setup_chessboard()           # Create the 8x8 grid of squares
 	update_character_displays()   # Show selected characters
 	load_character_assets()       # Load themed assets (backgrounds, videos)
@@ -102,6 +139,65 @@ func _ready():
 	setup_score_toggle()          # Configure score panel toggle button
 	initialize_timers()           # Set up game timers
 	update_timer_display()        # Display initial timer values
+
+	print("\n" + "="*60)
+	print("MAIN GAME: Initialization complete ✓")
+	print("="*60 + "\n")
+
+	# Print final status
+	ChessboardStorage.print_status()
+
+func _handle_chessboard_creation_failure():
+	"""
+	Handles the critical failure case where chessboard creation or validation failed.
+	Displays error information and provides fallback behavior.
+	"""
+	print("\n" + "!"*60)
+	print("CRITICAL ERROR: Chessboard creation failed!")
+	print("!"*60)
+
+	# Get detailed error report
+	var result = ChessboardStorage.get_last_result()
+	if result != null:
+		print(result.get_error_report())
+	else:
+		print("No error details available")
+
+	# Print storage status
+	ChessboardStorage.print_status()
+
+	# Display error to user via dialog
+	var error_dialog = AcceptDialog.new()
+	error_dialog.title = "Chessboard Initialization Error"
+
+	var error_text = "Failed to create the chessboard!\n\n"
+	if result != null:
+		error_text += result.error_message + "\n\n"
+		if result.validation_details.size() > 0:
+			error_text += "Details:\n"
+			for detail in result.validation_details:
+				error_text += "• " + detail + "\n"
+
+	error_text += "\nThe game cannot start. Please restart the application."
+
+	error_dialog.dialog_text = error_text
+	error_dialog.ok_button_text = "Close"
+	add_child(error_dialog)
+	error_dialog.popup_centered()
+
+	# Connect to close button to return to main menu
+	error_dialog.confirmed.connect(_on_error_dialog_closed)
+
+	print("Error dialog displayed to user")
+	print("!"*60 + "\n")
+
+func _on_error_dialog_closed():
+	"""
+	Called when the user closes the error dialog.
+	Returns to the main menu/login page.
+	"""
+	print("User acknowledged error - returning to login page")
+	get_tree().change_scene_to_file("res://scenes/ui/login_page.tscn")
 
 # ============================================================================
 # FRAME UPDATE FUNCTIONS
@@ -141,26 +237,31 @@ func _input(event):
 	"""
 	Handles all input events, primarily for drag-and-drop piece movement.
 	Supports both mouse (desktop) and touch (mobile) input.
+	Currently disabled in favor of click-to-move interface.
 
 	Args:
 		event: The input event to process
 	"""
-	# Only process input if a piece is currently being dragged
-	if is_dragging and dragging_piece:
-		# Handle mouse movement or touch drag - update piece position
-		if event is InputEventMouseMotion or event is InputEventScreenDrag:
-			var mouse_pos = get_viewport().get_mouse_position()
-			dragging_piece.global_position = mouse_pos - drag_offset
+	# Drag-and-drop functionality temporarily disabled
+	# Using simple click-to-select, click-to-move interface instead
+	pass
 
-		# Handle mouse button release
-		elif event is InputEventMouseButton:
-			if not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-				end_drag(event.position)
-
-		# Handle touch release (mobile)
-		elif event is InputEventScreenTouch:
-			if not event.pressed:
-				end_drag(event.position)
+	# # Only process input if a piece is currently being dragged
+	# if is_dragging and dragging_piece:
+	# 	# Handle mouse movement or touch drag - update piece position
+	# 	if event is InputEventMouseMotion or event is InputEventScreenDrag:
+	# 		var mouse_pos = get_viewport().get_mouse_position()
+	# 		dragging_piece.global_position = mouse_pos - drag_offset
+	#
+	# 	# Handle mouse button release
+	# 	elif event is InputEventMouseButton:
+	# 		if not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	# 			end_drag(event.position)
+	#
+	# 	# Handle touch release (mobile)
+	# 	elif event is InputEventScreenTouch:
+	# 		if not event.pressed:
+	# 			end_drag(event.position)
 
 # ============================================================================
 # CHESSBOARD SETUP FUNCTIONS
@@ -172,7 +273,8 @@ func setup_chessboard():
 	The board is split in half vertically:
 	- Bottom half (rows 0-3): Player 1's theme
 	- Top half (rows 4-7): Player 2's theme
-	Each square is a Button node with custom styling.
+	Each square is a Panel node with custom styling.
+	Uses a simpler, more reliable rendering method.
 	"""
 	board_squares = []
 
@@ -196,13 +298,14 @@ func setup_chessboard():
 		}
 	}
 
-	# Create 8x8 grid of squares
+	# Create 8x8 grid of squares using Panel nodes (lighter than Button)
 	for row in range(8):
 		var row_array = []
 		for col in range(8):
-			var square = Button.new()
+			# Use Panel instead of Button for simpler, more reliable rendering
+			var square = Panel.new()
 			square.custom_minimum_size = Vector2(80, 80)
-			square.flat = true
+			square.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow mouse events to pass through
 
 			# Determine which player's theme to use based on row
 			# Rows 0-3 (bottom): Player 1's theme
@@ -218,22 +321,21 @@ func setup_chessboard():
 			else:
 				style_box.bg_color = colors["dark"]
 
-			# Apply style to all button states
-			square.add_theme_stylebox_override("normal", style_box)
-			square.add_theme_stylebox_override("hover", style_box)
-			square.add_theme_stylebox_override("pressed", style_box)
+			# Apply style to panel
+			square.add_theme_stylebox_override("panel", style_box)
 
 			# Store board position in metadata for later reference
 			square.set_meta("board_pos", Vector2i(row, col))
-
-			# Connect click handler with position parameter
-			square.pressed.connect(_on_square_clicked.bind(Vector2i(row, col)))
 
 			# Add square to the chessboard container
 			chessboard.add_child(square)
 			row_array.append(square)
 
 		board_squares.append(row_array)
+
+	# Setup input detection on the chessboard container
+	chessboard.mouse_filter = Control.MOUSE_FILTER_PASS
+	chessboard.gui_input.connect(_on_chessboard_input)
 
 	# Ensure chessboard is visible
 	chessboard.visible = true
@@ -391,6 +493,43 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 # SQUARE CLICK AND PIECE SELECTION FUNCTIONS
 # ============================================================================
 
+func _on_chessboard_input(event: InputEvent):
+	"""
+	Handles all input events on the chessboard using a unified input handler.
+	Detects which square was clicked by calculating position from mouse coordinates.
+	This replaces the old button-based system with a more reliable approach.
+
+	Args:
+		event: The input event to process
+	"""
+	# Only respond to mouse clicks
+	if event is InputEventMouseButton:
+		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			# Convert mouse position to board coordinates
+			var board_pos = get_square_from_position(event.position)
+			if board_pos != Vector2i(-1, -1):
+				_on_square_clicked(board_pos)
+
+func get_square_from_position(local_pos: Vector2) -> Vector2i:
+	"""
+	Converts a local mouse position within the chessboard to board coordinates.
+
+	Args:
+		local_pos: Mouse position relative to the chessboard container
+
+	Returns:
+		Vector2i with (row, col) or (-1, -1) if outside the board
+	"""
+	# Check each square to see if the position is within it
+	for row in range(8):
+		for col in range(8):
+			var square = board_squares[row][col]
+			var rect = Rect2(square.position, square.size)
+			if rect.has_point(local_pos):
+				return Vector2i(row, col)
+
+	return Vector2i(-1, -1)
+
 func _on_square_clicked(pos: Vector2i):
 	"""
 	Handles clicks on chess board squares.
@@ -422,7 +561,7 @@ func _on_square_clicked(pos: Vector2i):
 func attempt_select_piece(pos: Vector2i):
 	"""
 	Attempts to select a chess piece at the given position.
-	If successful, highlights valid moves and starts drag operation.
+	If successful, highlights valid moves.
 
 	Args:
 		pos: The board position to select from
@@ -431,7 +570,8 @@ func attempt_select_piece(pos: Vector2i):
 	if chess_board.select_piece(pos):
 		selected_square = pos
 		highlight_valid_moves()
-		start_drag(pos)
+		# Drag functionality disabled for now - using click-to-move interface
+		# start_drag(pos)
 
 # ============================================================================
 # BOARD HIGHLIGHTING FUNCTIONS
@@ -448,7 +588,7 @@ func highlight_valid_moves():
 	var selected = board_squares[selected_square.x][selected_square.y]
 	var highlight_style = StyleBoxFlat.new()
 	highlight_style.bg_color = Color(1, 1, 0, 0.5)  # Semi-transparent yellow
-	selected.add_theme_stylebox_override("normal", highlight_style)
+	selected.add_theme_stylebox_override("panel", highlight_style)
 
 	# Highlight all valid moves for the selected piece
 	for move in chess_board.valid_moves:
@@ -461,7 +601,7 @@ func highlight_valid_moves():
 		else:
 			move_style.bg_color = Color(0.3, 1, 0.3, 0.5)  # Green (move)
 
-		square.add_theme_stylebox_override("normal", move_style)
+		square.add_theme_stylebox_override("panel", move_style)
 
 func clear_highlights():
 	"""
@@ -504,7 +644,7 @@ func clear_highlights():
 			else:
 				style_box.bg_color = colors["dark"]
 
-			square.add_theme_stylebox_override("normal", style_box)
+			square.add_theme_stylebox_override("panel", style_box)
 
 func update_score_display():
 	"""
@@ -551,7 +691,7 @@ func update_captured_display():
 func start_drag(pos: Vector2i):
 	"""
 	Initiates a drag operation for the piece at the given position.
-	The piece is reparented to the root control to move freely across the screen.
+	Uses a simpler approach without reparenting to avoid layout issues.
 
 	Args:
 		pos: Board position of the piece to start dragging
@@ -560,31 +700,24 @@ func start_drag(pos: Vector2i):
 	if square.get_child_count() > 0:
 		var piece_label = square.get_child(0)
 		if piece_label is Label:
-			# Store the original square to return the piece if drag is cancelled
+			# Store reference to the piece and its original position
+			dragging_piece = piece_label
 			original_parent = square
 
 			# Get current mouse/touch position
 			var mouse_pos = get_viewport().get_mouse_position()
 
-			# Calculate offset to center the piece on cursor
-			drag_offset = square.size / 2
+			# Calculate offset from mouse to piece center for smooth dragging
+			var piece_center = piece_label.global_position + (piece_label.size / 2)
+			drag_offset = piece_center - mouse_pos
 
-			# Reparent piece to root node so it can move freely over the entire screen
-			piece_label.reparent(self)
-			piece_label.z_index = 100  # Draw on top of everything
+			# Make piece semi-transparent during drag
+			piece_label.modulate = Color(1, 1, 1, 0.7)
 
-			# Reset anchors and set size to match the square
-			piece_label.anchor_left = 0
-			piece_label.anchor_top = 0
-			piece_label.anchor_right = 0
-			piece_label.anchor_bottom = 0
-			piece_label.size = square.size
-
-			# Position piece centered on cursor
-			piece_label.global_position = mouse_pos - drag_offset
+			# Bring piece to front
+			piece_label.z_index = 100
 
 			# Update drag state
-			dragging_piece = piece_label
 			is_dragging = true
 
 func end_drag(drop_position: Vector2):
@@ -597,6 +730,11 @@ func end_drag(drop_position: Vector2):
 	"""
 	if not is_dragging or dragging_piece == null:
 		return
+
+	# Restore piece appearance
+	if dragging_piece:
+		dragging_piece.modulate = Color(1, 1, 1, 1)
+		dragging_piece.z_index = 0
 
 	# Find which square the piece was dropped on
 	var dropped_on_square = Vector2i(-1, -1)
@@ -616,9 +754,6 @@ func end_drag(drop_position: Vector2):
 			# Move successful - update game state
 			clear_highlights()
 			selected_square = Vector2i(-1, -1)
-			# Clean up the dragging piece
-			if dragging_piece:
-				dragging_piece.queue_free()
 			dragging_piece = null
 			is_dragging = false
 			original_parent = null
@@ -638,8 +773,8 @@ func return_piece_to_original_position():
 	Returns a dragged piece back to its original square.
 	Called when a drag operation is cancelled or an invalid move is attempted.
 	"""
-	if dragging_piece and original_parent:
-		dragging_piece.reparent(original_parent)
+	if dragging_piece:
+		dragging_piece.modulate = Color(1, 1, 1, 1)
 		dragging_piece.z_index = 0
 
 	# Reset all drag state
@@ -648,7 +783,6 @@ func return_piece_to_original_position():
 	original_parent = null
 	clear_highlights()
 	selected_square = Vector2i(-1, -1)
-	update_board_display()
 
 # ============================================================================
 # VISUAL FEEDBACK FUNCTIONS
@@ -667,19 +801,34 @@ func flash_square_red(pos: Vector2i):
 		return
 
 	var square = board_squares[pos.x][pos.y]
-	var original_color: Color
 
 	# Get the original themed color for this square
-	# TODO: Update this to use theme colors instead of hardcoded classic colors
-	if (pos.x + pos.y) % 2 == 0:
-		original_color = Color(0.9, 0.9, 0.8, 1)  # Light square
-	else:
-		original_color = Color(0.5, 0.4, 0.3, 1)  # Dark square
+	var player1_theme = GameState.get_character_piece_style(GameState.player1_character)
+	var player2_theme = GameState.get_character_piece_style(GameState.player2_character)
+	var current_theme = player1_theme if pos.x < 4 else player2_theme
+
+	var theme_colors = {
+		"classic": {
+			"light": Color(0.9, 0.9, 0.8, 1),
+			"dark": Color(0.5, 0.4, 0.3, 1)
+		},
+		"modern": {
+			"light": Color(0.85, 0.92, 0.98, 1),
+			"dark": Color(0.2, 0.3, 0.5, 1)
+		},
+		"fantasy": {
+			"light": Color(0.95, 0.9, 0.75, 1),
+			"dark": Color(0.5, 0.2, 0.4, 1)
+		}
+	}
+
+	var colors = theme_colors.get(current_theme, theme_colors["classic"])
+	var original_color = colors["light"] if (pos.x + pos.y) % 2 == 0 else colors["dark"]
 
 	# Apply bright red flash
 	var red_style = StyleBoxFlat.new()
 	red_style.bg_color = Color(1, 0, 0, 0.7)
-	square.add_theme_stylebox_override("normal", red_style)
+	square.add_theme_stylebox_override("panel", red_style)
 
 	# Animate transition back to original color
 	var tween = create_tween()
@@ -690,14 +839,14 @@ func flash_square_red(pos: Vector2i):
 	tween.tween_method(func(value: float):
 		var current_style = StyleBoxFlat.new()
 		current_style.bg_color = Color(1, 0, 0, 0.7).lerp(original_color, value)
-		square.add_theme_stylebox_override("normal", current_style)
+		square.add_theme_stylebox_override("panel", current_style)
 	, 0.0, 1.0, 1.0)
 
 	# Ensure original color is fully restored at the end
 	tween.tween_callback(func():
 		var final_style = StyleBoxFlat.new()
 		final_style.bg_color = original_color
-		square.add_theme_stylebox_override("normal", final_style)
+		square.add_theme_stylebox_override("panel", final_style)
 	)
 
 # ============================================================================
