@@ -84,6 +84,14 @@ var is_dragging: bool = false
 # Shadow/glow effect node for visual feedback during drag
 var drag_shadow: Control = null
 
+# Highlight overlay nodes for valid moves
+var highlight_overlays: Array = []
+
+# Cached highlight textures (loaded once for performance)
+var valid_move_texture: Texture2D = null
+var capture_move_texture: Texture2D = null
+var highlights_loaded: bool = false
+
 # ============================================================================
 # INITIALIZATION FUNCTIONS
 # ============================================================================
@@ -891,6 +899,10 @@ func _on_square_clicked(pos: Vector2i):
 	Args:
 		pos: The board position (row, col) that was clicked
 	"""
+	# Ignore clicks if game has ended
+	if game_ended:
+		return
+
 	# Ignore clicks during drag operations
 	if is_dragging:
 		return
@@ -918,6 +930,10 @@ func attempt_select_piece(pos: Vector2i):
 	Args:
 		pos: The board position to select from
 	"""
+	# Ignore selection attempts if game has ended
+	if game_ended:
+		return
+
 	clear_highlights()
 	if chess_board.select_piece(pos):
 		selected_square = pos
@@ -932,10 +948,15 @@ func attempt_select_piece(pos: Vector2i):
 func highlight_valid_moves():
 	"""
 	Highlights the selected piece and all its valid moves on the board.
+	Uses image-based highlights with glow effects for enhanced visuals.
 	- Selected square: Yellow highlight
-	- Valid moves: Green highlight
-	- Capture moves: Red highlight
+	- Valid moves: Green glowing highlight
+	- Capture moves: Red glowing highlight
 	"""
+	# Load highlight textures on first use
+	if not highlights_loaded:
+		load_highlight_textures()
+
 	# Highlight the currently selected square in yellow
 	var selected = board_squares[selected_square.x][selected_square.y]
 	var highlight_style = StyleBoxFlat.new()
@@ -945,21 +966,103 @@ func highlight_valid_moves():
 	# Highlight all valid moves for the selected piece
 	for move in chess_board.valid_moves:
 		var square = board_squares[move.x][move.y]
-		var move_style = StyleBoxFlat.new()
+		var is_capture = chess_board.get_piece_at(move) != null
 
-		# Use red for capture moves, green for regular moves
-		if chess_board.get_piece_at(move) != null:
-			move_style.bg_color = Color(1, 0.3, 0.3, 0.5)  # Red (capture)
-		else:
-			move_style.bg_color = Color(0.3, 1, 0.3, 0.5)  # Green (move)
+		# Create highlight overlay (image or fallback visual effect)
+		create_highlight_overlay(square, is_capture)
 
-		square.add_theme_stylebox_override("panel", move_style)
+func load_highlight_textures():
+	"""
+	Loads highlight images from the assets folder.
+	If images don't exist, the system will use fallback visual effects.
+	Called once on first highlight to cache the textures.
+	"""
+	highlights_loaded = true
+
+	# Try to load valid move highlight
+	var valid_move_path = "res://assets/ui/highlights/valid_move.png"
+	if FileAccess.file_exists(valid_move_path):
+		valid_move_texture = load(valid_move_path)
+		if valid_move_texture:
+			print("Loaded valid move highlight texture")
+
+	# Try to load capture move highlight
+	var capture_move_path = "res://assets/ui/highlights/capture_move.png"
+	if FileAccess.file_exists(capture_move_path):
+		capture_move_texture = load(capture_move_path)
+		if capture_move_texture:
+			print("Loaded capture move highlight texture")
+
+	# Log fallback if textures not found
+	if not valid_move_texture or not capture_move_texture:
+		print("Using fallback glow effects for highlights (no images found)")
+
+func create_highlight_overlay(square: Panel, is_capture: bool):
+	"""
+	Creates a visual highlight overlay on a chess square.
+	Uses images if available, otherwise creates a glowing effect with ColorRect.
+
+	Args:
+		square: The square panel to add the highlight to
+		is_capture: True for capture moves (red), False for regular moves (green)
+	"""
+	var overlay: Control = null
+
+	# Determine which texture/color to use
+	var use_texture = capture_move_texture if is_capture else valid_move_texture
+	var fallback_color = Color(1, 0.3, 0.3, 0.6) if is_capture else Color(0.3, 1, 0.3, 0.6)
+
+	if use_texture:
+		# Use image-based highlight
+		var texture_rect = TextureRect.new()
+		texture_rect.texture = use_texture
+		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		# Fill the entire square
+		texture_rect.anchor_left = 0.0
+		texture_rect.anchor_top = 0.0
+		texture_rect.anchor_right = 1.0
+		texture_rect.anchor_bottom = 1.0
+
+		overlay = texture_rect
+	else:
+		# Use fallback glow effect with ColorRect
+		var color_rect = ColorRect.new()
+		color_rect.color = fallback_color
+		color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		# Fill the entire square
+		color_rect.anchor_left = 0.0
+		color_rect.anchor_top = 0.0
+		color_rect.anchor_right = 1.0
+		color_rect.anchor_bottom = 1.0
+
+		# Add pulsing animation for glow effect
+		var tween = create_tween()
+		tween.set_loops()
+		tween.tween_property(color_rect, "color:a", 0.3, 0.8)
+		tween.tween_property(color_rect, "color:a", 0.6, 0.8)
+
+		overlay = color_rect
+
+	# Add overlay to square and track it for cleanup
+	square.add_child(overlay)
+	highlight_overlays.append(overlay)
 
 func clear_highlights():
 	"""
 	Removes all move highlights and restores the classic chessboard colors.
+	This includes removing image overlays and resetting square colors.
 	This function is called after a move is made or selection is cancelled.
 	"""
+	# Remove all highlight overlays
+	for overlay in highlight_overlays:
+		if overlay and is_instance_valid(overlay):
+			overlay.queue_free()
+	highlight_overlays.clear()
+
 	# Use classic chess colors (must match setup_chessboard)
 	var light_color = Color(0.9, 0.9, 0.8, 0.7)    # Cream with transparency
 	var dark_color = Color(0.5, 0.4, 0.3, 0.7)     # Brown with transparency
@@ -1122,6 +1225,10 @@ func start_drag(pos: Vector2i):
 	Args:
 		pos: Board position of the piece to start dragging
 	"""
+	# Don't allow dragging if game has ended
+	if game_ended:
+		return
+
 	var square = board_squares[pos.x][pos.y]
 	if square.get_child_count() > 0:
 		var piece_node = square.get_child(0)
@@ -1169,6 +1276,11 @@ func end_drag(drop_position: Vector2):
 		drop_position: The screen position where the piece was dropped
 	"""
 	if not is_dragging or dragging_piece == null:
+		return
+
+	# Don't allow piece placement if game has ended
+	if game_ended:
+		return_piece_to_original_position()
 		return
 
 	# Remove the shadow effect
@@ -1224,31 +1336,57 @@ func end_drag(drop_position: Vector2):
 func return_piece_to_original_position():
 	"""
 	Returns a dragged piece back to its original square with smooth animation.
+	Animates the piece flying back to its original position when an invalid move is attempted.
 	Restores all visual effects (scale, opacity, shadow).
 	Called when a drag operation is cancelled or an invalid move is attempted.
 	"""
 	# Remove shadow effect
 	remove_drag_shadow()
 
-	if dragging_piece:
+	if dragging_piece and original_parent:
+		# Calculate the target position (center of original square)
+		var target_position = original_parent.global_position + (original_parent.size / 2) - (dragging_piece.size / 2)
+
+		# Create animation tween for smooth return
+		var tween = create_tween()
+		tween.set_parallel(true)  # Run all animations simultaneously
+		tween.set_ease(Tween.EASE_OUT)
+		tween.set_trans(Tween.TRANS_BACK)  # "Bounce back" effect
+
+		# Animate position back to original square
+		tween.tween_property(dragging_piece, "global_position", target_position, 0.3)
+
 		# Restore scale to original with animation
-		var tween_scale = create_tween()
-		tween_scale.tween_property(dragging_piece, "scale", original_scale, 0.15)
+		tween.tween_property(dragging_piece, "scale", original_scale, 0.3)
 
-		# Restore full opacity
-		dragging_piece.modulate = Color(1, 1, 1, 1)
+		# Restore full opacity with animation
+		tween.tween_property(dragging_piece, "modulate", Color(1, 1, 1, 1), 0.3)
 
-		# Reset z-index
-		dragging_piece.z_index = 0
+		# After animation completes, clean up drag state
+		tween.chain().tween_callback(func():
+			if dragging_piece:
+				dragging_piece.z_index = 0
+			dragging_piece = null
+			is_dragging = false
+			original_parent = null
+			clear_highlights()
+			selected_square = Vector2i(-1, -1)
+			print("Piece returned to original position")
+		)
+	else:
+		# Fallback if no dragging_piece or original_parent
+		if dragging_piece:
+			dragging_piece.modulate = Color(1, 1, 1, 1)
+			dragging_piece.z_index = 0
 
-	# Reset all drag state
-	dragging_piece = null
-	is_dragging = false
-	original_parent = null
-	clear_highlights()
-	selected_square = Vector2i(-1, -1)
+		# Reset all drag state
+		dragging_piece = null
+		is_dragging = false
+		original_parent = null
+		clear_highlights()
+		selected_square = Vector2i(-1, -1)
 
-	print("Piece returned to original position")
+		print("Piece returned to original position (fallback)")
 
 # ============================================================================
 # VISUAL FEEDBACK FUNCTIONS
