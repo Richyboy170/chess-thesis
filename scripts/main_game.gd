@@ -367,140 +367,57 @@ func load_random_game_background():
 	"""
 	Loads a random background image from the backgrounds folder and applies it
 	to cover the entire game screen. The background is placed behind all other elements.
-	Includes comprehensive error checking at each step to diagnose loading issues.
 	"""
 	var backgrounds_path = "res://assets/backgrounds/"
 	var background_files = []
 
-	print("\n=== BACKGROUND LOADING: Starting comprehensive checks ===")
-
-	# CHECKER 1: Verify the backgrounds directory exists and is accessible
-	print("[CHECK 1] Verifying backgrounds directory exists...")
+	# Get all files in the backgrounds directory
 	var dir = DirAccess.open(backgrounds_path)
-	if not dir:
-		push_error("CRITICAL: Failed to open backgrounds directory: " + backgrounds_path)
-		print("ERROR: Cannot access " + backgrounds_path)
-		print("SOLUTION: Ensure the 'assets/backgrounds/' folder exists in your project")
-		return
-	print("[CHECK 1] ✓ Directory accessible")
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			# Check if it's a valid image file (not a directory or hidden file)
+			if not dir.current_is_dir() and not file_name.begins_with(".") and not file_name.ends_with(".md"):
+				# Check for valid image extensions
+				if file_name.ends_with(".png") or file_name.ends_with(".jpg") or file_name.ends_with(".jpeg"):
+					background_files.append(backgrounds_path + file_name)
+			file_name = dir.get_next()
+		dir.list_dir_end()
 
-	# CHECKER 2: Scan directory and validate file discovery
-	print("[CHECK 2] Scanning for image files...")
-	dir.list_dir_begin()
-	var file_name = dir.get_next()
-	var files_scanned = 0
-	var files_skipped = []
-
-	while file_name != "":
-		files_scanned += 1
-
-		# Check if it's a valid image file (not a directory or hidden file)
-		if dir.current_is_dir():
-			files_skipped.append(file_name + " (directory)")
-		elif file_name.begins_with("."):
-			files_skipped.append(file_name + " (hidden file)")
-		elif file_name.ends_with(".md"):
-			files_skipped.append(file_name + " (markdown file)")
-		elif file_name.ends_with(".png") or file_name.ends_with(".jpg") or file_name.ends_with(".jpeg"):
-			# Valid image file found
-			background_files.append(backgrounds_path + file_name)
-			print("  Found valid image: " + file_name)
-		else:
-			files_skipped.append(file_name + " (unsupported format)")
-
-		file_name = dir.get_next()
-	dir.list_dir_end()
-
-	print("[CHECK 2] Scan complete: " + str(files_scanned) + " items scanned, " + str(background_files.size()) + " valid images found")
-	if files_skipped.size() > 0:
-		print("  Skipped files: " + str(files_skipped))
-
-	# CHECKER 3: Validate that at least one background exists
-	print("[CHECK 3] Validating background availability...")
+	# If no backgrounds found, print warning and return
 	if background_files.size() == 0:
-		push_error("CRITICAL: No background images found in " + backgrounds_path)
-		print("ERROR: No valid PNG/JPG images found")
-		print("SOLUTION: Add PNG or JPG image files to " + backgrounds_path)
-		print("  Supported formats: .png, .jpg, .jpeg")
+		print("Warning: No background images found in ", backgrounds_path)
+		print("Please add PNG or JPG images to the backgrounds folder")
 		return
-	print("[CHECK 3] ✓ Found " + str(background_files.size()) + " background(s)")
 
-	# CHECKER 4: Select and validate random choice
-	print("[CHECK 4] Selecting random background...")
+	# Select a random background
 	var random_index = randi() % background_files.size()
 	var selected_background = background_files[random_index]
-	print("[CHECK 4] ✓ Selected: " + selected_background + " (index " + str(random_index) + ")")
+	print("Selected random background: ", selected_background)
 
-	# CHECKER 5: Verify file existence (double-check before loading)
-	print("[CHECK 5] Verifying file exists on disk...")
-	if not FileAccess.file_exists(selected_background):
-		push_error("CRITICAL: Selected file does not exist: " + selected_background)
-		print("ERROR: File vanished between scan and load")
-		print("SOLUTION: Check for file system issues or race conditions")
-		return
-	print("[CHECK 5] ✓ File exists on disk")
+	# Load and display the background
+	if FileAccess.file_exists(selected_background):
+		var texture = load(selected_background)
+		if texture:
+			# Create TextureRect to cover the entire screen
+			var background_rect = TextureRect.new()
+			background_rect.texture = texture
+			background_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			background_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			background_rect.anchor_right = 1.0
+			background_rect.anchor_bottom = 1.0
+			background_rect.z_index = -100  # Place far behind everything
+			background_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# CHECKER 6: Load texture and validate
-	print("[CHECK 6] Loading texture into memory...")
-	var texture = load(selected_background)
-	if not texture:
-		push_error("CRITICAL: Failed to load texture from: " + selected_background)
-		print("ERROR: Godot could not load the image file")
-		print("SOLUTION: Verify the file is a valid image and not corrupted")
-		print("  Try opening the file in an image editor to verify it's valid")
-		return
-
-	if not texture is Texture2D:
-		push_error("CRITICAL: Loaded resource is not a Texture2D: " + str(texture))
-		print("ERROR: File loaded but is wrong type")
-		return
-
-	print("[CHECK 6] ✓ Texture loaded successfully")
-	print("  Texture size: " + str(texture.get_width()) + "x" + str(texture.get_height()))
-
-	# CHECKER 7: Create and configure TextureRect
-	print("[CHECK 7] Creating TextureRect node...")
-	var background_rect = TextureRect.new()
-	if not background_rect:
-		push_error("CRITICAL: Failed to create TextureRect node")
-		return
-
-	background_rect.texture = texture
-	background_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	background_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	background_rect.anchor_right = 1.0
-	background_rect.anchor_bottom = 1.0
-	background_rect.z_index = -100  # Place far behind everything
-	background_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	print("[CHECK 7] ✓ TextureRect configured")
-
-	# CHECKER 8: Add to scene tree and verify
-	print("[CHECK 8] Adding background to scene tree...")
-	if not is_inside_tree():
-		push_error("CRITICAL: Main game node not in scene tree - cannot add background")
-		return
-
-	add_child(background_rect)
-	move_child(background_rect, 0)  # Move to the very back
-
-	# Verify the node was added
-	if not background_rect.is_inside_tree():
-		push_error("CRITICAL: Background was not successfully added to scene tree")
-		return
-
-	print("[CHECK 8] ✓ Background added to scene tree")
-	print("[CHECK 8] ✓ Background positioned at index 0 (behind all other nodes)")
-
-	# CHECKER 9: Final visibility verification
-	print("[CHECK 9] Final visibility checks...")
-	if not background_rect.visible:
-		push_warning("WARNING: Background node exists but is not visible")
-		background_rect.visible = true
-		print("  Fixed: Set background to visible")
-
-	print("[CHECK 9] ✓ Background is visible")
-	print("\n=== BACKGROUND LOADING: SUCCESS ===")
-	print("Background '" + selected_background + "' is now displayed\n")
+			# Add to the root control node (self)
+			add_child(background_rect)
+			move_child(background_rect, 0)  # Move to the very back
+			print("Random game background loaded successfully")
+		else:
+			print("Error: Could not load background texture: ", selected_background)
+	else:
+		print("Error: Background file does not exist: ", selected_background)
 
 func load_character_media(display_node: ColorRect, area_node: PanelContainer, animations_dir: String, bg_path: String):
 	"""
@@ -1326,10 +1243,9 @@ func start_drag(pos: Vector2i):
 			# Get current mouse/touch position
 			var mouse_pos = get_viewport().get_mouse_position()
 
-			# Calculate offset from mouse to piece's current position
-			# This keeps the piece exactly where it is relative to the cursor
-			# (prevents the piece from "jumping" to center on the cursor)
-			drag_offset = piece_node.global_position - mouse_pos
+			# Calculate offset from mouse to piece center for smooth dragging
+			var piece_center = piece_node.global_position + (piece_node.size / 2)
+			drag_offset = piece_center - mouse_pos
 
 			# Create shadow/glow effect behind the piece
 			create_drag_shadow(piece_node)
