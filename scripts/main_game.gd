@@ -772,23 +772,23 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 		var texture = load(piece_image_path)
 		if texture:
 			# Create TextureRect to display the piece image
-			var visual_piece = TextureRect.new()
-			visual_piece.texture = texture
-			visual_piece.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-			visual_piece.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS
+			var piece_texture_rect = TextureRect.new()
+			piece_texture_rect.texture = texture
+			piece_texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+			piece_texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			piece_texture_rect.mouse_filter = Control.MOUSE_FILTER_PASS
 
 			# Center the piece within its square using anchors
-			visual_piece.anchor_left = 0.0
-			visual_piece.anchor_top = 0.0
-			visual_piece.anchor_right = 1.0
-			visual_piece.anchor_bottom = 1.0
-			visual_piece.offset_left = 0
-			visual_piece.offset_top = 0
-			visual_piece.offset_right = 0
-			visual_piece.offset_bottom = 0
-			visual_piece.grow_horizontal = Control.GROW_DIRECTION_BOTH
-			visual_piece.grow_vertical = Control.GROW_DIRECTION_BOTH
+			piece_texture_rect.anchor_left = 0.0
+			piece_texture_rect.anchor_top = 0.0
+			piece_texture_rect.anchor_right = 1.0
+			piece_texture_rect.anchor_bottom = 1.0
+			piece_texture_rect.offset_left = 0
+			piece_texture_rect.offset_top = 0
+			piece_texture_rect.offset_right = 0
+			piece_texture_rect.offset_bottom = 0
+			piece_texture_rect.grow_horizontal = Control.GROW_DIRECTION_BOTH
+			piece_texture_rect.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 			# Apply color modulation for black pieces
 			if piece.piece_color == ChessPiece.PieceColor.BLACK:
@@ -798,36 +798,36 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 					"modern": Color(0.2, 0.3, 0.5),     # Dark blue
 					"fantasy": Color(0.5, 0.2, 0.4)     # Dark purple
 				}
-				var style = piece.character_style
-				if style in tint_colors:
-					visual_piece.modulate = tint_colors[style]
+				var piece_style = piece.character_style
+				if piece_style in tint_colors:
+					piece_texture_rect.modulate = tint_colors[piece_style]
 				else:
-					visual_piece.modulate = Color(0.3, 0.3, 0.3)  # Default dark gray
+					piece_texture_rect.modulate = Color(0.3, 0.3, 0.3)  # Default dark gray
 
 			# Add piece to the board square and track it
-			board_squares[pos.x][pos.y].add_child(visual_piece)
-			visual_pieces.append(visual_piece)
+			board_squares[pos.x][pos.y].add_child(piece_texture_rect)
+			visual_pieces.append(piece_texture_rect)
 			return
 
 	# Fallback to Unicode symbols if image not found
-	var visual_piece = Label.new()
-	visual_piece.text = piece.get_piece_symbol()
-	visual_piece.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	visual_piece.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	visual_piece.add_theme_font_size_override("font_size", 56)
-	visual_piece.mouse_filter = Control.MOUSE_FILTER_PASS
+	var piece_label = Label.new()
+	piece_label.text = piece.get_piece_symbol()
+	piece_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	piece_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	piece_label.add_theme_font_size_override("font_size", 56)
+	piece_label.mouse_filter = Control.MOUSE_FILTER_PASS
 
 	# Center the piece label within its square using anchors
-	visual_piece.anchor_left = 0.0
-	visual_piece.anchor_top = 0.0
-	visual_piece.anchor_right = 1.0
-	visual_piece.anchor_bottom = 1.0
-	visual_piece.offset_left = 0
-	visual_piece.offset_top = 0
-	visual_piece.offset_right = 0
-	visual_piece.offset_bottom = 0
-	visual_piece.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	visual_piece.grow_vertical = Control.GROW_DIRECTION_BOTH
+	piece_label.anchor_left = 0.0
+	piece_label.anchor_top = 0.0
+	piece_label.anchor_right = 1.0
+	piece_label.anchor_bottom = 1.0
+	piece_label.offset_left = 0
+	piece_label.offset_top = 0
+	piece_label.offset_right = 0
+	piece_label.offset_bottom = 0
+	piece_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	piece_label.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 	# Apply theme-based colors to pieces
 	var style_colors = {
@@ -836,16 +836,16 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 		"fantasy": {"white": Color(1, 0.9, 0.7), "black": Color(0.4, 0.1, 0.3)}
 	}
 
-	var style = piece.character_style
-	if not style in style_colors:
-		style = "classic"
+	var piece_theme_style = piece.character_style
+	if not piece_theme_style in style_colors:
+		piece_theme_style = "classic"
 
 	var color_key = "white" if piece.piece_color == ChessPiece.PieceColor.WHITE else "black"
-	visual_piece.add_theme_color_override("font_color", style_colors[style][color_key])
+	piece_label.add_theme_color_override("font_color", style_colors[piece_theme_style][color_key])
 
 	# Add piece to the board square and track it
-	board_squares[pos.x][pos.y].add_child(visual_piece)
-	visual_pieces.append(visual_piece)
+	board_squares[pos.x][pos.y].add_child(piece_label)
+	visual_pieces.append(piece_label)
 
 	print("Warning: Could not load piece image: ", piece_image_path, " - using Unicode fallback")
 
@@ -1155,9 +1155,9 @@ func create_captured_piece_visual(piece: ChessPiece) -> Control:
 					"modern": Color(0.2, 0.3, 0.5),
 					"fantasy": Color(0.5, 0.2, 0.4)
 				}
-				var style = piece.character_style
-				if style in tint_colors:
-					visual_piece.modulate = tint_colors[style]
+				var captured_piece_style = piece.character_style
+				if captured_piece_style in tint_colors:
+					visual_piece.modulate = tint_colors[captured_piece_style]
 				else:
 					visual_piece.modulate = Color(0.3, 0.3, 0.3)
 
@@ -1439,7 +1439,7 @@ func flash_square_red(pos: Vector2i):
 # CHESS BOARD EVENT HANDLERS (SIGNALS)
 # ============================================================================
 
-func _on_piece_moved(from_pos: Vector2i, to_pos: Vector2i, piece: ChessPiece):
+func _on_piece_moved(from_pos: Vector2i, to_pos: Vector2i, _piece: ChessPiece):
 	"""
 	Called when a piece is successfully moved on the board.
 	Connected to the chess_board.piece_moved signal.
@@ -1447,7 +1447,7 @@ func _on_piece_moved(from_pos: Vector2i, to_pos: Vector2i, piece: ChessPiece):
 	Args:
 		from_pos: Starting position of the piece
 		to_pos: Ending position of the piece
-		piece: The piece that was moved
+		_piece: The piece that was moved (unused)
 	"""
 	print("Piece moved from ", from_pos, " to ", to_pos)
 
@@ -1523,12 +1523,12 @@ func update_timer_display():
 		return
 
 	# Format Player 1's time as MM:SS
-	var p1_minutes = int(GameState.player1_time_remaining) / 60
+	var p1_minutes = int(GameState.player1_time_remaining) // 60
 	var p1_seconds = int(GameState.player1_time_remaining) % 60
 	player1_timer_label.text = "Time: %02d:%02d" % [p1_minutes, p1_seconds]
 
 	# Format Player 2's time as MM:SS
-	var p2_minutes = int(GameState.player2_time_remaining) / 60
+	var p2_minutes = int(GameState.player2_time_remaining) // 60
 	var p2_seconds = int(GameState.player2_time_remaining) % 60
 	player2_timer_label.text = "Time: %02d:%02d" % [p2_minutes, p2_seconds]
 
@@ -1731,10 +1731,10 @@ func show_game_summary(result: String):
 	scroll.custom_minimum_size = Vector2(550, 300)
 
 	# Format move history in chess notation style
-	var moves_label = Label.new()
+	var history_text_label = Label.new()
 	var moves_text = ""
 	for i in range(GameState.move_history.size()):
-		var move_num = (i / 2) + 1  # Calculate move number
+		var move_num = (i // 2) + 1  # Calculate move number
 		if i % 2 == 0:
 			# White's move
 			moves_text += str(move_num) + ". " + GameState.move_history[i]
@@ -1744,10 +1744,10 @@ func show_game_summary(result: String):
 			else:
 				moves_text += "\n"
 
-	moves_label.text = moves_text
-	moves_label.add_theme_font_size_override("font_size", 16)
-	moves_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	scroll.add_child(moves_label)
+	history_text_label.text = moves_text
+	history_text_label.add_theme_font_size_override("font_size", 16)
+	history_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	scroll.add_child(history_text_label)
 	content.add_child(scroll)
 
 	# Add content to dialog and show it
