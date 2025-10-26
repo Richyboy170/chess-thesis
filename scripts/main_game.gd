@@ -1523,12 +1523,12 @@ func update_timer_display():
 		return
 
 	# Format Player 1's time as MM:SS
-	var p1_minutes = int(GameState.player1_time_remaining) // 60
+	var p1_minutes = int(GameState.player1_time_remaining / 60)
 	var p1_seconds = int(GameState.player1_time_remaining) % 60
 	player1_timer_label.text = "Time: %02d:%02d" % [p1_minutes, p1_seconds]
 
 	# Format Player 2's time as MM:SS
-	var p2_minutes = int(GameState.player2_time_remaining) // 60
+	var p2_minutes = int(GameState.player2_time_remaining / 60)
 	var p2_seconds = int(GameState.player2_time_remaining) % 60
 	player2_timer_label.text = "Time: %02d:%02d" % [p2_minutes, p2_seconds]
 
@@ -1734,7 +1734,7 @@ func show_game_summary(result: String):
 	var history_text_label = Label.new()
 	var moves_text = ""
 	for i in range(GameState.move_history.size()):
-		var move_num = (i // 2) + 1  # Calculate move number
+		var move_num = int(i / 2) + 1  # Calculate move number
 		if i % 2 == 0:
 			# White's move
 			moves_text += str(move_num) + ". " + GameState.move_history[i]
