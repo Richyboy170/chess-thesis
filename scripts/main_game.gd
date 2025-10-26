@@ -1243,9 +1243,9 @@ func start_drag(pos: Vector2i):
 			# Get current mouse/touch position
 			var mouse_pos = get_viewport().get_mouse_position()
 
-			# Calculate offset from mouse to piece center for smooth dragging
-			var piece_center = piece_node.global_position + (piece_node.size / 2)
-			drag_offset = piece_center - mouse_pos
+			# Calculate offset from mouse to piece position to prevent shifting
+			# This ensures the piece stays in the exact same position relative to the cursor
+			drag_offset = mouse_pos - piece_node.global_position
 
 			# Create shadow/glow effect behind the piece
 			create_drag_shadow(piece_node)
