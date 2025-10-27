@@ -110,6 +110,39 @@ The game now includes full chess logic with:
 
 ## Recent Updates
 
+### Chessboard UI Improvements
+- **Zoom to Center**: Chessboard zooms to its center point using mouse wheel
+- **Pan Support**:
+  - Mouse drag: Hold middle mouse button and drag to pan the chessboard
+  - Touch: Use two-finger drag to pan the chessboard
+- **Pinch-to-Zoom**: Two-finger pinch gesture for touch devices to zoom in/out
+- **Scoreboard Toggle Repositioned**: Moved to the bottom of the chessboard container for better accessibility
+
+### Character Animations
+- **Enhanced Animation Support**:
+  - Supports both video (.mp4, .webm, .ogv) and GIF formats for all animations
+  - Character idle animations display continuously during gameplay
+  - Victory animations play when a player wins
+  - Defeat animations play when a player loses
+  - Capture effect animations play when pieces are captured
+- **Animation Files**:
+  - `character_idle.mp4/.gif` - Idle animation (required)
+  - `character_victory.mp4/.gif` - Victory animation (optional)
+  - `character_defeat.mp4/.gif` - Defeat animation (optional)
+  - `piece_capture_effect.mp4/.gif` - Capture effect (optional)
+
+### Player Container Enhancements
+- **Doubled Container Size**: Player areas increased from 120px to 240px height for better visibility
+- **Doubled Character Display**: Character animations now 400x400px (doubled from 200x200px)
+- **Doubled Font Sizes**:
+  - Player names: 48px (doubled from 24px)
+  - Character names: 40px (doubled from 20px)
+  - Timers: 56px (doubled from 28px)
+  - Captured pieces label: 36px (doubled from 18px)
+- **Inverse Layout**: Player 2 container is designed as an inverse mirror of Player 1
+  - Player 1: Character left, info right (left-aligned text)
+  - Player 2: Info left, character right (right-aligned text)
+
 ### Chess Piece Animation
 - **Drag and Drop**: Chess pieces now follow the player's finger or mouse cursor when picked up
 - **Smooth Movement**: Pieces stick to the cursor during dragging for intuitive gameplay
@@ -125,14 +158,6 @@ The game now includes full chess logic with:
 - **Game Statistics**: Displays total moves, scores, and captured pieces
 - **End Game Dialog**: Beautiful popup showing game results and full move history
 - **Scrollable History**: View all moves made during the game
-
-### Enhanced UI
-- **Larger Elements**: Increased sizes for:
-  - Chess pieces (56px font size)
-  - Chess squares (80x80px)
-  - All text labels (18-28px)
-  - Player areas and character displays
-- **Better Readability**: Improved contrast and sizing for mobile devices
 
 ### Responsive Design
 - **Orientation Support**: Supports both portrait and landscape orientations
