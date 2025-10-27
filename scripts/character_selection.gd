@@ -138,15 +138,23 @@ func load_character_preview_on_button(button: Button, character_id: int):
 		character_id: The character ID (0-2)
 	"""
 	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
+	print("\n===== LOADING CHARACTER ", character_id + 1, " PREVIEW =====")
+	print("Character path: ", char_path)
 
 	# Find character background image (support multiple formats)
 	var bg_path = ""
 	var supported_bg_extensions = [".png", ".jpg", ".jpeg", ".webp"]
+	print("Searching for background image...")
 	for ext in supported_bg_extensions:
 		var test_path = char_path + "backgrounds/character_background" + ext
+		print("  Checking: ", test_path)
 		if FileAccess.file_exists(test_path):
 			bg_path = test_path
+			print("  ✓ FOUND: ", test_path)
 			break
+
+	if bg_path == "":
+		print("  ✗ No background image found")
 
 	# Create a container for the preview that doesn't interfere with button functionality
 	var preview_container = Control.new()
@@ -162,9 +170,12 @@ func load_character_preview_on_button(button: Button, character_id: int):
 	var supported_video_extensions = [".ogv"]
 	var video_loaded = false
 
+	print("\nSearching for video animation...")
 	for ext in supported_video_extensions:
 		var video_path = char_path + "animations/character_idle" + ext
+		print("  Checking: ", video_path)
 		if FileAccess.file_exists(video_path):
+			print("  ✓ FOUND: ", video_path)
 			var video_stream = load(video_path)
 			if video_stream:
 				var video_player = VideoStreamPlayer.new()
@@ -178,14 +189,19 @@ func load_character_preview_on_button(button: Button, character_id: int):
 				preview_container.add_child(video_player)
 				button.add_child(preview_container)
 				button.move_child(preview_container, 0)  # Move to back
-				print("Loaded character preview video for character ", character_id + 1, " (", ext, ")")
+				print("  ✓ LOADED: Video preview (", ext, ")")
 				video_loaded = true
 				break
+			else:
+				print("  ✗ ERROR: Could not load video stream")
 
 	# Try to load GIF animation
 	if not video_loaded:
+		print("\nSearching for GIF animation...")
 		var gif_path = char_path + "animations/character_idle.gif"
+		print("  Checking: ", gif_path)
 		if FileAccess.file_exists(gif_path):
+			print("  ✓ FOUND: ", gif_path)
 			var texture = load(gif_path)
 			if texture:
 				var texture_rect = TextureRect.new()
@@ -198,12 +214,18 @@ func load_character_preview_on_button(button: Button, character_id: int):
 				preview_container.add_child(texture_rect)
 				button.add_child(preview_container)
 				button.move_child(preview_container, 0)  # Move to back
-				print("Loaded character preview GIF for character ", character_id + 1)
+				print("  ✓ LOADED: GIF preview")
 				video_loaded = true
+			else:
+				print("  ✗ ERROR: Could not load GIF texture")
+		else:
+			print("  ✗ NOT FOUND: ", gif_path)
 
 	# Fallback to background image if no video/animation was loaded
 	if not video_loaded:
+		print("\nFalling back to background image...")
 		if bg_path != "" and FileAccess.file_exists(bg_path):
+			print("  Using background: ", bg_path)
 			var texture = load(bg_path)
 			if texture:
 				var texture_rect = TextureRect.new()
@@ -216,9 +238,18 @@ func load_character_preview_on_button(button: Button, character_id: int):
 				preview_container.add_child(texture_rect)
 				button.add_child(preview_container)
 				button.move_child(preview_container, 0)  # Move to back
-				print("Loaded character preview image for character ", character_id + 1)
+				print("  ✓ LOADED: Background image preview")
+			else:
+				print("  ✗ ERROR: Could not load background texture")
 		else:
-			print("Warning: No preview found for character ", character_id + 1)
+			print("  ✗ ERROR: No background image available")
+			print("\n⚠ WARNING: No preview found for character ", character_id + 1)
+			print("  Searched for:")
+			print("    - animations/character_idle.ogv")
+			print("    - animations/character_idle.gif")
+			print("    - backgrounds/character_background.[png|jpg|jpeg|webp]")
+
+	print("===== END CHARACTER ", character_id + 1, " PREVIEW =====\n")
 
 func _on_player1_character_selected(character_id: int):
 	player1_character = character_id
