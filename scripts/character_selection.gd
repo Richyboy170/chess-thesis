@@ -3,6 +3,11 @@ extends Control
 var player1_character = -1
 var player2_character = -1
 
+# Background debugger variables
+var background_debug_panel: PanelContainer = null
+var background_debug_visible: bool = false
+var current_background_node: Control = null
+
 func _ready():
 	# Load random background
 	load_random_background()
@@ -14,6 +19,9 @@ func _ready():
 	load_character_previews()
 
 	update_start_button()
+
+	# Create background debugger
+	create_background_debugger()
 
 func load_random_background():
 	"""
@@ -69,6 +77,9 @@ func load_random_background():
 				video_player.z_index = -100  # Place far behind everything
 				video_player.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+				# Store reference for debugger
+				current_background_node = video_player
+
 				# Add to the root control node (self)
 				add_child(video_player)
 				move_child(video_player, 0)  # Move to the very back
@@ -88,6 +99,9 @@ func load_random_background():
 				background_rect.anchor_bottom = 1.0
 				background_rect.z_index = -100  # Place far behind everything
 				background_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+				# Store reference for debugger
+				current_background_node = background_rect
 
 				# Add to the root control node (self)
 				add_child(background_rect)
@@ -228,3 +242,191 @@ func _on_back_button_pressed():
 func _on_start_button_pressed():
 	if player1_character != -1 and player2_character != -1:
 		get_tree().change_scene_to_file("res://scenes/game/main_game.tscn")
+
+# ============================================================================
+# CHARACTER BACKGROUND DEBUGGER FUNCTIONS
+# ============================================================================
+
+func create_background_debugger():
+	"""
+	Creates a floating debug panel for character selection page background.
+	This panel allows you to:
+	- Adjust background scale
+	- Adjust background opacity
+	- Adjust background position
+	- Toggle visibility
+
+	Press 'B' key to toggle the debug panel visibility.
+	"""
+	# Create main panel container
+	background_debug_panel = PanelContainer.new()
+	background_debug_panel.name = "BackgroundDebugPanel"
+	background_debug_panel.position = Vector2(10, 100)
+	background_debug_panel.custom_minimum_size = Vector2(350, 350)
+	background_debug_panel.visible = false  # Hidden by default
+	background_debug_panel.z_index = 1000  # Always on top
+
+	# Create a stylebox for the panel
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.1, 0.1, 0.1, 0.9)
+	panel_style.border_width_left = 2
+	panel_style.border_width_right = 2
+	panel_style.border_width_top = 2
+	panel_style.border_width_bottom = 2
+	panel_style.border_color = Color(1.0, 0.6, 0.3, 1.0)
+	background_debug_panel.add_theme_stylebox_override("panel", panel_style)
+
+	# Create main VBoxContainer for content
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	background_debug_panel.add_child(vbox)
+
+	# Add margin container for padding
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	vbox.add_child(margin)
+
+	# Create content container
+	var content = VBoxContainer.new()
+	content.add_theme_constant_override("separation", 15)
+	margin.add_child(content)
+
+	# Title
+	var title = Label.new()
+	title.text = "CHARACTER BACKGROUND DEBUGGER"
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", Color(1.0, 0.6, 0.3, 1.0))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(title)
+
+	# Separator
+	var sep1 = HSeparator.new()
+	content.add_child(sep1)
+
+	# Instructions
+	var instructions = Label.new()
+	instructions.text = "Press 'B' to toggle this panel\nAdjust page background below:"
+	instructions.add_theme_font_size_override("font_size", 12)
+	instructions.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8, 1.0))
+	content.add_child(instructions)
+
+	# Background Scale
+	var scale_label = Label.new()
+	scale_label.text = "Scale: 1.0x"
+	scale_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(scale_label)
+
+	var scale_slider = HSlider.new()
+	scale_slider.min_value = 0.5
+	scale_slider.max_value = 2.0
+	scale_slider.step = 0.1
+	scale_slider.value = 1.0
+	scale_slider.custom_minimum_size = Vector2(300, 20)
+	content.add_child(scale_slider)
+
+	# Background Opacity
+	var opacity_label = Label.new()
+	opacity_label.text = "Opacity: 100%"
+	opacity_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(opacity_label)
+
+	var opacity_slider = HSlider.new()
+	opacity_slider.min_value = 0.0
+	opacity_slider.max_value = 1.0
+	opacity_slider.step = 0.05
+	opacity_slider.value = 1.0
+	opacity_slider.custom_minimum_size = Vector2(300, 20)
+	content.add_child(opacity_slider)
+
+	# Background Position X
+	var pos_x_label = Label.new()
+	pos_x_label.text = "Position X: 0"
+	pos_x_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(pos_x_label)
+
+	var pos_x_slider = HSlider.new()
+	pos_x_slider.min_value = -500
+	pos_x_slider.max_value = 500
+	pos_x_slider.step = 10
+	pos_x_slider.value = 0
+	pos_x_slider.custom_minimum_size = Vector2(300, 20)
+	content.add_child(pos_x_slider)
+
+	# Background Position Y
+	var pos_y_label = Label.new()
+	pos_y_label.text = "Position Y: 0"
+	pos_y_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(pos_y_label)
+
+	var pos_y_slider = HSlider.new()
+	pos_y_slider.min_value = -500
+	pos_y_slider.max_value = 500
+	pos_y_slider.step = 10
+	pos_y_slider.value = 0
+	pos_y_slider.custom_minimum_size = Vector2(300, 20)
+	content.add_child(pos_y_slider)
+
+	# Visibility Toggle
+	var visibility = CheckButton.new()
+	visibility.text = "Visible"
+	visibility.button_pressed = true
+	content.add_child(visibility)
+
+	# Connect signals
+	scale_slider.value_changed.connect(func(value):
+		scale_label.text = "Scale: %.1fx" % value
+		if current_background_node:
+			current_background_node.scale = Vector2(value, value)
+	)
+
+	opacity_slider.value_changed.connect(func(value):
+		opacity_label.text = "Opacity: %d%%" % int(value * 100)
+		if current_background_node:
+			current_background_node.modulate.a = value
+	)
+
+	pos_x_slider.value_changed.connect(func(value):
+		pos_x_label.text = "Position X: %d" % int(value)
+		if current_background_node:
+			current_background_node.position.x = value
+	)
+
+	pos_y_slider.value_changed.connect(func(value):
+		pos_y_label.text = "Position Y: %d" % int(value)
+		if current_background_node:
+			current_background_node.position.y = value
+	)
+
+	visibility.toggled.connect(func(pressed):
+		if current_background_node:
+			current_background_node.visible = pressed
+	)
+
+	# Add panel to scene
+	add_child(background_debug_panel)
+
+	print("Character Background Debugger created. Press 'B' to toggle.")
+
+func _unhandled_key_input(event):
+	"""
+	Handles keyboard shortcuts for the debug panel.
+	Press 'B' to toggle the character background debugger.
+	"""
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_B:
+			toggle_background_debugger()
+
+func toggle_background_debugger():
+	"""
+	Toggles the visibility of the character background debug panel.
+	"""
+	if background_debug_panel:
+		background_debug_visible = !background_debug_visible
+		background_debug_panel.visible = background_debug_visible
+		if background_debug_visible:
+			print("Character Background Debugger: VISIBLE")
+		else:
+			print("Character Background Debugger: HIDDEN")
