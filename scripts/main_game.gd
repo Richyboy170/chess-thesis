@@ -73,7 +73,7 @@ extends Control
 
 # Score panel and toggle button
 @onready var score_panel = $MainContainer/GameArea/ScorePanel
-@onready var score_toggle_button = $MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer/ScoreToggleButton
+@onready var score_toggle_button = $MainContainer/ScoreToggleContainer/ScoreToggleButton
 
 # Player timer labels
 @onready var player1_timer_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
@@ -114,13 +114,13 @@ var game_ended: bool = false
 # ============================================================================
 # CHESSBOARD ZOOM AND PAN VARIABLES
 # ============================================================================
-# Current zoom level (1.0 = 100%, 0.5 = 50%, 2.0 = 200%)
+# Current zoom level (1.0 = 100%, 0.7 = 70%, 0.8 = 80%, 0.9 = 90%)
 var chessboard_zoom: float = 1.0
-# Minimum zoom level (50%)
-const MIN_ZOOM: float = 0.5
-# Maximum zoom level (300%)
-const MAX_ZOOM: float = 3.0
-# Zoom step per scroll wheel notch
+# Minimum zoom level (70%)
+const MIN_ZOOM: float = 0.7
+# Maximum zoom level (100% - full screen fit)
+const MAX_ZOOM: float = 1.0
+# Zoom step per scroll wheel notch (allows 70%, 80%, 90%, 100%)
 const ZOOM_STEP: float = 0.1
 
 # Chessboard panning variables

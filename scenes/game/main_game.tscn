@@ -16,25 +16,25 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 3
 
 [node name="TopPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 240)
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
-size_flags_vertical = 0
+size_flags_vertical = 8
 
 [node name="MarginContainer" type="MarginContainer" parent="MainContainer/TopPlayerArea"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MainContainer/TopPlayerArea/MarginContainer"]
 layout_mode = 2
@@ -74,14 +74,14 @@ custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 200)
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 size_flags_horizontal = 0
 
 [node name="GameArea" type="HBoxContainer" parent="MainContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 10
 
 [node name="ChessboardContainer" type="PanelContainer" parent="MainContainer/GameArea"]
 layout_mode = 2
@@ -89,37 +89,21 @@ size_flags_horizontal = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="MainContainer/GameArea/ChessboardContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "CHESSBOARD"
-horizontal_alignment = 1
-
-[node name="AspectRatioContainer" type="AspectRatioContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer"]
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Chessboard" type="GridContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer/AspectRatioContainer"]
+[node name="Chessboard" type="GridContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/AspectRatioContainer"]
 visibility_layer = 391
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 columns = 8
-
-[node name="ScoreToggleButton" type="Button" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(60, 40)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
-text = ">"
 
 [node name="ScorePanel" type="PanelContainer" parent="MainContainer/GameArea"]
 custom_minimum_size = Vector2(250, 0)
@@ -203,24 +187,36 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "MENU"
 
-[node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 240)
+[node name="ScoreToggleContainer" type="HBoxContainer" parent="MainContainer"]
 layout_mode = 2
 size_flags_vertical = 0
+alignment = 1
+
+[node name="ScoreToggleButton" type="Button" parent="MainContainer/ScoreToggleContainer"]
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = ">"
+
+[node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 8
 
 [node name="MarginContainer" type="MarginContainer" parent="MainContainer/BottomPlayerArea"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MainContainer/BottomPlayerArea/MarginContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 200)
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 size_flags_horizontal = 0
 
