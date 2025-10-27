@@ -863,7 +863,7 @@ func load_random_game_background():
 	else:
 		print("Error: Background file does not exist: ", selected_background)
 
-func load_character_media(display_node: Control, area_node: Control, animations_dir: String, bg_path: String):
+func load_character_media(display_node: Control, _area_node: Control, animations_dir: String, _bg_path: String):
 	"""
 	Helper function to load and display character media.
 	- Video animations are displayed in the CharacterDisplay node (enlarged to fill more space)
@@ -871,13 +871,14 @@ func load_character_media(display_node: Control, area_node: Control, animations_
 
 	Args:
 		display_node: The Control node to display video animations
-		area_node: The Control node to display background images (unused in Main Game)
+		_area_node: The Control node to display background images (unused in Main Game)
 		animations_dir: Path to the character's animations directory
-		bg_path: Path to the character background image (unused in Main Game)
+		_bg_path: Path to the character background image (unused in Main Game)
 	"""
 	# Try to load video animation
-	# Supported formats: .webm, .ogv (native), .mp4 (platform-dependent)
-	var supported_video_extensions = [".webm", ".ogv", ".mp4"]
+	# Godot natively supports .ogv (Ogg Theora) format - prioritize it
+	# .webm and .mp4 may not work without additional codec support
+	var supported_video_extensions = [".ogv", ".webm", ".mp4"]
 	var video_loaded = false
 
 	for ext in supported_video_extensions:

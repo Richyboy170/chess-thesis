@@ -59,7 +59,8 @@ func load_random_background():
 	print("Selected random background: ", selected_background)
 
 	# Determine if it's a video or image
-	var is_video = selected_background.ends_with(".webm") or selected_background.ends_with(".ogv")
+	# Godot natively supports .ogv (Ogg Theora) format for videos
+	var is_video = selected_background.ends_with(".ogv") or selected_background.ends_with(".webm") or selected_background.ends_with(".mp4")
 
 	# Load and display the background
 	if FileAccess.file_exists(selected_background):
@@ -154,8 +155,9 @@ func load_character_preview_on_button(button: Button, character_id: int):
 	preview_container.z_index = -1  # Place behind button text
 
 	# Try to load video animation first
-	# Supported formats: .webm, .ogv (native), .mp4 (platform-dependent)
-	var supported_video_extensions = [".webm", ".ogv", ".mp4"]
+	# Godot natively supports .ogv (Ogg Theora) format - prioritize it
+	# .webm and .mp4 may not work without additional codec support
+	var supported_video_extensions = [".ogv", ".webm", ".mp4"]
 	var video_loaded = false
 
 	for ext in supported_video_extensions:
