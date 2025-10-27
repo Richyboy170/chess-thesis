@@ -22,8 +22,8 @@ extends Control
 #    - Player 1: $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
 #    - Player 2: $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
 #    - To adjust: Use the Character Animation Debugger (Press 'D' in game)
-#    - Code location: load_character_media() function (line ~579)
-#    - Size adjustment: Modify custom_minimum_size in load_character_media()
+#    - Code location: load_character_media() function (line ~957)
+#    - Size: Fixed height (200px) with unlimited width for better aspect ratio
 #
 # 4. PLAYER INFO LABELS (Names, Timers, Captured Pieces):
 #    - Located in: $MainContainer/BottomPlayerArea/.../PlayerInfo
@@ -32,9 +32,10 @@ extends Control
 #
 # 5. SCORE PANEL:
 #    - Node path: $MainContainer/GameArea/ScorePanel
-#    - Toggle button: $MainContainer/GameArea/ScoreToggleButton
-#    - To adjust: Modify setup_score_toggle() (line ~1695) and toggle_score_panel() (line ~1725)
+#    - Toggle button: $MainContainer/ScoreToggleContainer/ScoreToggleButton
+#    - To adjust: Modify setup_score_toggle() (line ~2238) and toggle_score_panel() (line ~2271)
 #    - Visibility: Hidden by default, toggle with button
+#    - Animation: Smooth zoom effect on chessboard when toggled (scales to 0.85x when open)
 #
 # 6. GAME BACKGROUNDS:
 #    - Loaded in: load_random_background() (line ~99) and load_random_game_background() (line ~471)
@@ -55,6 +56,7 @@ extends Control
 
 # Chessboard and game area references
 @onready var chessboard = $MainContainer/GameArea/ChessboardContainer/MarginContainer/AspectRatioContainer/Chessboard
+@onready var chessboard_container = $MainContainer/GameArea/ChessboardContainer
 
 # Player info labels (character names)
 @onready var player1_character_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/CharacterName
@@ -985,8 +987,9 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 				video_player.expand = true
 				video_player.anchor_right = 1.0
 				video_player.anchor_bottom = 1.0
-				# Double the size for better visibility
-				video_player.custom_minimum_size = Vector2(400, 400)
+				# Fixed height with unlimited width
+				video_player.custom_minimum_size = Vector2(0, 200)
+				video_player.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				video_player.name = "IdleAnimation"
 				display_node.add_child(video_player)
 				print("Loaded character animation: ", video_path)
@@ -1005,8 +1008,9 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 				texture_rect.anchor_right = 1.0
 				texture_rect.anchor_bottom = 1.0
-				# Double the size for better visibility
-				texture_rect.custom_minimum_size = Vector2(400, 400)
+				# Fixed height with unlimited width
+				texture_rect.custom_minimum_size = Vector2(0, 200)
+				texture_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				texture_rect.name = "IdleAnimation"
 				display_node.add_child(texture_rect)
 				print("Loaded character animation GIF: ", gif_path)
@@ -2255,6 +2259,9 @@ func setup_score_toggle():
 	# Set initial text - panel is hidden, so show expand arrow
 	score_toggle_button.text = ">"
 
+	# Initialize chessboard scale to full size
+	chessboard_container.scale = Vector2(1.0, 1.0)
+
 	print("Score panel initialized as hidden")
 
 func _on_score_toggle_pressed():
@@ -2267,24 +2274,28 @@ func _on_score_toggle_pressed():
 
 func toggle_score_panel():
 	"""
-	Animates the score panel sliding in/out.
-	When hidden, the panel slides out to the right.
-	When shown, the panel slides in from its original position (not from far left).
-	The panel stays in the same place in the layout - it just becomes visible/invisible.
+	Animates the score panel sliding in/out with smooth chessboard zoom effect.
+	When the score panel opens, the chessboard zooms out to accommodate it.
+	When the score panel closes, the chessboard zooms back to full size.
 	"""
 	var tween = create_tween()
 	tween.set_ease(Tween.EASE_IN_OUT)
 	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.set_parallel(true)  # Run animations in parallel
 
 	if score_panel_visible:
-		# Show panel - fade in at current position
+		# Show panel - fade in and zoom out chessboard
 		score_panel.visible = true
 		score_panel.modulate.a = 0.0
-		tween.tween_property(score_panel, "modulate:a", 1.0, 0.3)
+		tween.tween_property(score_panel, "modulate:a", 1.0, 0.4)
+		# Zoom out chessboard by scaling down
+		tween.tween_property(chessboard_container, "scale", Vector2(0.85, 0.85), 0.4)
 	else:
-		# Hide panel - fade out at current position
-		tween.tween_property(score_panel, "modulate:a", 0.0, 0.3)
-		tween.tween_callback(func(): score_panel.visible = false)
+		# Hide panel - fade out and zoom in chessboard
+		tween.tween_property(score_panel, "modulate:a", 0.0, 0.4)
+		# Zoom in chessboard back to full size
+		tween.tween_property(chessboard_container, "scale", Vector2(1.0, 1.0), 0.4)
+		tween.chain().tween_callback(func(): score_panel.visible = false)
 
 	update_score_toggle_text()
 
