@@ -393,7 +393,9 @@ func setup_chessboard():
 		for col in range(8):
 			# Use Panel instead of Button for simpler, more reliable rendering
 			var square = Panel.new()
-			square.custom_minimum_size = Vector2(80, 80)
+			square.custom_minimum_size = Vector2(60, 60)
+			square.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			square.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			square.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow mouse events to pass through
 
 			# Create background style with classic colors
@@ -424,6 +426,23 @@ func setup_chessboard():
 	chessboard.visible = true
 	print("Chessboard created with classic checkerboard pattern")
 
+func find_character_background(char_path: String) -> String:
+	"""
+	Finds a character background image with support for multiple image formats.
+
+	Args:
+		char_path: Path to the character folder
+
+	Returns:
+		Full path to the background image, or empty string if not found
+	"""
+	var supported_bg_extensions = [".png", ".jpg", ".jpeg", ".webp"]
+	for ext in supported_bg_extensions:
+		var test_path = char_path + "backgrounds/character_background" + ext
+		if FileAccess.file_exists(test_path):
+			return test_path
+	return ""
+
 func load_character_assets():
 	"""
 	Loads themed assets for both players including:
@@ -437,14 +456,14 @@ func load_character_assets():
 	var char1_path = "res://assets/characters/character_" + str(GameState.player1_character + 1) + "/"
 	var char2_path = "res://assets/characters/character_" + str(GameState.player2_character + 1) + "/"
 
-	# Load Player 1 assets
+	# Find Player 1 background (support multiple image formats)
 	var p1_anim_path = char1_path + "animations/"
-	var p1_bg_path = char1_path + "backgrounds/character_background.png"
+	var p1_bg_path = find_character_background(char1_path)
 	load_character_media(player1_character_display, player1_area, p1_anim_path, p1_bg_path)
 
-	# Load Player 2 assets
+	# Find Player 2 background (support multiple image formats)
 	var p2_anim_path = char2_path + "animations/"
-	var p2_bg_path = char2_path + "backgrounds/character_background.png"
+	var p2_bg_path = find_character_background(char2_path)
 	load_character_media(player2_character_display, player2_area, p2_anim_path, p2_bg_path)
 
 	print("Character assets loaded for Player 1 (", GameState.player1_character, ") and Player 2 (", GameState.player2_character, ")")
@@ -517,9 +536,9 @@ func load_character_media(display_node: Control, area_node: Control, animations_
 		animations_dir: Path to the character's animations directory
 		bg_path: Path to the character background image
 	"""
-	# Try to load video animation (only supported formats: .webm, .ogv)
-	# Godot does NOT support .mp4 natively
-	var supported_video_extensions = [".webm", ".ogv"]
+	# Try to load video animation
+	# Supported formats: .webm, .ogv (native), .mp4 (platform-dependent)
+	var supported_video_extensions = [".webm", ".ogv", ".mp4"]
 	var video_loaded = false
 
 	for ext in supported_video_extensions:
@@ -540,11 +559,27 @@ func load_character_media(display_node: Control, area_node: Control, animations_
 				video_loaded = true
 				break
 
+	# Try to load GIF animation
 	if not video_loaded:
-		print("No supported video animation found (checked .webm, .ogv)")
+		var gif_path = animations_dir + "character_idle.gif"
+		if FileAccess.file_exists(gif_path):
+			var texture = load(gif_path)
+			if texture:
+				var texture_rect = TextureRect.new()
+				texture_rect.texture = texture
+				texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+				texture_rect.anchor_right = 1.0
+				texture_rect.anchor_bottom = 1.0
+				display_node.add_child(texture_rect)
+				print("Loaded character animation GIF: ", gif_path)
+				video_loaded = true
+
+	if not video_loaded:
+		print("No supported animation found (checked .webm, .ogv, .mp4, .gif)")
 
 	# Load background image into player area
-	if FileAccess.file_exists(bg_path):
+	if bg_path != "" and FileAccess.file_exists(bg_path):
 		var texture = load(bg_path)
 		if texture:
 			# Create TextureRect to display the background behind everything
@@ -558,7 +593,7 @@ func load_character_media(display_node: Control, area_node: Control, animations_
 			area_node.add_child(texture_rect)
 			area_node.move_child(texture_rect, 0)  # Move to back
 			print("Loaded background image: ", bg_path)
-	else:
+	elif bg_path != "":
 		print("Warning: Character background not found: ", bg_path)
 
 # ============================================================================
