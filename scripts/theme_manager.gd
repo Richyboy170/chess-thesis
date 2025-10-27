@@ -8,16 +8,16 @@ var anime_font: FontFile = null
 
 # Font size presets - adjust these to change sizes globally
 var font_sizes = {
-	"title": 48,           # Main titles (e.g., "SELECT CHARACTERS", "CHESSBOARD")
-	"heading": 32,         # Section headings
-	"subheading": 24,      # Player names, subsections
-	"body": 20,            # Character names, regular text
-	"timer": 28,           # Timer display
-	"piece": 56,           # Chess pieces
-	"captured": 20,        # Captured pieces display
-	"dialog_title": 28,    # Dialog titles
-	"dialog_text": 18,     # Dialog content
-	"button": 20           # Button text
+	"title": 96,           # Main titles (e.g., "SELECT CHARACTERS", "CHESSBOARD")
+	"heading": 64,         # Section headings
+	"subheading": 48,      # Player names, subsections
+	"body": 40,            # Character names, regular text
+	"timer": 56,           # Timer display
+	"piece": 112,          # Chess pieces
+	"captured": 40,        # Captured pieces display
+	"dialog_title": 56,    # Dialog titles
+	"dialog_text": 36,     # Dialog content
+	"button": 40           # Button text
 }
 
 func _ready():
