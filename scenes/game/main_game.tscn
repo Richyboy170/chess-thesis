@@ -74,7 +74,7 @@ custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 size_flags_horizontal = 0
 
@@ -96,6 +96,7 @@ theme_override_constants/margin_bottom = 5
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Chessboard" type="GridContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/AspectRatioContainer"]
@@ -216,7 +217,7 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 size_flags_horizontal = 0
 
