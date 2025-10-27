@@ -1792,7 +1792,7 @@ func create_captured_piece_visual(piece: ChessPiece) -> Control:
 			visual_piece.texture = texture
 			visual_piece.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 			visual_piece.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			visual_piece.custom_minimum_size = Vector2(30, 30)  # Smaller size for captured pieces
+			visual_piece.custom_minimum_size = Vector2(60, 60)  # Captured pieces size
 			visual_piece.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 
 			# Apply color modulation for black pieces (same as on board)
