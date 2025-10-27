@@ -58,7 +58,8 @@ func load_random_background():
 	print("Selected random background: ", selected_background)
 
 	# Determine if it's a video or image
-	var is_video = selected_background.ends_with(".webm") or selected_background.ends_with(".ogv")
+	# Godot natively supports .ogv (Ogg Theora) format for videos
+	var is_video = selected_background.ends_with(".ogv") or selected_background.ends_with(".webm") or selected_background.ends_with(".mp4")
 
 	# Load and display the background
 	if FileAccess.file_exists(selected_background):
