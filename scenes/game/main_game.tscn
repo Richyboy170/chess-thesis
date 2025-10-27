@@ -25,7 +25,7 @@ grow_vertical = 2
 theme_override_constants/separation = 5
 
 [node name="TopPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 240)
 layout_mode = 2
 size_flags_vertical = 0
 
@@ -46,31 +46,35 @@ size_flags_horizontal = 3
 
 [node name="PlayerName" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 48
 text = "Player 2"
+horizontal_alignment = 2
 
 [node name="CharacterName" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 40
 text = "Character: TBD"
+horizontal_alignment = 2
 
 [node name="TimerLabel" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 56
 text = "Time: --:--"
+horizontal_alignment = 2
 
 [node name="CapturedLabel" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 36
 text = "Captured Pieces:"
+horizontal_alignment = 2
 
 [node name="CapturedPieces" type="HFlowContainer" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(100, 100)
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 size_flags_horizontal = 0
 
@@ -109,6 +113,13 @@ layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 columns = 8
+
+[node name="ScoreToggleButton" type="Button" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = ">"
 
 [node name="ScorePanel" type="PanelContainer" parent="MainContainer/GameArea"]
 custom_minimum_size = Vector2(250, 0)
@@ -192,15 +203,8 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "MENU"
 
-[node name="ScoreToggleButton" type="Button" parent="MainContainer/GameArea"]
-custom_minimum_size = Vector2(40, 60)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_font_sizes/font_size = 24
-text = ">"
-
 [node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 240)
 layout_mode = 2
 size_flags_vertical = 0
 
@@ -216,7 +220,7 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(100, 100)
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 size_flags_horizontal = 0
 
@@ -226,27 +230,27 @@ size_flags_horizontal = 3
 
 [node name="PlayerName" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 48
 text = "Player 1"
 
 [node name="CharacterName" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 40
 text = "Character: TBD"
 
 [node name="TimerLabel" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 56
 text = "Time: --:--"
 
 [node name="CapturedLabel" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 36
 text = "Captured Pieces:"
 
 [node name="CapturedPieces" type="HFlowContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
 [connection signal="pressed" from="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/MenuButton" to="." method="_on_menu_button_pressed"]

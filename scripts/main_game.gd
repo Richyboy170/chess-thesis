@@ -73,7 +73,7 @@ extends Control
 
 # Score panel and toggle button
 @onready var score_panel = $MainContainer/GameArea/ScorePanel
-@onready var score_toggle_button = $MainContainer/GameArea/ScoreToggleButton
+@onready var score_toggle_button = $MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer/ScoreToggleButton
 
 # Player timer labels
 @onready var player1_timer_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
@@ -112,7 +112,7 @@ var score_panel_visible: bool = false  # Hidden by default
 var game_ended: bool = false
 
 # ============================================================================
-# CHESSBOARD ZOOM VARIABLES
+# CHESSBOARD ZOOM AND PAN VARIABLES
 # ============================================================================
 # Current zoom level (1.0 = 100%, 0.5 = 50%, 2.0 = 200%)
 var chessboard_zoom: float = 1.0
@@ -122,6 +122,16 @@ const MIN_ZOOM: float = 0.5
 const MAX_ZOOM: float = 3.0
 # Zoom step per scroll wheel notch
 const ZOOM_STEP: float = 0.1
+
+# Chessboard panning variables
+var is_panning: bool = false
+var pan_start_position: Vector2 = Vector2.ZERO
+var chessboard_offset: Vector2 = Vector2.ZERO
+var last_chessboard_position: Vector2 = Vector2.ZERO
+# Track touch points for pinch-to-zoom and two-finger drag
+var touch_points: Dictionary = {}
+var initial_touch_distance: float = 0.0
+var initial_zoom: float = 1.0
 
 # ============================================================================
 # CHARACTER ANIMATION DEBUGGER VARIABLES
@@ -635,24 +645,85 @@ func _process(delta):
 
 func _input(event):
 	"""
-	Handles all input events, primarily for drag-and-drop piece movement.
+	Handles all input events for:
+	- Drag-and-drop piece movement
+	- Chessboard zooming (mouse wheel and pinch-to-zoom)
+	- Chessboard panning (mouse drag and two-finger drag)
 	Supports both mouse (desktop) and touch (mobile) input.
-	Pieces stick to the mouse/finger with smooth visual feedback.
-	Also handles mouse wheel for chessboard zooming.
 
 	Args:
 		event: The input event to process
 	"""
+	# Handle touch events for pinch-to-zoom and two-finger drag
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			touch_points[event.index] = event.position
+			# Check for two-finger gestures
+			if touch_points.size() == 2:
+				var points = touch_points.values()
+				initial_touch_distance = points[0].distance_to(points[1])
+				initial_zoom = chessboard_zoom
+				is_panning = true
+				pan_start_position = (points[0] + points[1]) / 2.0
+		else:
+			touch_points.erase(event.index)
+			if touch_points.size() < 2:
+				is_panning = false
+				initial_touch_distance = 0.0
+
+	# Handle touch drag for two-finger pan and pinch-to-zoom
+	elif event is InputEventScreenDrag:
+		touch_points[event.index] = event.position
+
+		if touch_points.size() == 2:
+			var points = touch_points.values()
+			var current_distance = points[0].distance_to(points[1])
+			var current_center = (points[0] + points[1]) / 2.0
+
+			# Handle pinch-to-zoom
+			if initial_touch_distance > 0:
+				var zoom_factor = current_distance / initial_touch_distance
+				var new_zoom = clamp(initial_zoom * zoom_factor, MIN_ZOOM, MAX_ZOOM)
+				if new_zoom != chessboard_zoom:
+					zoom_chessboard_to_center(new_zoom - chessboard_zoom)
+
+			# Handle two-finger pan
+			if is_panning:
+				var delta = current_center - pan_start_position
+				pan_chessboard(delta)
+				pan_start_position = current_center
+
+			get_viewport().set_input_as_handled()
+			return
+
 	# Handle mouse wheel for chessboard zoom
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
 			# Zoom in
-			zoom_chessboard(ZOOM_STEP)
+			zoom_chessboard_to_center(ZOOM_STEP)
 			get_viewport().set_input_as_handled()
 			return
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
 			# Zoom out
-			zoom_chessboard(-ZOOM_STEP)
+			zoom_chessboard_to_center(-ZOOM_STEP)
+			get_viewport().set_input_as_handled()
+			return
+		# Handle middle mouse button for panning
+		elif event.button_index == MOUSE_BUTTON_MIDDLE:
+			if event.pressed:
+				is_panning = true
+				pan_start_position = event.position
+			else:
+				is_panning = false
+			get_viewport().set_input_as_handled()
+			return
+
+	# Handle mouse motion for panning (when middle button is held)
+	if event is InputEventMouseMotion:
+		if is_panning and not is_dragging:
+			var delta = event.position - pan_start_position
+			pan_chessboard(delta)
+			pan_start_position = event.position
 			get_viewport().set_input_as_handled()
 			return
 
@@ -673,16 +744,16 @@ func _input(event):
 
 		# Handle touch release (mobile)
 		elif event is InputEventScreenTouch:
-			if not event.pressed:
+			if not event.pressed and touch_points.size() <= 1:
 				end_drag(event.position)
 
 # ============================================================================
 # CHESSBOARD SETUP FUNCTIONS
 # ============================================================================
 
-func zoom_chessboard(delta: float):
+func zoom_chessboard_to_center(delta: float):
 	"""
-	Adjusts the chessboard zoom level by the specified delta.
+	Adjusts the chessboard zoom level by the specified delta, zooming to center.
 	Uses smooth animation for a polished feel.
 
 	Args:
@@ -693,10 +764,18 @@ func zoom_chessboard(delta: float):
 
 	# Only animate if zoom actually changed
 	if new_zoom != chessboard_zoom:
+		var old_zoom = chessboard_zoom
 		chessboard_zoom = new_zoom
 
 		# Get the chessboard container (parent of the Chessboard)
 		var chessboard_container = chessboard.get_parent().get_parent()
+
+		# Calculate the center point for zoom
+		var container_rect = chessboard_container.get_global_rect()
+		var center_point = container_rect.get_center()
+
+		# Adjust the pivot point to zoom to center
+		var local_center = chessboard_container.get_local_mouse_position()
 
 		# Animate the scale change smoothly
 		var tween = create_tween()
@@ -704,7 +783,24 @@ func zoom_chessboard(delta: float):
 		tween.set_trans(Tween.TRANS_CUBIC)
 		tween.tween_property(chessboard_container, "scale", Vector2(chessboard_zoom, chessboard_zoom), 0.2)
 
+		# Apply the offset to keep zoom centered
+		chessboard_container.pivot_offset = container_rect.size / 2.0
+
 		print("Chessboard zoom: ", int(chessboard_zoom * 100), "%")
+
+func pan_chessboard(delta: Vector2):
+	"""
+	Pans the chessboard by the specified delta.
+
+	Args:
+		delta: The amount to pan by (in pixels)
+	"""
+	# Get the chessboard container
+	var chessboard_container = chessboard.get_parent().get_parent()
+
+	# Update the chessboard position
+	chessboard_offset += delta
+	chessboard_container.position = chessboard_offset
 
 func setup_chessboard():
 	"""
@@ -866,18 +962,18 @@ func load_random_game_background():
 func load_character_media(display_node: Control, _area_node: Control, animations_dir: String, _bg_path: String):
 	"""
 	Helper function to load and display character media.
-	- Video animations are displayed in the CharacterDisplay node (enlarged to fill more space)
+	- Video/GIF animations are displayed in the CharacterDisplay node (enlarged to fill more space)
 	- Background images are NOT loaded in Main Game (only animations are shown)
+	- Supports idle, victory, defeat, and capture effect animations
 
 	Args:
-		display_node: The Control node to display video animations
+		display_node: The Control node to display video/GIF animations
 		_area_node: The Control node to display background images (unused in Main Game)
 		animations_dir: Path to the character's animations directory
 		_bg_path: Path to the character background image (unused in Main Game)
 	"""
-	# Try to load video animation
-	# Godot natively supports .ogv (Ogg Theora) format - prioritize it
-	# .webm and .mp4 may not work without additional codec support
+	# Try to load idle animation (default animation)
+	# Supports both video (.ogv, .webm, .mp4) and GIF formats
 	var supported_video_extensions = [".ogv", ".webm", ".mp4"]
 	var video_loaded = false
 
@@ -894,8 +990,9 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 				video_player.expand = true
 				video_player.anchor_right = 1.0
 				video_player.anchor_bottom = 1.0
-				# Increase size by setting custom minimum size for better visibility
-				video_player.custom_minimum_size = Vector2(200, 200)
+				# Double the size for better visibility
+				video_player.custom_minimum_size = Vector2(400, 400)
+				video_player.name = "IdleAnimation"
 				display_node.add_child(video_player)
 				print("Loaded character animation: ", video_path)
 				video_loaded = true
@@ -913,14 +1010,97 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 				texture_rect.anchor_right = 1.0
 				texture_rect.anchor_bottom = 1.0
-				# Increase size by setting custom minimum size for better visibility
-				texture_rect.custom_minimum_size = Vector2(200, 200)
+				# Double the size for better visibility
+				texture_rect.custom_minimum_size = Vector2(400, 400)
+				texture_rect.name = "IdleAnimation"
 				display_node.add_child(texture_rect)
 				print("Loaded character animation GIF: ", gif_path)
 				video_loaded = true
 
 	if not video_loaded:
-		print("No supported animation found (checked .webm, .ogv, .mp4, .gif)")
+		print("No supported idle animation found (checked .webm, .ogv, .mp4, .gif)")
+
+	# Pre-load victory, defeat, and capture effect animations for later use
+	# These will be stored as metadata on the display node for quick access
+	preload_special_animations(display_node, animations_dir)
+
+func preload_special_animations(display_node: Control, animations_dir: String):
+	"""
+	Pre-loads victory, defeat, and capture effect animations for quick playback.
+	Stores them as metadata on the display node.
+
+	Args:
+		display_node: The Control node to store animation references
+		animations_dir: Path to the character's animations directory
+	"""
+	var special_animations = ["character_victory", "character_defeat", "piece_capture_effect"]
+	var supported_extensions = [".ogv", ".webm", ".mp4", ".gif"]
+
+	for anim_name in special_animations:
+		for ext in supported_extensions:
+			var anim_path = animations_dir + anim_name + ext
+			if FileAccess.file_exists(anim_path):
+				# Store the path for later use
+				display_node.set_meta(anim_name, anim_path)
+				print("Pre-loaded special animation: ", anim_path)
+				break
+
+func play_special_animation(display_node: Control, animation_type: String, duration: float = 3.0):
+	"""
+	Plays a special animation (victory, defeat, or capture effect) on the character display.
+	Temporarily replaces the idle animation with the special animation, then restores it.
+
+	Args:
+		display_node: The Control node containing the character animations
+		animation_type: The type of animation to play ("character_victory", "character_defeat", "piece_capture_effect")
+		duration: How long to play the animation before returning to idle (in seconds)
+	"""
+	# Check if the animation is available
+	if not display_node.has_meta(animation_type):
+		print("Special animation not available: ", animation_type)
+		return
+
+	var anim_path = display_node.get_meta(animation_type)
+	var is_gif = anim_path.ends_with(".gif")
+
+	# Hide the current idle animation
+	if display_node.get_child_count() > 0:
+		display_node.get_child(0).visible = false
+
+	# Create and play the special animation
+	var anim_node = null
+	if is_gif:
+		var texture = load(anim_path)
+		if texture:
+			anim_node = TextureRect.new()
+			anim_node.texture = texture
+			anim_node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			anim_node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			anim_node.anchor_right = 1.0
+			anim_node.anchor_bottom = 1.0
+			anim_node.custom_minimum_size = Vector2(400, 400)
+	else:
+		var video_stream = load(anim_path)
+		if video_stream:
+			anim_node = VideoStreamPlayer.new()
+			anim_node.stream = video_stream
+			anim_node.autoplay = true
+			anim_node.loop = false  # Play once
+			anim_node.expand = true
+			anim_node.anchor_right = 1.0
+			anim_node.anchor_bottom = 1.0
+			anim_node.custom_minimum_size = Vector2(400, 400)
+
+	if anim_node:
+		anim_node.name = "SpecialAnimation"
+		display_node.add_child(anim_node)
+		print("Playing special animation: ", animation_type)
+
+		# Create a timer to restore the idle animation
+		await get_tree().create_timer(duration).timeout
+		anim_node.queue_free()
+		if display_node.get_child_count() > 0:
+			display_node.get_child(0).visible = true
 
 	# ============================================================================
 	# CHARACTER BACKGROUND REMOVED IN MAIN GAME
@@ -1925,7 +2105,7 @@ func _on_piece_moved(from_pos: Vector2i, to_pos: Vector2i, _piece: ChessPiece):
 func _on_piece_captured(piece: ChessPiece, captured_by: ChessPiece):
 	"""
 	Called when a piece is captured.
-	Updates the captured pieces display.
+	Updates the captured pieces display and plays capture effect animation.
 	Connected to the chess_board.piece_captured signal.
 
 	Args:
@@ -1934,6 +2114,10 @@ func _on_piece_captured(piece: ChessPiece, captured_by: ChessPiece):
 	"""
 	print(captured_by.get_piece_name(), " captured ", piece.get_piece_name())
 	update_captured_display()
+
+	# Play capture effect animation for the capturing player
+	var display_node = player1_character_display if captured_by.piece_color == ChessPiece.PieceColor.WHITE else player2_character_display
+	play_special_animation(display_node, "piece_capture_effect", 2.0)
 
 func _on_turn_changed(is_white_turn: bool):
 	"""
@@ -1951,7 +2135,7 @@ func _on_turn_changed(is_white_turn: bool):
 func _on_game_over(result: String):
 	"""
 	Called when the game ends (checkmate, stalemate, etc.).
-	Shows the game summary dialog.
+	Shows the game summary dialog and plays victory/defeat animations.
 	Connected to the chess_board.game_over signal.
 
 	Args:
@@ -1959,6 +2143,18 @@ func _on_game_over(result: String):
 	"""
 	print("Game Over! Result: ", result)
 	game_ended = true
+
+	# Play victory/defeat animations based on the result
+	if result == "checkmate_white":
+		# White (Player 1) wins
+		play_special_animation(player1_character_display, "character_victory", 4.0)
+		play_special_animation(player2_character_display, "character_defeat", 4.0)
+	elif result == "checkmate_black":
+		# Black (Player 2) wins
+		play_special_animation(player2_character_display, "character_victory", 4.0)
+		play_special_animation(player1_character_display, "character_defeat", 4.0)
+	# For stalemate/draw, no special animations
+
 	show_game_summary(result)
 
 # ============================================================================
