@@ -35,7 +35,7 @@ extends Control
 #    - Toggle button: $MainContainer/ScoreToggleContainer/ScoreToggleButton
 #    - To adjust: Modify setup_score_toggle() (line ~2238) and toggle_score_panel() (line ~2271)
 #    - Visibility: Hidden by default, toggle with button
-#    - Animation: Smooth fade effect when toggled; chessboard naturally shrinks to share container space
+#    - Animation: Smooth zoom effect on chessboard when toggled (scales to 0.85x when open)
 #
 # 6. GAME BACKGROUNDS:
 #    - Loaded in: load_random_background() (line ~99) and load_random_game_background() (line ~471)
@@ -979,29 +979,19 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 		if FileAccess.file_exists(video_path):
 			var video_stream = load(video_path)
 			if video_stream:
-				# Create AspectRatioContainer to maintain proper aspect ratio
-				var aspect_container = AspectRatioContainer.new()
-				aspect_container.custom_minimum_size = Vector2(0, 200)
-				aspect_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				aspect_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-				aspect_container.ratio = 16.0 / 9.0  # Default 16:9 aspect ratio
-				aspect_container.stretch_mode = AspectRatioContainer.STRETCH_FIT
-				aspect_container.alignment_horizontal = AspectRatioContainer.ALIGNMENT_BEGIN
-				aspect_container.alignment_vertical = AspectRatioContainer.ALIGNMENT_CENTER
-
 				# Create VideoStreamPlayer to display the animation
 				var video_player = VideoStreamPlayer.new()
 				video_player.stream = video_stream
 				video_player.autoplay = true
 				video_player.loop = true
 				video_player.expand = true
+				video_player.anchor_right = 1.0
+				video_player.anchor_bottom = 1.0
+				# Fixed height with unlimited width
+				video_player.custom_minimum_size = Vector2(0, 200)
 				video_player.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				video_player.size_flags_vertical = Control.SIZE_EXPAND_FILL
 				video_player.name = "IdleAnimation"
-
-				aspect_container.add_child(video_player)
-				aspect_container.name = "AnimationContainer"
-				display_node.add_child(aspect_container)
+				display_node.add_child(video_player)
 				print("Loaded character animation: ", video_path)
 				video_loaded = true
 				break
@@ -1012,27 +1002,17 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 		if FileAccess.file_exists(gif_path):
 			var texture = load(gif_path)
 			if texture:
-				# Create AspectRatioContainer to maintain proper aspect ratio
-				var aspect_container = AspectRatioContainer.new()
-				aspect_container.custom_minimum_size = Vector2(0, 200)
-				aspect_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				aspect_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-				aspect_container.ratio = 16.0 / 9.0  # Default 16:9 aspect ratio
-				aspect_container.stretch_mode = AspectRatioContainer.STRETCH_FIT
-				aspect_container.alignment_horizontal = AspectRatioContainer.ALIGNMENT_BEGIN
-				aspect_container.alignment_vertical = AspectRatioContainer.ALIGNMENT_CENTER
-
 				var texture_rect = TextureRect.new()
 				texture_rect.texture = texture
-				texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT
+				texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+				texture_rect.anchor_right = 1.0
+				texture_rect.anchor_bottom = 1.0
+				# Fixed height with unlimited width
+				texture_rect.custom_minimum_size = Vector2(0, 200)
 				texture_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				texture_rect.size_flags_vertical = Control.SIZE_EXPAND_FILL
 				texture_rect.name = "IdleAnimation"
-
-				aspect_container.add_child(texture_rect)
-				aspect_container.name = "AnimationContainer"
-				display_node.add_child(aspect_container)
+				display_node.add_child(texture_rect)
 				print("Loaded character animation GIF: ", gif_path)
 				video_loaded = true
 
@@ -1086,17 +1066,6 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 	if display_node.get_child_count() > 0:
 		display_node.get_child(0).visible = false
 
-	# Create AspectRatioContainer for special animation
-	var aspect_container = AspectRatioContainer.new()
-	aspect_container.custom_minimum_size = Vector2(0, 200)
-	aspect_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	aspect_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	aspect_container.ratio = 16.0 / 9.0  # Default 16:9 aspect ratio
-	aspect_container.stretch_mode = AspectRatioContainer.STRETCH_FIT
-	aspect_container.alignment_horizontal = AspectRatioContainer.ALIGNMENT_BEGIN
-	aspect_container.alignment_vertical = AspectRatioContainer.ALIGNMENT_CENTER
-	aspect_container.name = "SpecialAnimationContainer"
-
 	# Create and play the special animation
 	var anim_node = null
 	if is_gif:
@@ -1104,10 +1073,11 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 		if texture:
 			anim_node = TextureRect.new()
 			anim_node.texture = texture
-			anim_node.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-			anim_node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT
-			anim_node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			anim_node.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			anim_node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			anim_node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			anim_node.anchor_right = 1.0
+			anim_node.anchor_bottom = 1.0
+			anim_node.custom_minimum_size = Vector2(400, 400)
 	else:
 		var video_stream = load(anim_path)
 		if video_stream:
@@ -1116,18 +1086,18 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 			anim_node.autoplay = true
 			anim_node.loop = false  # Play once
 			anim_node.expand = true
-			anim_node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			anim_node.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			anim_node.anchor_right = 1.0
+			anim_node.anchor_bottom = 1.0
+			anim_node.custom_minimum_size = Vector2(400, 400)
 
 	if anim_node:
 		anim_node.name = "SpecialAnimation"
-		aspect_container.add_child(anim_node)
-		display_node.add_child(aspect_container)
+		display_node.add_child(anim_node)
 		print("Playing special animation: ", animation_type)
 
 		# Create a timer to restore the idle animation
 		await get_tree().create_timer(duration).timeout
-		aspect_container.queue_free()
+		anim_node.queue_free()
 		if display_node.get_child_count() > 0:
 			display_node.get_child(0).visible = true
 
@@ -2304,27 +2274,28 @@ func _on_score_toggle_pressed():
 
 func toggle_score_panel():
 	"""
-	Animates the score panel sliding in/out with smooth chessboard shrinking effect.
-	When the score panel opens, the chessboard shrinks to share the container space.
-	When the score panel closes, the chessboard expands back to full size.
-	The layout naturally handles the size distribution, respecting screen boundaries.
+	Animates the score panel sliding in/out with smooth chessboard zoom effect.
+	When the score panel opens, the chessboard zooms out to accommodate it.
+	When the score panel closes, the chessboard zooms back to full size.
 	"""
 	var tween = create_tween()
 	tween.set_ease(Tween.EASE_IN_OUT)
 	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.set_parallel(true)  # Run animations in parallel
 
 	if score_panel_visible:
-		# Show panel - fade in smoothly
+		# Show panel - fade in and zoom out chessboard
 		score_panel.visible = true
 		score_panel.modulate.a = 0.0
 		tween.tween_property(score_panel, "modulate:a", 1.0, 0.4)
-		# The chessboard will automatically shrink due to the HBoxContainer layout
-		# No manual scaling needed - the layout engine handles size distribution
+		# Zoom out chessboard by scaling down
+		tween.tween_property(chessboard_container, "scale", Vector2(0.85, 0.85), 0.4)
 	else:
-		# Hide panel - fade out smoothly
+		# Hide panel - fade out and zoom in chessboard
 		tween.tween_property(score_panel, "modulate:a", 0.0, 0.4)
+		# Zoom in chessboard back to full size
+		tween.tween_property(chessboard_container, "scale", Vector2(1.0, 1.0), 0.4)
 		tween.chain().tween_callback(func(): score_panel.visible = false)
-		# The chessboard will automatically expand back to full size
 
 	update_score_toggle_text()
 
