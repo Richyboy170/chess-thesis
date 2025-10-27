@@ -764,7 +764,6 @@ func zoom_chessboard_to_center(delta: float):
 
 	# Only animate if zoom actually changed
 	if new_zoom != chessboard_zoom:
-		var old_zoom = chessboard_zoom
 		chessboard_zoom = new_zoom
 
 		# Get the chessboard container (parent of the Chessboard)
@@ -772,10 +771,6 @@ func zoom_chessboard_to_center(delta: float):
 
 		# Calculate the center point for zoom
 		var container_rect = chessboard_container.get_global_rect()
-		var center_point = container_rect.get_center()
-
-		# Adjust the pivot point to zoom to center
-		var local_center = chessboard_container.get_local_mouse_position()
 
 		# Animate the scale change smoothly
 		var tween = create_tween()

@@ -40,9 +40,10 @@ func load_random_background():
 			# Check if it's a valid file (not a directory or hidden file)
 			if not dir.current_is_dir() and not file_name.begins_with(".") and not file_name.ends_with(".md"):
 				# Check for valid image and video extensions
+				# Note: Only .ogv (Ogg Theora) is supported natively by Godot for videos
+				# .webm and .mp4 require additional codec support not available by default
 				if (file_name.ends_with(".png") or file_name.ends_with(".jpg") or
-					file_name.ends_with(".jpeg") or file_name.ends_with(".webm") or
-					file_name.ends_with(".ogv")):
+					file_name.ends_with(".jpeg") or file_name.ends_with(".ogv")):
 					background_files.append(backgrounds_path + file_name)
 			file_name = dir.get_next()
 		dir.list_dir_end()
@@ -59,7 +60,8 @@ func load_random_background():
 
 	# Determine if it's a video or image
 	# Godot natively supports .ogv (Ogg Theora) format for videos
-	var is_video = selected_background.ends_with(".ogv") or selected_background.ends_with(".webm") or selected_background.ends_with(".mp4")
+	# .webm and .mp4 are not supported without additional codec support
+	var is_video = selected_background.ends_with(".ogv")
 
 	# Load and display the background
 	if FileAccess.file_exists(selected_background):
