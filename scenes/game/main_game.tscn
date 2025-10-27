@@ -46,26 +46,26 @@ size_flags_horizontal = 3
 
 [node name="PlayerName" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 96
 text = "Player 2"
 horizontal_alignment = 2
 
 [node name="CharacterName" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 80
 text = "Character: TBD"
 horizontal_alignment = 2
 
 [node name="TimerLabel" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 112
 text = "Time: --:--"
 horizontal_alignment = 2
 
 [node name="CapturedLabel" type="Label" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 72
 text = "Captured Pieces:"
 horizontal_alignment = 2
 
@@ -88,10 +88,10 @@ size_flags_horizontal = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="MainContainer/GameArea/ChessboardContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="MainContainer/GameArea/ChessboardContainer/MarginContainer"]
 layout_mode = 2
@@ -123,7 +123,7 @@ theme_override_constants/separation = 20
 
 [node name="ScoreLabel" type="Label" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 52
 text = "SCORE"
 horizontal_alignment = 1
 
@@ -132,12 +132,12 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/Player1Score"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 40
 text = "Player 1"
 
 [node name="ScoreValue" type="Label" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/Player1Score"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 48
 text = "0"
 
 [node name="HSeparator" type="HSeparator" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer"]
@@ -148,12 +148,12 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/Player2Score"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 40
 text = "Player 2"
 
 [node name="ScoreValue" type="Label" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/Player2Score"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 48
 text = "0"
 
 [node name="HSeparator2" type="HSeparator" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer"]
@@ -161,7 +161,7 @@ layout_mode = 2
 
 [node name="TurnIndicator" type="Label" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 44
 text = "White's Turn"
 horizontal_alignment = 1
 
@@ -174,17 +174,17 @@ size_flags_vertical = 3
 
 [node name="MovesLabel" type="Label" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/GameStats"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 36
 text = "Moves: 0"
 
 [node name="CapturedLabel" type="Label" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer/GameStats"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 36
 text = "Captured Pieces: 0"
 
 [node name="MenuButton" type="Button" parent="MainContainer/GameArea/ScorePanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 44
 text = "MENU"
 
 [node name="ScoreToggleContainer" type="HBoxContainer" parent="MainContainer"]
@@ -196,7 +196,7 @@ alignment = 1
 custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 48
 text = ">"
 
 [node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
@@ -226,23 +226,23 @@ size_flags_horizontal = 3
 
 [node name="PlayerName" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 96
 text = "Player 1"
 
 [node name="CharacterName" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 80
 text = "Character: TBD"
 
 [node name="TimerLabel" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 112
 text = "Time: --:--"
 
 [node name="CapturedLabel" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 72
 text = "Captured Pieces:"
 
 [node name="CapturedPieces" type="HFlowContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
