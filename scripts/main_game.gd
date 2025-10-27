@@ -1,10 +1,57 @@
 extends Control
 
 # ============================================================================
-# NODE REFERENCES
+# NODE REFERENCES - UI ADJUSTMENT GUIDE
 # ============================================================================
-# These @onready variables store references to UI nodes in the scene tree
-# They are automatically assigned when the scene is loaded
+# These @onready variables store references to UI nodes in the scene tree.
+# They are automatically assigned when the scene is loaded.
+#
+# **HOW TO ADJUST THE MAIN GAME UI:**
+#
+# 1. CHESSBOARD SIZE & POSITION:
+#    - Node path: $MainContainer/GameArea/ChessboardContainer
+#    - To adjust: Modify the scene file (main_game.tscn) or adjust in setup_chessboard()
+#    - Zoom functionality: Use mouse wheel (implemented in zoom_chessboard() function)
+#
+# 2. PLAYER AREAS (Top & Bottom sections):
+#    - Player 1 (Bottom): $MainContainer/BottomPlayerArea
+#    - Player 2 (Top): $MainContainer/TopPlayerArea
+#    - To adjust: Modify size_flags, custom_minimum_size in the scene file
+#
+# 3. CHARACTER ANIMATIONS:
+#    - Player 1: $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
+#    - Player 2: $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
+#    - To adjust: Use the Character Animation Debugger (Press 'D' in game)
+#    - Code location: load_character_media() function (line ~579)
+#    - Size adjustment: Modify custom_minimum_size in load_character_media()
+#
+# 4. PLAYER INFO LABELS (Names, Timers, Captured Pieces):
+#    - Located in: $MainContainer/BottomPlayerArea/.../PlayerInfo
+#    - To adjust: Modify font sizes via add_theme_font_size_override() in update functions
+#    - Timer colors: Adjust in update_timer_display() (line ~1634)
+#
+# 5. SCORE PANEL:
+#    - Node path: $MainContainer/GameArea/ScorePanel
+#    - Toggle button: $MainContainer/GameArea/ScoreToggleButton
+#    - To adjust: Modify setup_score_toggle() (line ~1695) and toggle_score_panel() (line ~1725)
+#    - Visibility: Hidden by default, toggle with button
+#
+# 6. GAME BACKGROUNDS:
+#    - Loaded in: load_random_background() (line ~99) and load_random_game_background() (line ~471)
+#    - Background folder: res://assets/backgrounds/
+#    - Z-index: -100 (behind all UI elements)
+#
+# 7. CHESSBOARD COLORS & STYLING:
+#    - Square colors: Defined in setup_chessboard() (line ~430)
+#    - Light squares: Color(0.9, 0.9, 0.8, 0.7)
+#    - Dark squares: Color(0.5, 0.4, 0.3, 0.7)
+#    - To adjust: Modify light_color and dark_color variables
+#
+# 8. PIECE IMAGES:
+#    - Loaded in: create_visual_piece() (line ~873)
+#    - Asset path: res://assets/characters/character_X/pieces/
+#    - To adjust piece size: Modify custom_minimum_size in create_visual_piece()
+# ============================================================================
 
 # Chessboard and game area references
 @onready var chessboard = $MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer/AspectRatioContainer/Chessboard
@@ -33,10 +80,12 @@ extends Control
 @onready var player2_timer_label = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
 
 # Player character display areas (for video animations)
+# UI ADJUSTMENT: To change character animation size, use the debugger (Press 'D') or modify custom_minimum_size in load_character_media()
 @onready var player1_character_display = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
 @onready var player2_character_display = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
 
 # Player area containers (for background images)
+# UI ADJUSTMENT: Character backgrounds are disabled in Main Game. To re-enable, uncomment code in load_character_media() (line ~637)
 @onready var player1_area = $MainContainer/BottomPlayerArea
 @onready var player2_area = $MainContainer/TopPlayerArea
 
@@ -61,6 +110,26 @@ var score_panel_visible: bool = false  # Hidden by default
 
 # Game state flag
 var game_ended: bool = false
+
+# ============================================================================
+# CHESSBOARD ZOOM VARIABLES
+# ============================================================================
+# Current zoom level (1.0 = 100%, 0.5 = 50%, 2.0 = 200%)
+var chessboard_zoom: float = 1.0
+# Minimum zoom level (50%)
+const MIN_ZOOM: float = 0.5
+# Maximum zoom level (300%)
+const MAX_ZOOM: float = 3.0
+# Zoom step per scroll wheel notch
+const ZOOM_STEP: float = 0.1
+
+# ============================================================================
+# CHARACTER ANIMATION DEBUGGER VARIABLES
+# ============================================================================
+# Debug panel for character animations
+var animation_debug_panel: PanelContainer = null
+# Toggle visibility of debug panel
+var animation_debug_visible: bool = false
 
 # ============================================================================
 # DRAG AND DROP SYSTEM VARIABLES
@@ -253,6 +322,9 @@ func _ready():
 	# Apply anime font theme to all UI elements
 	ThemeManager.apply_theme_to_container(self, true)
 
+	# Initialize character animation debugger
+	create_animation_debugger()
+
 	# Print final status
 	ChessboardStorage.print_status()
 
@@ -309,6 +381,225 @@ func _on_error_dialog_closed():
 	get_tree().change_scene_to_file("res://scenes/ui/login_page.tscn")
 
 # ============================================================================
+# CHARACTER ANIMATION DEBUGGER FUNCTIONS
+# ============================================================================
+
+func create_animation_debugger():
+	"""
+	Creates a floating debug panel for character animations in Main Game.
+	This panel allows you to:
+	- Adjust character animation position (X, Y offset)
+	- Adjust character animation scale
+	- Adjust character animation opacity
+	- Toggle visibility
+	- View current properties
+
+	Press 'D' key to toggle the debug panel visibility.
+	"""
+	# Create main panel container
+	animation_debug_panel = PanelContainer.new()
+	animation_debug_panel.name = "AnimationDebugPanel"
+	animation_debug_panel.position = Vector2(10, 100)
+	animation_debug_panel.custom_minimum_size = Vector2(350, 500)
+	animation_debug_panel.visible = false  # Hidden by default
+	animation_debug_panel.z_index = 1000  # Always on top
+
+	# Create a stylebox for the panel
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.1, 0.1, 0.1, 0.9)
+	panel_style.border_width_left = 2
+	panel_style.border_width_right = 2
+	panel_style.border_width_top = 2
+	panel_style.border_width_bottom = 2
+	panel_style.border_color = Color(0.3, 0.6, 1.0, 1.0)
+	animation_debug_panel.add_theme_stylebox_override("panel", panel_style)
+
+	# Create main VBoxContainer for content
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	animation_debug_panel.add_child(vbox)
+
+	# Add margin container for padding
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	vbox.add_child(margin)
+
+	# Create content container
+	var content = VBoxContainer.new()
+	content.add_theme_constant_override("separation", 15)
+	margin.add_child(content)
+
+	# Title
+	var title = Label.new()
+	title.text = "CHARACTER ANIMATION DEBUGGER"
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", Color(0.3, 0.6, 1.0, 1.0))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(title)
+
+	# Separator
+	var sep1 = HSeparator.new()
+	content.add_child(sep1)
+
+	# Instructions
+	var instructions = Label.new()
+	instructions.text = "Press 'D' to toggle this panel\nAdjust character animations below:"
+	instructions.add_theme_font_size_override("font_size", 12)
+	instructions.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8, 1.0))
+	content.add_child(instructions)
+
+	# Player 1 Section
+	var p1_label = Label.new()
+	p1_label.text = "PLAYER 1 (Bottom) Animation"
+	p1_label.add_theme_font_size_override("font_size", 14)
+	p1_label.add_theme_color_override("font_color", Color(1.0, 1.0, 0.5, 1.0))
+	content.add_child(p1_label)
+
+	# Player 1 Scale
+	var p1_scale_label = Label.new()
+	p1_scale_label.text = "Scale: 1.0x"
+	p1_scale_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(p1_scale_label)
+
+	var p1_scale_slider = HSlider.new()
+	p1_scale_slider.min_value = 0.5
+	p1_scale_slider.max_value = 3.0
+	p1_scale_slider.step = 0.1
+	p1_scale_slider.value = 1.0
+	p1_scale_slider.custom_minimum_size = Vector2(300, 20)
+	content.add_child(p1_scale_slider)
+
+	# Player 1 Opacity
+	var p1_opacity_label = Label.new()
+	p1_opacity_label.text = "Opacity: 100%"
+	p1_opacity_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(p1_opacity_label)
+
+	var p1_opacity_slider = HSlider.new()
+	p1_opacity_slider.min_value = 0.0
+	p1_opacity_slider.max_value = 1.0
+	p1_opacity_slider.step = 0.05
+	p1_opacity_slider.value = 1.0
+	p1_opacity_slider.custom_minimum_size = Vector2(300, 20)
+	content.add_child(p1_opacity_slider)
+
+	# Player 1 Visibility Toggle
+	var p1_visibility = CheckButton.new()
+	p1_visibility.text = "Visible"
+	p1_visibility.button_pressed = true
+	content.add_child(p1_visibility)
+
+	# Separator
+	var sep2 = HSeparator.new()
+	content.add_child(sep2)
+
+	# Player 2 Section
+	var p2_label = Label.new()
+	p2_label.text = "PLAYER 2 (Top) Animation"
+	p2_label.add_theme_font_size_override("font_size", 14)
+	p2_label.add_theme_color_override("font_color", Color(1.0, 1.0, 0.5, 1.0))
+	content.add_child(p2_label)
+
+	# Player 2 Scale
+	var p2_scale_label = Label.new()
+	p2_scale_label.text = "Scale: 1.0x"
+	p2_scale_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(p2_scale_label)
+
+	var p2_scale_slider = HSlider.new()
+	p2_scale_slider.min_value = 0.5
+	p2_scale_slider.max_value = 3.0
+	p2_scale_slider.step = 0.1
+	p2_scale_slider.value = 1.0
+	p2_scale_slider.custom_minimum_size = Vector2(300, 20)
+	content.add_child(p2_scale_slider)
+
+	# Player 2 Opacity
+	var p2_opacity_label = Label.new()
+	p2_opacity_label.text = "Opacity: 100%"
+	p2_opacity_label.add_theme_font_size_override("font_size", 11)
+	content.add_child(p2_opacity_label)
+
+	var p2_opacity_slider = HSlider.new()
+	p2_opacity_slider.min_value = 0.0
+	p2_opacity_slider.max_value = 1.0
+	p2_opacity_slider.step = 0.05
+	p2_opacity_slider.value = 1.0
+	p2_opacity_slider.custom_minimum_size = Vector2(300, 20)
+	content.add_child(p2_opacity_slider)
+
+	# Player 2 Visibility Toggle
+	var p2_visibility = CheckButton.new()
+	p2_visibility.text = "Visible"
+	p2_visibility.button_pressed = true
+	content.add_child(p2_visibility)
+
+	# Connect signals for Player 1
+	p1_scale_slider.value_changed.connect(func(value):
+		p1_scale_label.text = "Scale: %.1fx" % value
+		if player1_character_display.get_child_count() > 0:
+			player1_character_display.get_child(0).scale = Vector2(value, value)
+	)
+
+	p1_opacity_slider.value_changed.connect(func(value):
+		p1_opacity_label.text = "Opacity: %d%%" % int(value * 100)
+		if player1_character_display.get_child_count() > 0:
+			player1_character_display.get_child(0).modulate.a = value
+	)
+
+	p1_visibility.toggled.connect(func(pressed):
+		if player1_character_display.get_child_count() > 0:
+			player1_character_display.get_child(0).visible = pressed
+	)
+
+	# Connect signals for Player 2
+	p2_scale_slider.value_changed.connect(func(value):
+		p2_scale_label.text = "Scale: %.1fx" % value
+		if player2_character_display.get_child_count() > 0:
+			player2_character_display.get_child(0).scale = Vector2(value, value)
+	)
+
+	p2_opacity_slider.value_changed.connect(func(value):
+		p2_opacity_label.text = "Opacity: %d%%" % int(value * 100)
+		if player2_character_display.get_child_count() > 0:
+			player2_character_display.get_child(0).modulate.a = value
+	)
+
+	p2_visibility.toggled.connect(func(pressed):
+		if player2_character_display.get_child_count() > 0:
+			player2_character_display.get_child(0).visible = pressed
+	)
+
+	# Add panel to scene
+	add_child(animation_debug_panel)
+
+	print("Character Animation Debugger created. Press 'D' to toggle.")
+
+func _unhandled_key_input(event):
+	"""
+	Handles keyboard shortcuts for the debug panel.
+	Press 'D' to toggle the character animation debugger.
+	"""
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_D:
+			toggle_animation_debugger()
+
+func toggle_animation_debugger():
+	"""
+	Toggles the visibility of the character animation debug panel.
+	"""
+	if animation_debug_panel:
+		animation_debug_visible = !animation_debug_visible
+		animation_debug_panel.visible = animation_debug_visible
+		if animation_debug_visible:
+			print("Character Animation Debugger: VISIBLE")
+		else:
+			print("Character Animation Debugger: HIDDEN")
+
+# ============================================================================
 # FRAME UPDATE FUNCTIONS
 # ============================================================================
 
@@ -347,10 +638,24 @@ func _input(event):
 	Handles all input events, primarily for drag-and-drop piece movement.
 	Supports both mouse (desktop) and touch (mobile) input.
 	Pieces stick to the mouse/finger with smooth visual feedback.
+	Also handles mouse wheel for chessboard zooming.
 
 	Args:
 		event: The input event to process
 	"""
+	# Handle mouse wheel for chessboard zoom
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
+			# Zoom in
+			zoom_chessboard(ZOOM_STEP)
+			get_viewport().set_input_as_handled()
+			return
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
+			# Zoom out
+			zoom_chessboard(-ZOOM_STEP)
+			get_viewport().set_input_as_handled()
+			return
+
 	# Only process input if a piece is currently being dragged
 	if is_dragging and dragging_piece:
 		# Handle mouse movement or touch drag - update piece position
@@ -375,15 +680,49 @@ func _input(event):
 # CHESSBOARD SETUP FUNCTIONS
 # ============================================================================
 
+func zoom_chessboard(delta: float):
+	"""
+	Adjusts the chessboard zoom level by the specified delta.
+	Uses smooth animation for a polished feel.
+
+	Args:
+		delta: The amount to change the zoom by (positive = zoom in, negative = zoom out)
+	"""
+	# Calculate new zoom level
+	var new_zoom = clamp(chessboard_zoom + delta, MIN_ZOOM, MAX_ZOOM)
+
+	# Only animate if zoom actually changed
+	if new_zoom != chessboard_zoom:
+		chessboard_zoom = new_zoom
+
+		# Get the chessboard container (parent of the Chessboard)
+		var chessboard_container = chessboard.get_parent().get_parent()
+
+		# Animate the scale change smoothly
+		var tween = create_tween()
+		tween.set_ease(Tween.EASE_OUT)
+		tween.set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(chessboard_container, "scale", Vector2(chessboard_zoom, chessboard_zoom), 0.2)
+
+		print("Chessboard zoom: ", int(chessboard_zoom * 100), "%")
+
 func setup_chessboard():
 	"""
 	Creates the 8x8 chessboard grid with simple classic checkerboard pattern.
 	Each square is a Panel node with custom styling.
 	Uses a simpler, more reliable rendering method with unified theme.
+
+	UI ADJUSTMENT GUIDE - CHESSBOARD APPEARANCE:
+	- Square size: Modify custom_minimum_size below (currently 60x60)
+	- Colors: Adjust light_color and dark_color below
+	- Transparency: Change the 4th value (alpha) in the Color() definitions
+	- Board position: Adjust in the scene file (main_game.tscn)
+	- Board scale: Use mouse wheel zoom (scroll up/down)
 	"""
 	board_squares = []
 
-	# Use classic chess colors for all squares
+	# UI ADJUSTMENT: Change these colors to customize the chessboard appearance
+	# Format: Color(red, green, blue, alpha) where values are 0.0 to 1.0
 	var light_color = Color(0.9, 0.9, 0.8, 0.7)    # Cream with transparency
 	var dark_color = Color(0.5, 0.4, 0.3, 0.7)     # Brown with transparency
 
@@ -393,6 +732,7 @@ func setup_chessboard():
 		for col in range(8):
 			# Use Panel instead of Button for simpler, more reliable rendering
 			var square = Panel.new()
+			# UI ADJUSTMENT: Modify this value to change square size (width, height in pixels)
 			square.custom_minimum_size = Vector2(60, 60)
 			square.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			square.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -527,14 +867,14 @@ func load_random_game_background():
 func load_character_media(display_node: Control, area_node: Control, animations_dir: String, bg_path: String):
 	"""
 	Helper function to load and display character media.
-	- Video animations are displayed in the CharacterDisplay node
-	- Background images are displayed in the player area container
+	- Video animations are displayed in the CharacterDisplay node (enlarged to fill more space)
+	- Background images are NOT loaded in Main Game (only animations are shown)
 
 	Args:
 		display_node: The Control node to display video animations
-		area_node: The Control node to display background images
+		area_node: The Control node to display background images (unused in Main Game)
 		animations_dir: Path to the character's animations directory
-		bg_path: Path to the character background image
+		bg_path: Path to the character background image (unused in Main Game)
 	"""
 	# Try to load video animation
 	# Supported formats: .webm, .ogv (native), .mp4 (platform-dependent)
@@ -554,6 +894,8 @@ func load_character_media(display_node: Control, area_node: Control, animations_
 				video_player.expand = true
 				video_player.anchor_right = 1.0
 				video_player.anchor_bottom = 1.0
+				# Increase size by setting custom minimum size for better visibility
+				video_player.custom_minimum_size = Vector2(200, 200)
 				display_node.add_child(video_player)
 				print("Loaded character animation: ", video_path)
 				video_loaded = true
@@ -571,6 +913,8 @@ func load_character_media(display_node: Control, area_node: Control, animations_
 				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 				texture_rect.anchor_right = 1.0
 				texture_rect.anchor_bottom = 1.0
+				# Increase size by setting custom minimum size for better visibility
+				texture_rect.custom_minimum_size = Vector2(200, 200)
 				display_node.add_child(texture_rect)
 				print("Loaded character animation GIF: ", gif_path)
 				video_loaded = true
@@ -578,23 +922,29 @@ func load_character_media(display_node: Control, area_node: Control, animations_
 	if not video_loaded:
 		print("No supported animation found (checked .webm, .ogv, .mp4, .gif)")
 
-	# Load background image into player area
-	if bg_path != "" and FileAccess.file_exists(bg_path):
-		var texture = load(bg_path)
-		if texture:
-			# Create TextureRect to display the background behind everything
-			var texture_rect = TextureRect.new()
-			texture_rect.texture = texture
-			texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-			texture_rect.anchor_right = 1.0
-			texture_rect.anchor_bottom = 1.0
-			texture_rect.z_index = -1  # Place behind other elements
-			area_node.add_child(texture_rect)
-			area_node.move_child(texture_rect, 0)  # Move to back
-			print("Loaded background image: ", bg_path)
-	elif bg_path != "":
-		print("Warning: Character background not found: ", bg_path)
+	# ============================================================================
+	# CHARACTER BACKGROUND REMOVED IN MAIN GAME
+	# ============================================================================
+	# The character background is no longer displayed in the Main Game to allow
+	# the character animation to be more prominent. To re-enable backgrounds,
+	# uncomment the code below:
+	#
+	# if bg_path != "" and FileAccess.file_exists(bg_path):
+	#     var texture = load(bg_path)
+	#     if texture:
+	#         var texture_rect = TextureRect.new()
+	#         texture_rect.texture = texture
+	#         texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	#         texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	#         texture_rect.anchor_right = 1.0
+	#         texture_rect.anchor_bottom = 1.0
+	#         texture_rect.z_index = -1
+	#         area_node.add_child(texture_rect)
+	#         area_node.move_child(texture_rect, 0)
+	#         print("Loaded background image: ", bg_path)
+	# elif bg_path != "":
+	#     print("Warning: Character background not found: ", bg_path)
+	# ============================================================================
 
 # ============================================================================
 # MEDIA VALIDATION FUNCTIONS
