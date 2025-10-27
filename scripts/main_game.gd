@@ -144,6 +144,12 @@ var animation_debug_panel: PanelContainer = null
 var animation_debug_visible: bool = false
 
 # ============================================================================
+# PIECE EFFECTS SYSTEM
+# ============================================================================
+# Reference to piece effects system for drag animations
+var piece_effects: Node = null
+
+# ============================================================================
 # DRAG AND DROP SYSTEM VARIABLES
 # ============================================================================
 
@@ -336,6 +342,11 @@ func _ready():
 
 	# Initialize character animation debugger
 	create_animation_debugger()
+
+	# Initialize piece effects system
+	piece_effects = preload("res://scripts/piece_effects.gd").new()
+	add_child(piece_effects)
+	print("PIECE EFFECTS: System initialized ✓")
 
 	# Print final status
 	ChessboardStorage.print_status()
@@ -1454,6 +1465,12 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 				else:
 					piece_texture_rect.modulate = Color(0.3, 0.3, 0.3)  # Default dark gray
 
+			# Store piece metadata for effects system
+			piece_texture_rect.set_meta("piece_type", piece_type_name)
+			piece_texture_rect.set_meta("piece_color", "white" if piece.piece_color == ChessPiece.PieceColor.WHITE else "black")
+			piece_texture_rect.set_meta("character_id", character_id + 1)
+			piece_texture_rect.set_meta("board_position", pos)
+
 			# Add piece to the board square and track it
 			board_squares[pos.x][pos.y].add_child(piece_texture_rect)
 			visual_pieces.append(piece_texture_rect)
@@ -1913,6 +1930,16 @@ func start_drag(pos: Vector2i):
 			# 3. Bring piece to front (above all other elements)
 			piece_node.z_index = 100
 
+			# 4. Apply piece effects system (image swap, glow, particles, etc.)
+			if piece_effects:
+				var piece_data = {
+					"type": piece_node.get_meta("piece_type", ""),
+					"color": piece_node.get_meta("piece_color", ""),
+					"character_id": piece_node.get_meta("character_id", 1),
+					"position": pos
+				}
+				piece_effects.apply_drag_effects(piece_node, piece_data)
+
 			# Update drag state
 			is_dragging = true
 
@@ -1937,6 +1964,10 @@ func end_drag(drop_position: Vector2):
 
 	# Remove the shadow effect
 	remove_drag_shadow()
+
+	# Remove piece effects (image swap, glow, particles, etc.)
+	if piece_effects and dragging_piece:
+		piece_effects.remove_drag_effects(dragging_piece)
 
 	# Restore piece appearance with smooth animation
 	if dragging_piece:
@@ -1994,6 +2025,10 @@ func return_piece_to_original_position():
 	"""
 	# Remove shadow effect
 	remove_drag_shadow()
+
+	# Remove piece effects (image swap, glow, particles, etc.)
+	if piece_effects and dragging_piece:
+		piece_effects.remove_drag_effects(dragging_piece)
 
 	if dragging_piece and original_parent:
 		# Calculate the target position (center of original square)
