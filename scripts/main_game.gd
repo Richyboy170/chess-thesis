@@ -393,7 +393,7 @@ func setup_chessboard():
 		for col in range(8):
 			# Use Panel instead of Button for simpler, more reliable rendering
 			var square = Panel.new()
-			square.custom_minimum_size = Vector2(60, 60)
+			square.custom_minimum_size = Vector2(100, 100)
 			square.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			square.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			square.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow mouse events to pass through
