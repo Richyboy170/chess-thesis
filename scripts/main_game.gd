@@ -54,7 +54,7 @@ extends Control
 # ============================================================================
 
 # Chessboard and game area references
-@onready var chessboard = $MainContainer/GameArea/ChessboardContainer/MarginContainer/VBoxContainer/AspectRatioContainer/Chessboard
+@onready var chessboard = $MainContainer/GameArea/ChessboardContainer/MarginContainer/AspectRatioContainer/Chessboard
 
 # Player info labels (character names)
 @onready var player1_character_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/CharacterName
