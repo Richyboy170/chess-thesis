@@ -419,15 +419,15 @@ func load_random_game_background():
 	else:
 		print("Error: Background file does not exist: ", selected_background)
 
-func load_character_media(display_node: ColorRect, area_node: PanelContainer, animations_dir: String, bg_path: String):
+func load_character_media(display_node: Control, area_node: Control, animations_dir: String, bg_path: String):
 	"""
 	Helper function to load and display character media.
 	- Video animations are displayed in the CharacterDisplay node
 	- Background images are displayed in the player area container
 
 	Args:
-		display_node: The ColorRect node to display video animations
-		area_node: The PanelContainer to display background images
+		display_node: The Control node to display video animations
+		area_node: The Control node to display background images
 		animations_dir: Path to the character's animations directory
 		bg_path: Path to the character background image
 	"""
@@ -1734,7 +1734,7 @@ func show_game_summary(result: String):
 	var history_text_label = Label.new()
 	var moves_text = ""
 	for i in range(GameState.move_history.size()):
-		var move_num = int(i / 2) + 1  # Calculate move number
+		var move_num = i // 2 + 1  # Calculate move number (integer division)
 		if i % 2 == 0:
 			# White's move
 			moves_text += str(move_num) + ". " + GameState.move_history[i]
