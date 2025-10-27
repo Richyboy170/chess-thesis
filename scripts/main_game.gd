@@ -1687,7 +1687,9 @@ func create_highlight_overlay(square: Panel, is_capture: bool):
 
 		# Add pulsing animation for glow effect
 		var tween = create_tween()
-		tween.set_loops()
+		tween.set_loops(0)  # 0 = infinite loops
+		tween.set_trans(Tween.TRANS_SINE)
+		tween.set_ease(Tween.EASE_IN_OUT)
 		tween.tween_property(color_rect, "color:a", 0.3, 0.8)
 		tween.tween_property(color_rect, "color:a", 0.6, 0.8)
 
