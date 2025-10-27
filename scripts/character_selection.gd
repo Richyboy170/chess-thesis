@@ -195,31 +195,8 @@ func load_character_preview_on_button(button: Button, character_id: int):
 			else:
 				print("  ✗ ERROR: Could not load video stream")
 
-	# Try to load GIF animation
-	if not video_loaded:
-		print("\nSearching for GIF animation...")
-		var gif_path = char_path + "animations/character_idle.gif"
-		print("  Checking: ", gif_path)
-		if FileAccess.file_exists(gif_path):
-			print("  ✓ FOUND: ", gif_path)
-			var texture = load(gif_path)
-			if texture:
-				var texture_rect = TextureRect.new()
-				texture_rect.texture = texture
-				texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-				texture_rect.anchor_right = 1.0
-				texture_rect.anchor_bottom = 1.0
-				texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				preview_container.add_child(texture_rect)
-				button.add_child(preview_container)
-				button.move_child(preview_container, 0)  # Move to back
-				print("  ✓ LOADED: GIF preview")
-				video_loaded = true
-			else:
-				print("  ✗ ERROR: Could not load GIF texture")
-		else:
-			print("  ✗ NOT FOUND: ", gif_path)
+	# Note: GIF animations are not supported by Godot natively
+	# Skipping GIF loading - use .ogv video format instead for animations
 
 	# Fallback to background image if no video/animation was loaded
 	if not video_loaded:
@@ -246,7 +223,6 @@ func load_character_preview_on_button(button: Button, character_id: int):
 			print("\n⚠ WARNING: No preview found for character ", character_id + 1)
 			print("  Searched for:")
 			print("    - animations/character_idle.ogv")
-			print("    - animations/character_idle.gif")
 			print("    - backgrounds/character_background.[png|jpg|jpeg|webp]")
 
 	print("===== END CHARACTER ", character_id + 1, " PREVIEW =====\n")
