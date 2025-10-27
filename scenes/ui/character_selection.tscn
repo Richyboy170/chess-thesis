@@ -59,18 +59,24 @@ theme_override_constants/separation = 20
 alignment = 1
 
 [node name="Character1Button" type="Button" parent="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 250)
+custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 text = "Character 1"
 
 [node name="Character2Button" type="Button" parent="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 250)
+custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 text = "Character 2"
 
 [node name="Character3Button" type="Button" parent="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 250)
+custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 text = "Character 3"
 
 [node name="Player2Section" type="VBoxContainer" parent="VBoxContainer"]
@@ -101,18 +107,24 @@ theme_override_constants/separation = 20
 alignment = 1
 
 [node name="Character1Button" type="Button" parent="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 250)
+custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 text = "Character 1"
 
 [node name="Character2Button" type="Button" parent="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 250)
+custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 text = "Character 2"
 
 [node name="Character3Button" type="Button" parent="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 250)
+custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 text = "Character 3"
 
 [node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer"]

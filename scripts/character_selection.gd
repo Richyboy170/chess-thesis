@@ -121,7 +121,15 @@ func load_character_preview_on_button(button: Button, character_id: int):
 		character_id: The character ID (0-2)
 	"""
 	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
-	var bg_path = char_path + "backgrounds/character_background.png"
+
+	# Find character background image (support multiple formats)
+	var bg_path = ""
+	var supported_bg_extensions = [".png", ".jpg", ".jpeg", ".webp"]
+	for ext in supported_bg_extensions:
+		var test_path = char_path + "backgrounds/character_background" + ext
+		if FileAccess.file_exists(test_path):
+			bg_path = test_path
+			break
 
 	# Create a container for the preview that doesn't interfere with button functionality
 	var preview_container = Control.new()
@@ -131,9 +139,9 @@ func load_character_preview_on_button(button: Button, character_id: int):
 	preview_container.anchor_bottom = 1.0
 	preview_container.z_index = -1  # Place behind button text
 
-	# Try to load video animation first (only supported formats: .webm, .ogv)
-	# Godot does NOT support .mp4 natively
-	var supported_video_extensions = [".webm", ".ogv"]
+	# Try to load video animation first
+	# Supported formats: .webm, .ogv (native), .mp4 (platform-dependent)
+	var supported_video_extensions = [".webm", ".ogv", ".mp4"]
 	var video_loaded = false
 
 	for ext in supported_video_extensions:
@@ -156,9 +164,28 @@ func load_character_preview_on_button(button: Button, character_id: int):
 				video_loaded = true
 				break
 
-	# Fallback to background image if no video was loaded
+	# Try to load GIF animation
 	if not video_loaded:
-		if FileAccess.file_exists(bg_path):
+		var gif_path = char_path + "animations/character_idle.gif"
+		if FileAccess.file_exists(gif_path):
+			var texture = load(gif_path)
+			if texture:
+				var texture_rect = TextureRect.new()
+				texture_rect.texture = texture
+				texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+				texture_rect.anchor_right = 1.0
+				texture_rect.anchor_bottom = 1.0
+				texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				preview_container.add_child(texture_rect)
+				button.add_child(preview_container)
+				button.move_child(preview_container, 0)  # Move to back
+				print("Loaded character preview GIF for character ", character_id + 1)
+				video_loaded = true
+
+	# Fallback to background image if no video/animation was loaded
+	if not video_loaded:
+		if bg_path != "" and FileAccess.file_exists(bg_path):
 			var texture = load(bg_path)
 			if texture:
 				var texture_rect = TextureRect.new()
