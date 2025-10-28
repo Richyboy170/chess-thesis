@@ -46,10 +46,14 @@ class AnimationError:
 			"stack_trace": stack_trace
 		}
 
-	func to_string() -> String:
+	func _to_string() -> String:
 		var error_type_name = ErrorType.keys()[error_type]
 		var context_str = JSON.stringify(context, "\t")
 		return "[%s] %s: %s\nContext: %s" % [timestamp, error_type_name, message, context_str]
+
+	# Compatibility method that calls _to_string()
+	func to_string() -> String:
+		return _to_string()
 
 ## Storage
 var errors: Array[AnimationError] = []
@@ -57,6 +61,13 @@ var error_count_by_type: Dictionary = {}
 var max_errors: int = 1000  # Prevent memory issues
 var auto_save_enabled: bool = true
 var error_log_path: String = "user://animation_errors.log"
+
+## Helper function to repeat strings
+static func repeat_string(s: String, count: int) -> String:
+	var result = ""
+	for i in count:
+		result += s
+	return result
 
 ## Signals
 signal error_logged(error: AnimationError)
@@ -157,7 +168,7 @@ func get_error_summary() -> String:
 		return "✓ No animation errors detected"
 
 	var summary = "📊 Animation Error Summary\n"
-	summary += "=" * 50 + "\n"
+	summary += repeat_string("=", 50) + "\n"
 	summary += "Total Errors: %d\n\n" % errors.size()
 
 	summary += "Errors by Type:\n"
@@ -175,15 +186,15 @@ func get_error_summary() -> String:
 
 func get_detailed_report() -> String:
 	var report = "📋 Detailed Animation Error Report\n"
-	report += "=" * 70 + "\n"
+	report += repeat_string("=", 70) + "\n"
 	report += "Generated: %s\n" % Time.get_datetime_string_from_system()
 	report += "Total Errors: %d\n" % errors.size()
-	report += "=" * 70 + "\n\n"
+	report += repeat_string("=", 70) + "\n\n"
 
 	for i in errors.size():
 		report += "Error #%d:\n" % (i + 1)
 		report += errors[i].to_string() + "\n"
-		report += "-" * 70 + "\n\n"
+		report += repeat_string("-", 70) + "\n\n"
 
 	return report
 
@@ -193,7 +204,7 @@ func save_latest_error_to_file(error: AnimationError) -> void:
 	if file:
 		file.seek_end()
 		file.store_line(error.to_string())
-		file.store_line("-" * 70)
+		file.store_line(repeat_string("-", 70))
 		file.close()
 
 func export_errors_to_file(custom_path: String = "") -> bool:
