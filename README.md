@@ -61,9 +61,12 @@ The game uses an autoload singleton (`GameState`) to manage:
 
 ## Setup Instructions
 
-1. Install [Godot Engine 4.2](https://godotengine.org/download) or later
-2. Open the project in Godot by selecting the `project.godot` file
-3. Run the project (F5) or export for mobile platforms
+1. Install [Godot Engine 4.3](https://godotengine.org/download) or later
+2. **For Live2D support:** Follow the [Live2D Setup Guide](LIVE2D_SETUP.md) to install GDCubism binaries
+3. Open the project in Godot by selecting the `project.godot` file
+4. Run the project (F5) or export for mobile platforms
+
+**Note:** The project will work without Live2D binaries - Character 4 will display as a static image instead of an animated model.
 
 ## Mobile Configuration
 
