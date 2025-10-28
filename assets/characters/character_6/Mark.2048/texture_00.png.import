@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wtfne4tt368i"
-path="res://.godot/imported/texture_00.png-24635f5e2e9671c73e0b35bff5113232.ctex"
+path="res://.godot/imported/texture_00.png-f2eb0bb00f68c88bcf815703e0a246e6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://CubismSdkForNative-5-r.4.1/Samples/Resources/Mark/Mark.2048/texture_00.png"
-dest_files=["res://.godot/imported/texture_00.png-24635f5e2e9671c73e0b35bff5113232.ctex"]
+source_file="res://assets/characters/character_6/Mark.2048/texture_00.png"
+dest_files=["res://.godot/imported/texture_00.png-f2eb0bb00f68c88bcf815703e0a246e6.ctex"]
 
 [params]
 
