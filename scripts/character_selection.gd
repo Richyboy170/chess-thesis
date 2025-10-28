@@ -124,12 +124,16 @@ func load_character_previews():
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character5Button, 4)
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character6Button, 5)
 
 	# Player 2 character buttons
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character1Button, 0)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character5Button, 4)
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character6Button, 5)
 
 func load_character_preview_on_button(button: Button, character_id: int):
 	"""
@@ -137,15 +141,15 @@ func load_character_preview_on_button(button: Button, character_id: int):
 
 	Args:
 		button: The button to add the preview to
-		character_id: The character ID (0-3)
+		character_id: The character ID (0-5)
 	"""
 	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
 	print("\n===== LOADING CHARACTER ", character_id + 1, " PREVIEW =====")
 	print("Character path: ", char_path)
 
-	# Special handling for Character 4 (Live2D)
-	if character_id == 3:
-		load_live2d_preview_on_button(button, char_path)
+	# Special handling for Live2D characters (4, 5, 6)
+	if character_id == 3 or character_id == 4 or character_id == 5:
+		load_live2d_preview_on_button(button, char_path, character_id)
 		return
 
 	# Find character background image (support multiple formats)
@@ -461,7 +465,7 @@ func toggle_background_debugger():
 		else:
 			print("Character Background Debugger: HIDDEN")
 
-func load_live2d_preview_on_button(button: Button, char_path: String):
+func load_live2d_preview_on_button(button: Button, char_path: String, character_id: int):
 	"""
 	Loads and displays a Live2D character preview on a button.
 	Falls back to texture preview if GDCubism is not available.
@@ -469,8 +473,26 @@ func load_live2d_preview_on_button(button: Button, char_path: String):
 	Args:
 		button: The button to add the preview to
 		char_path: Path to the character folder
+		character_id: The character ID (3=Scyka, 4=Hiyori, 5=Mark)
 	"""
-	print("Loading Live2D preview for Character 4...")
+	# Map character IDs to model names
+	var model_names = {
+		3: "Scyka",
+		4: "Hiyori",
+		5: "Mark"
+	}
+
+	# Map character IDs to texture directories
+	var texture_dirs = {
+		3: "Scyka.4096",
+		4: "Hiyori.2048",
+		5: "Mark.2048"
+	}
+
+	var model_name = model_names.get(character_id, "Scyka")
+	var texture_dir = texture_dirs.get(character_id, "Scyka.4096")
+
+	print("Loading Live2D preview for Character ", character_id + 1, " (", model_name, ")...")
 
 	# Create a container for the preview
 	var preview_container = Control.new()
@@ -481,7 +503,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String):
 	preview_container.z_index = -1
 
 	# Check if GDCubism is available
-	var model_path = char_path + "Scyka.model3.json"
+	var model_path = char_path + model_name + ".model3.json"
 
 	if ClassDB.class_exists("GDCubismUserModel") and FileAccess.file_exists(model_path):
 		print("  GDCubism is available, loading Live2D model...")
@@ -512,7 +534,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String):
 			AnimationErrorDetector.log_error(
 				AnimationErrorDetector.ErrorType.INVALID_RESOURCE,
 				"Failed to instantiate GDCubismUserModel class",
-				{"model_path": model_path, "character_id": 4}
+				{"model_path": model_path, "character_id": character_id + 1}
 			)
 	else:
 		if not ClassDB.class_exists("GDCubismUserModel"):
@@ -531,7 +553,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String):
 
 	# Fallback to texture preview
 	print("  Falling back to texture preview...")
-	var texture_path = char_path + "Scyka.4096/texture_00.png"
+	var texture_path = char_path + texture_dir + "/texture_00.png"
 
 	if FileAccess.file_exists(texture_path):
 		var texture = load(texture_path)
@@ -551,7 +573,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String):
 			print("  ✗ ERROR: Could not load texture")
 			AnimationErrorDetector.log_load_failed(
 				texture_path,
-				"Live2D fallback texture for character 4"
+				"Live2D fallback texture for character " + str(character_id + 1)
 			)
 	else:
 		print("  ✗ ERROR: Texture not found: ", texture_path)

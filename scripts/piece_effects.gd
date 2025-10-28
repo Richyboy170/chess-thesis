@@ -61,7 +61,7 @@ func load_character_configs():
 	Loads character-specific piece effects configurations.
 	Each character has its own config file in their assets folder.
 	"""
-	for character_id in range(1, 4):  # Characters 1, 2, 3
+	for character_id in range(1, 7):  # Characters 1, 2, 3, 4, 5, 6
 		var config_path = "res://assets/characters/character_%d/piece_effects_config.gd" % character_id
 
 		# Try to load the config
