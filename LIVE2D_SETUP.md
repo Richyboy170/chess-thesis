@@ -1,8 +1,12 @@
 # Live2D Integration Setup Guide
 
+> **Seeing GDExtension errors?** Check [QUICK_FIX_GDCUBISM_ERROR.md](QUICK_FIX_GDCUBISM_ERROR.md) for a quick explanation and fix.
+
 ## Overview
 
 This project includes **Character 4 (Scyka)**, a Live2D animated character integrated into the chess game. This guide explains how to set up the Live2D functionality using the GDCubism plugin.
+
+**Note:** The project will work without GDCubism binaries installed - Character 4 will simply display as a static image instead of an animated Live2D model.
 
 ## Current Status
 
