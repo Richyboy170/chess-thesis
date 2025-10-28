@@ -51,10 +51,6 @@ class AnimationError:
 		var context_str = JSON.stringify(context, "\t")
 		return "[%s] %s: %s\nContext: %s" % [timestamp, error_type_name, message, context_str]
 
-	# Compatibility method that calls _to_string()
-	func to_string() -> String:
-		return _to_string()
-
 ## Storage
 var errors: Array[AnimationError] = []
 var error_count_by_type: Dictionary = {}
@@ -180,7 +176,7 @@ func get_error_summary() -> String:
 	summary += "\nRecent Errors (last 5):\n"
 	var recent = get_recent_errors(5)
 	for error in recent:
-		summary += "\n" + error.to_string() + "\n"
+		summary += "\n" + str(error) + "\n"
 
 	return summary
 
@@ -193,7 +189,7 @@ func get_detailed_report() -> String:
 
 	for i in errors.size():
 		report += "Error #%d:\n" % (i + 1)
-		report += errors[i].to_string() + "\n"
+		report += str(errors[i]) + "\n"
 		report += repeat_string("-", 70) + "\n\n"
 
 	return report
@@ -203,7 +199,7 @@ func save_latest_error_to_file(error: AnimationError) -> void:
 	var file = FileAccess.open(error_log_path, FileAccess.READ_WRITE)
 	if file:
 		file.seek_end()
-		file.store_line(error.to_string())
+		file.store_line(str(error))
 		file.store_line(repeat_string("-", 70))
 		file.close()
 
