@@ -185,6 +185,17 @@ var capture_move_texture: Texture2D = null
 var highlights_loaded: bool = false
 
 # ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+## Helper function to repeat strings (GDScript compatibility)
+static func repeat_string(s: String, count: int) -> String:
+	var result = ""
+	for i in count:
+		result += s
+	return result
+
+# ============================================================================
 # INITIALIZATION FUNCTIONS
 # ============================================================================
 
@@ -774,7 +785,7 @@ func refresh_error_viewer():
 
 	# Display error summary by type
 	error_list.append_text("[b][color=white]Error Summary[/color][/b]\n")
-	error_list.append_text("=" * 50 + "\n\n")
+	error_list.append_text(repeat_string("=", 50) + "\n\n")
 
 	# Count by type
 	for type in AnimationErrorDetector.ErrorType.values():
@@ -784,7 +795,7 @@ func refresh_error_viewer():
 			var icon = AnimationErrorDetector.get_error_icon(type)
 			error_list.append_text("%s [color=yellow]%s[/color]: %d\n" % [icon, type_name, count])
 
-	error_list.append_text("\n" + "=" * 50 + "\n\n")
+	error_list.append_text("\n" + repeat_string("=", 50) + "\n\n")
 
 	# Display recent errors (last 10)
 	error_list.append_text("[b][color=white]Recent Errors[/color][/b]\n\n")
@@ -805,7 +816,7 @@ func refresh_error_viewer():
 			for key in error.context:
 				error_list.append_text("  • %s: %s\n" % [key, error.context[key]])
 
-		error_list.append_text("\n" + "-" * 50 + "\n\n")
+		error_list.append_text("\n" + repeat_string("-", 50) + "\n\n")
 
 	# Show total count
 	if error_count > 10:

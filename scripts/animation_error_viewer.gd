@@ -20,6 +20,13 @@ extends PanelContainer
 
 var is_visible_panel: bool = false
 
+## Helper function to repeat strings
+static func repeat_string(s: String, count: int) -> String:
+	var result = ""
+	for i in count:
+		result += s
+	return result
+
 func _ready():
 	# Connect to error detector signals
 	if AnimationErrorDetector:
@@ -90,7 +97,7 @@ func update_error_list():
 
 	# Display error summary by type
 	error_list.append_text("[b][color=white]Error Summary[/color][/b]\n")
-	error_list.append_text("=" * 50 + "\n\n")
+	error_list.append_text(repeat_string("=", 50) + "\n\n")
 
 	# Count by type
 	for type in AnimationErrorDetector.ErrorType.values():
@@ -100,7 +107,7 @@ func update_error_list():
 			var icon = AnimationErrorDetector.get_error_icon(type)
 			error_list.append_text("%s [color=yellow]%s[/color]: %d\n" % [icon, type_name, count])
 
-	error_list.append_text("\n" + "=" * 50 + "\n\n")
+	error_list.append_text("\n" + repeat_string("=", 50) + "\n\n")
 
 	# Display recent errors (last 10)
 	error_list.append_text("[b][color=white]Recent Errors[/color][/b]\n\n")
@@ -121,7 +128,7 @@ func update_error_list():
 			for key in error.context:
 				error_list.append_text("  • %s: %s\n" % [key, error.context[key]])
 
-		error_list.append_text("\n" + "-" * 50 + "\n\n")
+		error_list.append_text("\n" + repeat_string("-", 50) + "\n\n")
 
 	# Show total count
 	var total = AnimationErrorDetector.get_error_count()
@@ -176,8 +183,9 @@ func show_notification(message: String):
 	print("✓ ", message)
 
 # Helper function to create the viewer programmatically
-static func create_viewer() -> AnimationErrorViewer:
-	var viewer = AnimationErrorViewer.new()
+static func create_viewer():
+	var script = load("res://scripts/animation_error_viewer.gd")
+	var viewer = script.new()
 	viewer.name = "AnimationErrorViewer"
 
 	# Create UI structure
