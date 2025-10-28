@@ -1038,19 +1038,19 @@ func zoom_chessboard_to_center(delta: float):
 		chessboard_zoom = new_zoom
 
 		# Get the chessboard container (parent of the Chessboard)
-		var chessboard_container = chessboard.get_parent().get_parent()
+		var container = chessboard.get_parent().get_parent()
 
 		# Calculate the center point for zoom
-		var container_rect = chessboard_container.get_global_rect()
+		var container_rect = container.get_global_rect()
 
 		# Animate the scale change smoothly
 		var tween = create_tween()
 		tween.set_ease(Tween.EASE_OUT)
 		tween.set_trans(Tween.TRANS_CUBIC)
-		tween.tween_property(chessboard_container, "scale", Vector2(chessboard_zoom, chessboard_zoom), 0.2)
+		tween.tween_property(container, "scale", Vector2(chessboard_zoom, chessboard_zoom), 0.2)
 
 		# Apply the offset to keep zoom centered
-		chessboard_container.pivot_offset = container_rect.size / 2.0
+		container.pivot_offset = container_rect.size / 2.0
 
 		print("Chessboard zoom: ", int(chessboard_zoom * 100), "%")
 
@@ -1062,11 +1062,11 @@ func pan_chessboard(delta: Vector2):
 		delta: The amount to pan by (in pixels)
 	"""
 	# Get the chessboard container
-	var chessboard_container = chessboard.get_parent().get_parent()
+	var container = chessboard.get_parent().get_parent()
 
 	# Update the chessboard position
 	chessboard_offset += delta
-	chessboard_container.position = chessboard_offset
+	container.position = chessboard_offset
 
 func setup_chessboard():
 	"""

@@ -223,11 +223,11 @@ static func create_viewer():
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(scroll)
 
-	var error_list = RichTextLabel.new()
-	error_list.name = "ErrorList"
-	error_list.bbcode_enabled = true
-	error_list.fit_content = true
-	scroll.add_child(error_list)
+	var error_list_label = RichTextLabel.new()
+	error_list_label.name = "ErrorList"
+	error_list_label.bbcode_enabled = true
+	error_list_label.fit_content = true
+	scroll.add_child(error_list_label)
 
 	# Buttons
 	var button_container = HBoxContainer.new()
