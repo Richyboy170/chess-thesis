@@ -42,14 +42,14 @@ class DebugReport:
 	func add_info(message: String):
 		info.append(message)
 
-	func to_string() -> String:
+	func _to_string() -> String:
 		var output = "\n"
-		output += "═" * 80 + "\n"
+		output += "═".repeat(80) + "\n"
 		output += "  LIVE2D CHARACTER DEBUG REPORT\n"
-		output += "═" * 80 + "\n\n"
+		output += "═".repeat(80) + "\n\n"
 		output += "Character: %s (ID: %d)\n" % [character_name, character_id]
 		output += "Status: %s\n" % ("✓ SUCCESS" if success else "✗ FAILED")
-		output += "─" * 80 + "\n\n"
+		output += "─".repeat(80) + "\n\n"
 
 		if info.size() > 0:
 			output += "ℹ INFO:\n"
@@ -69,7 +69,7 @@ class DebugReport:
 				output += "  • %s\n" % msg
 			output += "\n"
 
-		output += "═" * 80 + "\n"
+		output += "═".repeat(80) + "\n"
 		return output
 
 ## Check if a character ID is a Live2D character
@@ -206,9 +206,9 @@ static func debug_character(character_id: int) -> DebugReport:
 ## Quick check for all Live2D characters
 static func debug_all_characters() -> String:
 	var output = "\n"
-	output += "╔" + "═" * 78 + "╗\n"
-	output += "║" + " " * 20 + "LIVE2D CHARACTERS DEBUG SUMMARY" + " " * 26 + "║\n"
-	output += "╚" + "═" * 78 + "╝\n\n"
+	output += "╔" + "═".repeat(78) + "╗\n"
+	output += "║" + " ".repeat(20) + "LIVE2D CHARACTERS DEBUG SUMMARY" + " ".repeat(26) + "║\n"
+	output += "╚" + "═".repeat(78) + "╝\n\n"
 
 	# Check plugin first
 	if not check_plugin_available():
@@ -340,7 +340,7 @@ static func create_debug_panel(parent_node: Control) -> PanelContainer:
 ## Print debug report to console
 static func print_debug_report(character_id: int):
 	var report = debug_character(character_id)
-	print(report.to_string())
+	print(report._to_string())
 
 ## Get a detailed status message for in-game display
 static func get_status_message(character_id: int) -> String:
