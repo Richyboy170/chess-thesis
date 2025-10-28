@@ -201,6 +201,10 @@ func load_character_preview_on_button(button: Button, character_id: int):
 				break
 			else:
 				print("  ✗ ERROR: Could not load video stream")
+				AnimationErrorDetector.log_load_failed(
+					video_path,
+					"VideoStream for character %d" % (character_id + 1)
+				)
 
 	# Note: GIF animations are not supported by Godot natively
 	# Skipping GIF loading - use .ogv video format instead for animations
@@ -225,8 +229,16 @@ func load_character_preview_on_button(button: Button, character_id: int):
 				print("  ✓ LOADED: Background image preview")
 			else:
 				print("  ✗ ERROR: Could not load background texture")
+				AnimationErrorDetector.log_load_failed(
+					bg_path,
+					"Background texture for character %d" % (character_id + 1)
+				)
 		else:
 			print("  ✗ ERROR: No background image available")
+			AnimationErrorDetector.log_file_not_found(
+				char_path + "backgrounds/character_background.[png|jpg|jpeg|webp]",
+				char_path + "backgrounds/"
+			)
 			print("\n⚠ WARNING: No preview found for character ", character_id + 1)
 			print("  Searched for:")
 			print("    - animations/character_idle.ogv")
@@ -497,12 +509,25 @@ func load_live2d_preview_on_button(button: Button, char_path: String):
 			return
 		else:
 			print("  ✗ ERROR: Could not instantiate GDCubismUserModel")
+			AnimationErrorDetector.log_error(
+				AnimationErrorDetector.ErrorType.INVALID_RESOURCE,
+				"Failed to instantiate GDCubismUserModel class",
+				{"model_path": model_path, "character_id": 4}
+			)
 	else:
 		if not ClassDB.class_exists("GDCubismUserModel"):
 			print("  ⚠ WARNING: GDCubism plugin not loaded")
 			print("    See LIVE2D_SETUP.md for installation instructions")
+			AnimationErrorDetector.log_plugin_missing(
+				"GDCubism",
+				"Live2D character animation"
+			)
 		else:
 			print("  ✗ ERROR: Model file not found: ", model_path)
+			AnimationErrorDetector.log_file_not_found(
+				model_path,
+				char_path
+			)
 
 	# Fallback to texture preview
 	print("  Falling back to texture preview...")
@@ -524,7 +549,15 @@ func load_live2d_preview_on_button(button: Button, char_path: String):
 			print("  ✓ LOADED: Texture preview")
 		else:
 			print("  ✗ ERROR: Could not load texture")
+			AnimationErrorDetector.log_load_failed(
+				texture_path,
+				"Live2D fallback texture for character 4"
+			)
 	else:
 		print("  ✗ ERROR: Texture not found: ", texture_path)
+		AnimationErrorDetector.log_file_not_found(
+			texture_path,
+			char_path + "Scyka.4096/"
+		)
 
 	print("===== END CHARACTER 4 PREVIEW =====\n")

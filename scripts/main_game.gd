@@ -144,6 +144,11 @@ var animation_debug_panel: PanelContainer = null
 var animation_debug_visible: bool = false
 
 # ============================================================================
+# Animation Error Viewer
+var error_viewer: PanelContainer = null
+var error_viewer_visible: bool = false
+
+# ============================================================================
 # PIECE EFFECTS SYSTEM
 # ============================================================================
 # Reference to piece effects system for drag animations
@@ -342,6 +347,9 @@ func _ready():
 
 	# Initialize character animation debugger
 	create_animation_debugger()
+
+	# Initialize animation error viewer
+	create_error_viewer()
 
 	# Initialize piece effects system
 	piece_effects = preload("res://scripts/piece_effects.gd").new()
@@ -601,14 +609,253 @@ func create_animation_debugger():
 
 	print("Character Animation Debugger created. Press 'D' to toggle.")
 
+func create_error_viewer():
+	"""
+	Creates the Animation Error Viewer panel for debugging animation errors.
+	Press 'F9' to toggle the error viewer.
+	"""
+	# Load the error viewer script
+	var ErrorViewerScript = preload("res://scripts/animation_error_viewer.gd")
+
+	# Create error viewer panel
+	error_viewer = PanelContainer.new()
+	error_viewer.name = "AnimationErrorViewer"
+	error_viewer.position = Vector2(100, 100)
+	error_viewer.custom_minimum_size = Vector2(650, 500)
+	error_viewer.visible = false  # Hidden by default
+	error_viewer.z_index = 1001  # Always on top (above animation debugger)
+
+	# Create a stylebox for the panel
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.15, 0.1, 0.1, 0.95)
+	panel_style.border_width_left = 2
+	panel_style.border_width_right = 2
+	panel_style.border_width_top = 2
+	panel_style.border_width_bottom = 2
+	panel_style.border_color = Color(1.0, 0.3, 0.3, 1.0)
+	error_viewer.add_theme_stylebox_override("panel", panel_style)
+
+	# Create main container
+	var margin = MarginContainer.new()
+	margin.name = "MarginContainer"
+	margin.add_theme_constant_override("margin_left", 15)
+	margin.add_theme_constant_override("margin_right", 15)
+	margin.add_theme_constant_override("margin_top", 15)
+	margin.add_theme_constant_override("margin_bottom", 15)
+	error_viewer.add_child(margin)
+
+	var vbox = VBoxContainer.new()
+	vbox.name = "VBoxContainer"
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+
+	# Header
+	var header = HBoxContainer.new()
+	header.name = "Header"
+	vbox.add_child(header)
+
+	var title = Label.new()
+	title.text = "ANIMATION ERROR DETECTOR"
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3, 1.0))
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title)
+
+	var summary_label = Label.new()
+	summary_label.name = "SummaryLabel"
+	summary_label.add_theme_font_size_override("font_size", 12)
+	header.add_child(summary_label)
+
+	var close_button = Button.new()
+	close_button.name = "CloseButton"
+	close_button.text = "X"
+	close_button.pressed.connect(toggle_error_viewer)
+	header.add_child(close_button)
+
+	# Instructions
+	var instructions = Label.new()
+	instructions.text = "F9: Toggle | F10: Export | F11: Clear"
+	instructions.add_theme_font_size_override("font_size", 11)
+	instructions.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1.0))
+	vbox.add_child(instructions)
+
+	# Error list
+	var scroll = ScrollContainer.new()
+	scroll.name = "ScrollContainer"
+	scroll.custom_minimum_size = Vector2(600, 350)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(scroll)
+
+	var error_list = RichTextLabel.new()
+	error_list.name = "ErrorList"
+	error_list.bbcode_enabled = true
+	error_list.fit_content = true
+	scroll.add_child(error_list)
+
+	# Buttons
+	var button_container = HBoxContainer.new()
+	button_container.name = "ButtonContainer"
+	button_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_child(button_container)
+
+	var refresh_button = Button.new()
+	refresh_button.name = "RefreshButton"
+	refresh_button.text = "Refresh (F9)"
+	refresh_button.pressed.connect(refresh_error_viewer)
+	button_container.add_child(refresh_button)
+
+	var export_button = Button.new()
+	export_button.name = "ExportButton"
+	export_button.text = "Export (F10)"
+	export_button.pressed.connect(export_errors)
+	button_container.add_child(export_button)
+
+	var clear_button = Button.new()
+	clear_button.name = "ClearButton"
+	clear_button.text = "Clear (F11)"
+	clear_button.pressed.connect(clear_errors)
+	button_container.add_child(clear_button)
+
+	# Set script
+	error_viewer.set_script(ErrorViewerScript)
+
+	# Add to scene
+	add_child(error_viewer)
+
+	# Connect to error detector signals
+	if AnimationErrorDetector:
+		AnimationErrorDetector.error_logged.connect(_on_error_logged)
+
+	print("Animation Error Viewer created. Press 'F9' to toggle.")
+
+func toggle_error_viewer():
+	"""Toggles the visibility of the animation error viewer."""
+	if error_viewer:
+		error_viewer_visible = !error_viewer_visible
+		error_viewer.visible = error_viewer_visible
+		if error_viewer_visible:
+			refresh_error_viewer()
+			print("Animation Error Viewer: VISIBLE")
+		else:
+			print("Animation Error Viewer: HIDDEN")
+
+func refresh_error_viewer():
+	"""Refreshes the error viewer display."""
+	if not error_viewer or not AnimationErrorDetector:
+		return
+
+	var summary_label = error_viewer.find_child("SummaryLabel", true, false)
+	var error_list = error_viewer.find_child("ErrorList", true, false)
+
+	if not summary_label or not error_list:
+		return
+
+	# Update summary
+	var error_count = AnimationErrorDetector.get_error_count()
+	var has_critical = AnimationErrorDetector.has_critical_errors()
+
+	if error_count == 0:
+		summary_label.text = "✓ No errors"
+		summary_label.add_theme_color_override("font_color", Color.GREEN)
+	elif has_critical:
+		summary_label.text = "%d errors (CRITICAL)" % error_count
+		summary_label.add_theme_color_override("font_color", Color.RED)
+	else:
+		summary_label.text = "%d errors" % error_count
+		summary_label.add_theme_color_override("font_color", Color.YELLOW)
+
+	# Update error list
+	error_list.clear()
+
+	if error_count == 0:
+		error_list.append_text("[color=green]✓ No animation errors detected[/color]\n\n")
+		error_list.append_text("All character animations loaded successfully!")
+		return
+
+	# Display error summary by type
+	error_list.append_text("[b][color=white]Error Summary[/color][/b]\n")
+	error_list.append_text("=" * 50 + "\n\n")
+
+	# Count by type
+	for type in AnimationErrorDetector.ErrorType.values():
+		var count = AnimationErrorDetector.get_error_count_by_type(type)
+		if count > 0:
+			var type_name = AnimationErrorDetector.ErrorType.keys()[type]
+			var icon = AnimationErrorDetector.get_error_icon(type)
+			error_list.append_text("%s [color=yellow]%s[/color]: %d\n" % [icon, type_name, count])
+
+	error_list.append_text("\n" + "=" * 50 + "\n\n")
+
+	# Display recent errors (last 10)
+	error_list.append_text("[b][color=white]Recent Errors[/color][/b]\n\n")
+
+	var recent_errors = AnimationErrorDetector.get_recent_errors(10)
+	for i in recent_errors.size():
+		var error = recent_errors[i]
+		var type_name = AnimationErrorDetector.ErrorType.keys()[error.error_type]
+		var icon = AnimationErrorDetector.get_error_icon(error.error_type)
+
+		error_list.append_text("[b]%s Error #%d[/b]\n" % [icon, i + 1])
+		error_list.append_text("[color=gray]%s[/color]\n" % error.timestamp)
+		error_list.append_text("[color=yellow]Type:[/color] %s\n" % type_name)
+		error_list.append_text("[color=cyan]Message:[/color] %s\n" % error.message)
+
+		if not error.context.is_empty():
+			error_list.append_text("[color=cyan]Context:[/color]\n")
+			for key in error.context:
+				error_list.append_text("  • %s: %s\n" % [key, error.context[key]])
+
+		error_list.append_text("\n" + "-" * 50 + "\n\n")
+
+	# Show total count
+	if error_count > 10:
+		error_list.append_text("[color=gray][i]Showing 10 of %d total errors[/i][/color]\n" % error_count)
+
+func export_errors():
+	"""Exports all errors to files."""
+	if not AnimationErrorDetector:
+		return
+
+	var text_success = AnimationErrorDetector.export_errors_to_file()
+	var json_success = AnimationErrorDetector.export_errors_as_json()
+
+	if text_success and json_success:
+		print("✓ Errors exported successfully")
+		print("  - Text: ", AnimationErrorDetector.error_log_path)
+		print("  - JSON: user://animation_errors.json")
+
+func clear_errors():
+	"""Clears all logged errors."""
+	if not AnimationErrorDetector:
+		return
+
+	AnimationErrorDetector.clear_errors()
+	refresh_error_viewer()
+	print("✓ All animation errors cleared")
+
+func _on_error_logged(_error):
+	"""Called when a new error is logged."""
+	if error_viewer_visible:
+		refresh_error_viewer()
+
 func _unhandled_key_input(event):
 	"""
-	Handles keyboard shortcuts for the debug panel.
+	Handles keyboard shortcuts for the debug panels.
 	Press 'D' to toggle the character animation debugger.
+	Press 'F9' to toggle the animation error viewer.
+	Press 'F10' to export errors to file.
+	Press 'F11' to clear all errors.
 	"""
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_D:
-			toggle_animation_debugger()
+		match event.keycode:
+			KEY_D:
+				toggle_animation_debugger()
+			KEY_F9:
+				toggle_error_viewer()
+			KEY_F10:
+				export_errors()
+			KEY_F11:
+				clear_errors()
 
 func toggle_animation_debugger():
 	"""
@@ -1006,6 +1253,12 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 				print("Loaded character animation: ", video_path)
 				video_loaded = true
 				break
+			else:
+				# File exists but failed to load
+				AnimationErrorDetector.log_load_failed(
+					video_path,
+					"Character idle video animation"
+				)
 
 	# Try to load GIF animation
 	if not video_loaded:
@@ -1026,9 +1279,19 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 				display_node.add_child(texture_rect)
 				print("Loaded character animation GIF: ", gif_path)
 				video_loaded = true
+			else:
+				# File exists but failed to load
+				AnimationErrorDetector.log_load_failed(
+					gif_path,
+					"Character idle GIF animation"
+				)
 
 	if not video_loaded:
 		print("No supported idle animation found (checked .webm, .ogv, .mp4, .gif)")
+		AnimationErrorDetector.log_file_not_found(
+			animations_dir + "character_idle.[ogv|webm|mp4|gif]",
+			animations_dir
+		)
 
 	# Pre-load victory, defeat, and capture effect animations for later use
 	# These will be stored as metadata on the display node for quick access
@@ -1068,6 +1331,11 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 	# Check if the animation is available
 	if not display_node.has_meta(animation_type):
 		print("Special animation not available: ", animation_type)
+		AnimationErrorDetector.log_error(
+			AnimationErrorDetector.ErrorType.PLAYBACK_FAILED,
+			"Special animation not pre-loaded: %s" % animation_type,
+			{"animation_type": animation_type}
+		)
 		return
 
 	var anim_path = display_node.get_meta(animation_type)
@@ -1089,6 +1357,12 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 			anim_node.anchor_right = 1.0
 			anim_node.anchor_bottom = 1.0
 			anim_node.custom_minimum_size = Vector2(400, 400)
+		else:
+			# GIF file exists but failed to load
+			AnimationErrorDetector.log_load_failed(
+				anim_path,
+				"Special animation GIF: %s" % animation_type
+			)
 	else:
 		var video_stream = load(anim_path)
 		if video_stream:
@@ -1100,6 +1374,12 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 			anim_node.anchor_right = 1.0
 			anim_node.anchor_bottom = 1.0
 			anim_node.custom_minimum_size = Vector2(400, 400)
+		else:
+			# Video file exists but failed to load
+			AnimationErrorDetector.log_load_failed(
+				anim_path,
+				"Special animation video: %s" % animation_type
+			)
 
 	if anim_node:
 		anim_node.name = "SpecialAnimation"

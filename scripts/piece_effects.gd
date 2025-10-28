@@ -71,7 +71,18 @@ func load_character_configs():
 				var config_instance = config_script.new()
 				character_configs[character_id] = config_instance
 				print("Loaded piece effects config for Character ", character_id)
+			else:
+				# File exists but failed to load
+				AnimationErrorDetector.log_load_failed(
+					config_path,
+					"PieceEffectsConfig script"
+				)
 		else:
+			# File doesn't exist
+			AnimationErrorDetector.log_file_not_found(
+				config_path,
+				"assets/characters/character_%d/" % character_id
+			)
 			print("Warning: No piece effects config found for Character ", character_id, " at ", config_path)
 
 func get_character_config(character_id: int) -> PieceEffectsConfig:
@@ -267,6 +278,12 @@ func apply_image_swap(piece_node: Node, piece_data: Dictionary, char_config: Pie
 			piece_node.texture = held_texture
 			print("Swapped to held image for Character %d: %s" % [character_id, held_image_path])
 			return
+		else:
+			# File exists but failed to load
+			AnimationErrorDetector.log_load_failed(
+				held_image_path,
+				"Held piece texture for %s" % piece_type
+			)
 
 	# If we get here, no held image was found - piece keeps its original image
 	# (This is not an error - held images are optional)
