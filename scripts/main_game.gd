@@ -1313,7 +1313,7 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 
 	# Run debug check first
 	var debug_report = Live2DDebugger.debug_character(character_id)
-	print(debug_report.to_string())
+	print(debug_report._to_string())
 
 	if not debug_report.success:
 		print("✗ Live2D character failed debug check")
