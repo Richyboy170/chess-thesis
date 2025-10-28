@@ -1,12 +1,12 @@
-# Chess Piece Drag Effects System
+# Chess Piece Drag Effects System - Character-Specific
 
-A comprehensive visual effects system for chess pieces during drag operations. This system provides customizable animations and visual feedback when players hold and move chess pieces.
+A comprehensive visual effects system for chess pieces during drag operations. This system provides **character-specific** customizable animations and visual feedback, allowing each character to have their own unique piece effects.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
-- [Installation](#installation)
+- [Character-Specific Configuration](#character-specific-configuration)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
 - [Available Effects](#available-effects)
@@ -20,14 +20,58 @@ A comprehensive visual effects system for chess pieces during drag operations. T
 
 ## Overview
 
-The Piece Effects System (`scripts/piece_effects.gd`) provides a modular and highly customizable way to add visual effects to chess pieces when they are being dragged. Each effect can be independently enabled, disabled, and customized.
+The Piece Effects System (`scripts/piece_effects.gd`) provides a modular and highly customizable way to add visual effects to chess pieces when they are being dragged. **Each character has its own individual configuration**, allowing for unique effects per character.
 
 **Key Features:**
+- **Character-specific effects**: Each character has its own configuration file
 - 12 different effect types (glow, pulse, particles, etc.)
-- Image swapping system for alternate piece appearances
-- Easy enable/disable configuration
+- Image swapping system with character-specific held image folders
+- Easy per-character enable/disable configuration
 - Multiple built-in presets
 - No performance impact when effects are disabled
+
+---
+
+## Character-Specific Configuration
+
+### Structure
+
+Each character has its own piece effects configuration:
+
+```
+assets/characters/
+├── character_1/
+│   ├── piece_effects_config.gd  ← Character 1's effects config
+│   └── pieces/
+│       └── held/                ← Character 1's held images
+│           ├── white_king.png
+│           ├── white_queen.png
+│           └── ...
+├── character_2/
+│   ├── piece_effects_config.gd  ← Character 2's effects config
+│   └── pieces/
+│       └── held/                ← Character 2's held images
+│           └── ...
+└── character_3/
+    ├── piece_effects_config.gd  ← Character 3's effects config
+    └── pieces/
+        └── held/                ← Character 3's held images
+            └── ...
+```
+
+### Default Character Configurations
+
+**Character 1** (Classic):
+- Effects: Scale, Glow (golden), Shadow Blur
+- Style: Classic, elegant chess piece effects
+
+**Character 2** (Mystical):
+- Effects: Scale, Glow (blue), Pulse, Rotation, Color Shift, Shadow Blur
+- Style: More dynamic with rotation and pulsing animations
+
+**Character 3** (Magical):
+- Effects: Scale, Glow (pink), Shimmer, Particles, Sparkles, Aura, Shadow Blur
+- Style: Magical/fantasy with particles and sparkles
 
 ---
 
@@ -60,44 +104,68 @@ The Piece Effects System (`scripts/piece_effects.gd`) provides a modular and hig
 
 ## Installation
 
-The effects system is already integrated into the main game. If you need to set it up manually:
+The effects system is already integrated into the main game with character-specific configurations:
 
-1. **Add the script**: The file `scripts/piece_effects.gd` contains all effect logic.
+1. **System Files**:
+   - `scripts/piece_effects.gd` - Main effects system
+   - `scripts/piece_effects_config.gd` - Base configuration class
 
-2. **Integration**: The main game (`scripts/main_game.gd`) automatically:
-   - Initializes the effects system on startup
-   - Applies effects when pieces are picked up
+2. **Character Configs**: Each character has their own config file:
+   - `assets/characters/character_1/piece_effects_config.gd`
+   - `assets/characters/character_2/piece_effects_config.gd`
+   - `assets/characters/character_3/piece_effects_config.gd`
+
+3. **Integration**: The main game automatically:
+   - Loads all character configurations on startup
+   - Applies character-specific effects when pieces are picked up
    - Removes effects when pieces are released
 
-3. **No additional setup required** - the system is ready to use!
+4. **No additional setup required** - the system is ready to use!
 
 ---
 
 ## Quick Start
 
-### Enabling/Disabling Effects
+### Customizing Effects for a Character
 
-Open `scripts/piece_effects.gd` and find the configuration section:
+To customize effects for a specific character, open their config file:
+
+**Example: Character 1**
+Open `assets/characters/character_1/piece_effects_config.gd`:
 
 ```gdscript
-var config = {
-	"image_swap_enabled": true,      # Swap to alternate image when held
-	"scale_enabled": true,           # Scale piece up when held
-	"rotation_enabled": false,       # Gentle rotation animation
-	"glow_enabled": true,            # Add glowing outline
-	"pulse_enabled": false,          # Pulsing scale animation
-	"shimmer_enabled": false,        # Shimmering light effect
-	"particle_enabled": false,       # Particle effect around piece
-	"shadow_blur_enabled": true,     # Blurred shadow effect
-	"color_shift_enabled": false,    # Shift piece color when held
-	"sparkle_enabled": false,        # Occasional sparkle effects
-	"aura_enabled": false,           # Colored aura around piece
-	"trail_enabled": false,          # Motion trail effect
+func _init():
+	character_id = 1
+	character_name = "Character 1"
+
+	# ========================================
+	# EFFECT TOGGLES
+	# ========================================
+	image_swap_enabled = true          # Swap to alternate image when held
+	scale_enabled = true               # Scale piece up when held
+	rotation_enabled = false           # Gentle rotation animation
+	glow_enabled = true                # Add glowing outline
+	pulse_enabled = false              # Pulsing scale animation
+	shimmer_enabled = false            # Shimmering light effect
+	particle_enabled = false           # Particle effect around piece
+	shadow_blur_enabled = true         # Blurred shadow effect
+	color_shift_enabled = false        # Shift piece color when held
+	sparkle_enabled = false            # Occasional sparkle effects
+	aura_enabled = false               # Colored aura around piece
+	trail_enabled = false              # Motion trail effect
+
+	# ========================================
+	# EFFECT PARAMETERS
+	# ========================================
+	glow_color = Color(1.0, 0.9, 0.3, 0.8)  # Golden glow
+	scale_factor = 1.3  # 30% larger when held
+	# ... more parameters
 }
 ```
 
 **To enable an effect**: Set its value to `true`
 **To disable an effect**: Set its value to `false`
+**To customize colors/parameters**: Modify the values in the "EFFECT PARAMETERS" section
 
 ### Example: Minimal Setup
 
@@ -299,49 +367,59 @@ var held_piece_image_paths = {
 
 ## Custom Held Images
 
-You can use different images for pieces when they are being held.
+Each character can have different images for pieces when they are being held. This is **character-specific**, so Character 1, 2, and 3 can each have completely different held piece images.
 
 ### Directory Structure
 
-Create a `held` folder in each character's pieces directory:
+Each character has its own `held` folder:
 
 ```
 assets/
 ├── characters/
 │   ├── character_1/
-│   │   ├── pieces/
-│   │   │   ├── white_king.png          (default image)
-│   │   │   ├── white_queen.png
-│   │   │   └── held/
-│   │   │       ├── white_king.png      (held image)
-│   │   │       ├── white_queen.png
-│   │   │       └── white_king.ogv      (animated held image)
-│   │   └── ...
+│   │   ├── piece_effects_config.gd     (Character 1's config)
+│   │   └── pieces/
+│   │       ├── white_king.png          (default image)
+│   │       ├── white_queen.png
+│   │       └── held/                   (Character 1's held images)
+│   │           ├── white_king.png      (held image)
+│   │           ├── white_queen.png
+│   │           └── white_king.ogv      (animated held image)
 │   ├── character_2/
-│   │   └── ...
+│   │   ├── piece_effects_config.gd     (Character 2's config)
+│   │   └── pieces/
+│   │       └── held/                   (Character 2's held images)
 │   └── character_3/
-│       └── ...
+│       ├── piece_effects_config.gd     (Character 3's config)
+│       └── pieces/
+│           └── held/                   (Character 3's held images)
 ```
 
 ### Configuring Custom Images
 
-**Option 1: Automatic Discovery**
+**Option 1: Automatic Discovery (Recommended)**
 Place images in `assets/characters/character_X/pieces/held/white_PIECETYPE.png`
-The system will automatically find and use them.
+The system will automatically find and use them for that character.
 
-**Option 2: Manual Configuration**
-Edit `held_piece_image_paths` in `piece_effects.gd`:
+**Option 2: Character-Specific Custom Paths**
+Edit the character's config file `assets/characters/character_X/piece_effects_config.gd`:
 
 ```gdscript
-var held_piece_image_paths = {
-	"king": "res://assets/characters/character_1/pieces/held/white_king.png",
-	"queen": "res://assets/characters/character_1/pieces/held/white_queen.ogv",
-	"rook": "res://assets/characters/character_1/pieces/held/white_rook.png",
-	"bishop": "res://assets/characters/character_1/pieces/held/white_bishop.png",
-	"knight": "res://assets/characters/character_1/pieces/held/white_knight.png",
-	"pawn": "res://assets/characters/character_1/pieces/held/white_pawn.png",
+func _init():
+	# ... other settings ...
+
+	# Custom held piece image paths for this character
+	custom_held_image_king = "res://custom/path/to/character_1_held_king.png"
+	custom_held_image_queen = "res://custom/path/to/character_1_held_queen.ogv"
+	custom_held_image_rook = "res://custom/path/to/character_1_held_rook.png"
+	# ... etc
 }
 ```
+
+This allows you to have:
+- Character 1 with golden glowing held images
+- Character 2 with blue mystical held images
+- Character 3 with pink magical held images
 
 ### Supported Image Types
 

@@ -1,73 +1,89 @@
 extends Node
 
 # ============================================================================
-# CHESS PIECE DRAG EFFECTS SYSTEM
+# CHESS PIECE DRAG EFFECTS SYSTEM - CHARACTER-SPECIFIC
 # ============================================================================
 # This script provides configurable visual effects for chess pieces when
-# they are being held/dragged by the player. Each effect can be enabled
-# or disabled by uncommenting/commenting the corresponding line in the
-# apply_drag_effects() function.
+# they are being held/dragged by the player. Each CHARACTER has its own
+# individual configuration with customizable effects.
 #
 # USAGE:
 # 1. Add this script as an autoload singleton in Project Settings
 # 2. Call PieceEffects.apply_drag_effects(piece_node, piece_data) when drag starts
 # 3. Call PieceEffects.remove_drag_effects(piece_node) when drag ends
-# 4. Optionally swap piece images by setting up held_piece_images dictionary
+# 4. Each character's config is in assets/characters/character_X/piece_effects_config.gd
 #
 # CUSTOMIZATION:
-# - Enable/disable effects in apply_drag_effects() by uncommenting/commenting
-# - Adjust effect parameters (colors, speeds, intensities) in each function
-# - Add custom piece images for held state in assets/characters/.../pieces/held/
+# - Edit character-specific configs in assets/characters/character_X/piece_effects_config.gd
+# - Each character has its own effect toggles, parameters, and held image folder
+# - Add custom piece images for held state in assets/characters/character_X/pieces/held/
 # ============================================================================
 
 # ============================================================================
-# CONFIGURATION - EFFECT TOGGLES
+# CHARACTER-SPECIFIC CONFIGURATIONS
 # ============================================================================
-# Enable/disable specific effects by setting these to true/false
-# You can also control effects per piece type or color
+# Store loaded configurations for each character
+var character_configs = {}
 
+# Default fallback config (used if character config not found)
 var config = {
-	"image_swap_enabled": true,          # Swap to alternate image when held
-	"scale_enabled": true,               # Scale piece up when held
-	"rotation_enabled": false,           # Gentle rotation animation
-	"glow_enabled": true,                # Add glowing outline
-	"pulse_enabled": false,              # Pulsing scale animation
-	"shimmer_enabled": false,            # Shimmering light effect
-	"particle_enabled": false,           # Particle effect around piece
-	"shadow_blur_enabled": true,         # Blurred shadow effect
-	"color_shift_enabled": false,        # Shift piece color when held
-	"sparkle_enabled": false,            # Occasional sparkle effects
-	"aura_enabled": false,               # Colored aura around piece
-	"trail_enabled": false,              # Motion trail effect
+	"image_swap_enabled": true,
+	"scale_enabled": true,
+	"rotation_enabled": false,
+	"glow_enabled": true,
+	"pulse_enabled": false,
+	"shimmer_enabled": false,
+	"particle_enabled": false,
+	"shadow_blur_enabled": true,
+	"color_shift_enabled": false,
+	"sparkle_enabled": false,
+	"aura_enabled": false,
+	"trail_enabled": false,
 }
 
-# ============================================================================
-# HELD PIECE IMAGE PATHS
-# ============================================================================
-# Define alternate images to use when pieces are held
-# Format: "piece_type": "path/to/held_image.png"
-# If not specified, uses the default piece image
-#
-# RECOMMENDED STRUCTURE:
-# res://assets/characters/character_X/pieces/held/white_PIECE.png
-# res://assets/characters/character_X/pieces/held/white_PIECE.ogv (animated)
-#
-# Examples:
-# - Static images: PNG, JPEG
-# - Animated: OGV (video), Animated textures
-var held_piece_image_paths = {
-	# Uncomment and modify these to use custom held images
-	# "king": "res://assets/characters/character_1/pieces/held/white_king.png",
-	# "queen": "res://assets/characters/character_1/pieces/held/white_queen.png",
-	# "rook": "res://assets/characters/character_1/pieces/held/white_rook.png",
-	# "bishop": "res://assets/characters/character_1/pieces/held/white_bishop.png",
-	# "knight": "res://assets/characters/character_1/pieces/held/white_knight.png",
-	# "pawn": "res://assets/characters/character_1/pieces/held/white_pawn.png",
-}
+# Default held piece image paths (fallback)
+var held_piece_image_paths = {}
 
 # Store original textures to restore later
 var original_textures = {}
 var active_effects = {}  # Track active tweens and effects per piece
+
+# ============================================================================
+# INITIALIZATION
+# ============================================================================
+
+func _ready():
+	"""Load all character-specific configurations on startup."""
+	load_character_configs()
+
+func load_character_configs():
+	"""
+	Loads character-specific piece effects configurations.
+	Each character has its own config file in their assets folder.
+	"""
+	for character_id in range(1, 4):  # Characters 1, 2, 3
+		var config_path = "res://assets/characters/character_%d/piece_effects_config.gd" % character_id
+
+		# Try to load the config
+		if FileAccess.file_exists(config_path):
+			var config_script = load(config_path)
+			if config_script:
+				var config_instance = config_script.new()
+				character_configs[character_id] = config_instance
+				print("Loaded piece effects config for Character ", character_id)
+		else:
+			print("Warning: No piece effects config found for Character ", character_id, " at ", config_path)
+
+func get_character_config(character_id: int) -> PieceEffectsConfig:
+	"""
+	Gets the configuration for a specific character.
+	Returns fallback config if character config not found.
+	"""
+	if character_id in character_configs:
+		return character_configs[character_id]
+	else:
+		# Return null if not found - caller will use fallback
+		return null
 
 # ============================================================================
 # MAIN EFFECT FUNCTIONS
@@ -76,10 +92,11 @@ var active_effects = {}  # Track active tweens and effects per piece
 func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
 	"""
 	Applies all enabled visual effects when a piece starts being dragged.
+	Uses character-specific configuration.
 
 	Args:
 		piece_node: The visual node (TextureRect or Label) representing the piece
-		piece_data: Optional dictionary with piece info (type, color, character_id)
+		piece_data: Dictionary with piece info (type, color, character_id)
 	"""
 	if not piece_node:
 		return
@@ -87,65 +104,86 @@ func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
 	# Initialize effect tracking for this piece
 	active_effects[piece_node] = {}
 
+	# Get character-specific configuration
+	var character_id = piece_data.get("character_id", 1)
+	var char_config = get_character_config(character_id)
+
+	# Use character config if available, otherwise use global fallback
+	var active_config = char_config if char_config else null
+
 	# ========================================
 	# EFFECT ACTIVATION SECTION
 	# ========================================
-	# Uncomment the effects you want to use!
-	# You can enable/disable each effect independently
+	# Effects are controlled by the character-specific config
+	# Edit configs in: assets/characters/character_X/piece_effects_config.gd
 
 	# 1. IMAGE SWAP - Change piece appearance when held
-	if config.image_swap_enabled:
-		apply_image_swap(piece_node, piece_data)
+	var image_swap = active_config.image_swap_enabled if active_config else config.image_swap_enabled
+	if image_swap:
+		apply_image_swap(piece_node, piece_data, active_config)
 
-	# 2. SCALE EFFECT - Make piece larger (already in main_game.gd, but can enhance)
-	if config.scale_enabled:
-		apply_enhanced_scale(piece_node)
+	# 2. SCALE EFFECT - Make piece larger
+	var scale_on = active_config.scale_enabled if active_config else config.scale_enabled
+	if scale_on:
+		var scale_factor = active_config.scale_factor if active_config else 1.3
+		apply_enhanced_scale(piece_node, scale_factor)
 
 	# 3. GLOW EFFECT - Add glowing outline
-	if config.glow_enabled:
-		apply_glow_effect(piece_node, Color(1.0, 0.9, 0.3, 0.8))  # Golden glow
-		#apply_glow_effect(piece_node, Color(0.3, 0.8, 1.0, 0.8))  # Blue glow
-		#apply_glow_effect(piece_node, Color(1.0, 0.3, 0.3, 0.8))  # Red glow
-		#apply_glow_effect(piece_node, Color(0.5, 1.0, 0.3, 0.8))  # Green glow
+	var glow_on = active_config.glow_enabled if active_config else config.glow_enabled
+	if glow_on:
+		var glow_color = active_config.glow_color if active_config else Color(1.0, 0.9, 0.3, 0.8)
+		apply_glow_effect(piece_node, glow_color)
 
 	# 4. PULSE EFFECT - Gentle pulsing animation
-	if config.pulse_enabled:
-		apply_pulse_effect(piece_node, 1.0, 1.15, 1.5)  # min_scale, max_scale, duration
+	var pulse_on = active_config.pulse_enabled if active_config else config.pulse_enabled
+	if pulse_on:
+		var min_s = active_config.pulse_min_scale if active_config else 1.0
+		var max_s = active_config.pulse_max_scale if active_config else 1.15
+		var duration = active_config.pulse_duration if active_config else 1.5
+		apply_pulse_effect(piece_node, min_s, max_s, duration)
 
 	# 5. ROTATION EFFECT - Gentle rotation
-	if config.rotation_enabled:
-		apply_rotation_effect(piece_node, 10.0, 3.0)  # max_rotation_degrees, duration
+	var rotation_on = active_config.rotation_enabled if active_config else config.rotation_enabled
+	if rotation_on:
+		var max_rot = active_config.max_rotation if active_config else 10.0
+		var duration = active_config.rotation_duration if active_config else 3.0
+		apply_rotation_effect(piece_node, max_rot, duration)
 
 	# 6. SHIMMER EFFECT - Shimmering light overlay
-	if config.shimmer_enabled:
+	var shimmer_on = active_config.shimmer_enabled if active_config else config.shimmer_enabled
+	if shimmer_on:
 		apply_shimmer_effect(piece_node)
 
 	# 7. PARTICLE EFFECT - Sparkles and particles
-	if config.particle_enabled:
+	var particle_on = active_config.particle_enabled if active_config else config.particle_enabled
+	if particle_on:
 		apply_particle_effect(piece_node)
 
 	# 8. SHADOW BLUR - Enhanced shadow with blur
-	if config.shadow_blur_enabled:
+	var shadow_on = active_config.shadow_blur_enabled if active_config else config.shadow_blur_enabled
+	if shadow_on:
 		apply_shadow_blur(piece_node)
 
 	# 9. COLOR SHIFT - Change piece tint when held
-	if config.color_shift_enabled:
-		apply_color_shift(piece_node, Color(1.2, 1.1, 0.9))  # Warm golden tint
-		#apply_color_shift(piece_node, Color(0.9, 1.0, 1.3))  # Cool blue tint
-		#apply_color_shift(piece_node, Color(1.3, 0.9, 1.1))  # Pink/purple tint
+	var color_shift_on = active_config.color_shift_enabled if active_config else config.color_shift_enabled
+	if color_shift_on:
+		var tint = active_config.color_shift_tint if active_config else Color(1.2, 1.1, 0.9)
+		apply_color_shift(piece_node, tint)
 
 	# 10. SPARKLE EFFECT - Occasional sparkles
-	if config.sparkle_enabled:
+	var sparkle_on = active_config.sparkle_enabled if active_config else config.sparkle_enabled
+	if sparkle_on:
 		apply_sparkle_effect(piece_node)
 
 	# 11. AURA EFFECT - Colored aura around piece
-	if config.aura_enabled:
-		apply_aura_effect(piece_node, Color(1.0, 0.8, 0.0, 0.5))  # Golden aura
-		#apply_aura_effect(piece_node, Color(0.0, 0.5, 1.0, 0.5))  # Blue aura
-		#apply_aura_effect(piece_node, Color(1.0, 0.0, 0.5, 0.5))  # Pink aura
+	var aura_on = active_config.aura_enabled if active_config else config.aura_enabled
+	if aura_on:
+		var aura_color = active_config.aura_color if active_config else Color(1.0, 0.8, 0.0, 0.5)
+		apply_aura_effect(piece_node, aura_color)
 
 	# 12. TRAIL EFFECT - Motion trail (for drag movement)
-	if config.trail_enabled:
+	var trail_on = active_config.trail_enabled if active_config else config.trail_enabled
+	if trail_on:
 		apply_trail_effect(piece_node)
 
 func remove_drag_effects(piece_node: Node):
@@ -189,14 +227,16 @@ func remove_drag_effects(piece_node: Node):
 # ----------------------------------------------------------------------------
 # 1. IMAGE SWAP EFFECT
 # ----------------------------------------------------------------------------
-func apply_image_swap(piece_node: Node, piece_data: Dictionary):
+func apply_image_swap(piece_node: Node, piece_data: Dictionary, char_config: PieceEffectsConfig = null):
 	"""
 	Swaps the piece image to an alternate 'held' version.
 	Supports PNG, JPEG, and OGV (video) files.
+	Uses character-specific held image paths.
 
 	Args:
 		piece_node: The TextureRect displaying the piece
 		piece_data: Dictionary with 'type' (e.g., 'king'), 'color', 'character_id'
+		char_config: Character-specific configuration (optional)
 	"""
 	if not piece_node is TextureRect:
 		return  # Only works with TextureRect (image-based pieces)
@@ -206,32 +246,31 @@ func apply_image_swap(piece_node: Node, piece_data: Dictionary):
 	if piece_type == "":
 		return
 
-	# Check if we have a custom held image for this piece type
-	if piece_type in held_piece_image_paths:
-		var held_image_path = held_piece_image_paths[piece_type]
-
-		# Try to load the held image
-		if FileAccess.file_exists(held_image_path):
-			var held_texture = load(held_image_path)
-			if held_texture:
-				# Store original texture for restoration
-				original_textures[piece_node] = piece_node.texture
-
-				# Apply held texture
-				piece_node.texture = held_texture
-				print("Swapped to held image: ", held_image_path)
-				return
-
-	# Fallback: Try loading from default held folder
 	var character_id = piece_data.get("character_id", 1)
-	var default_held_path = "res://assets/characters/character_%d/pieces/held/white_%s.png" % [character_id, piece_type]
+	var held_image_path = ""
 
-	if FileAccess.file_exists(default_held_path):
-		var held_texture = load(default_held_path)
+	# Try to get held image path from character config
+	if char_config:
+		held_image_path = char_config.get_held_image_path(piece_type)
+	else:
+		# Fallback: Try loading from default held folder
+		held_image_path = "res://assets/characters/character_%d/pieces/held/white_%s.png" % [character_id, piece_type]
+
+	# Try to load the held image
+	if held_image_path != "" and FileAccess.file_exists(held_image_path):
+		var held_texture = load(held_image_path)
 		if held_texture:
+			# Store original texture for restoration
 			original_textures[piece_node] = piece_node.texture
+
+			# Apply held texture
 			piece_node.texture = held_texture
-			print("Swapped to default held image: ", default_held_path)
+			print("Swapped to held image for Character %d: %s" % [character_id, held_image_path])
+			return
+
+	# If we get here, no held image was found - piece keeps its original image
+	# (This is not an error - held images are optional)
+	print("No held image found for Character %d, %s - using original" % [character_id, piece_type])
 
 func restore_original_texture(piece_node: Node):
 	"""Restores the original piece texture after drag ends."""
