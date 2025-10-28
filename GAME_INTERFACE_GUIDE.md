@@ -14,6 +14,7 @@ This guide explains how to adjust the interface elements in the Main Game scene.
 | Character Animations | `scripts/main_game.gd` | `load_character_media` |
 | Timers | `scripts/main_game.gd` | `update_timer_display` |
 | Captured Pieces | `scripts/main_game.gd` | `update_captured_display` |
+| Piece Drag Effects | `scripts/piece_effects.gd` | `var config =` |
 
 ---
 
@@ -303,7 +304,212 @@ black_rook.png
 
 ---
 
-## 9. Game State Variables
+## 9. Piece Drag Effects System
+
+### Overview
+The piece effects system provides visual effects when pieces are held/dragged. See `PIECE_EFFECTS_README.md` for complete documentation.
+
+### Effects Configuration File
+**Path:** `scripts/piece_effects.gd`
+
+### Quick Enable/Disable Effects
+**Search:** `var config =` in `piece_effects.gd`
+
+```gdscript
+var config = {
+	"image_swap_enabled": true,      # Use alternate images when held
+	"scale_enabled": true,           # Make piece larger
+	"glow_enabled": true,            # Add glowing outline
+	"pulse_enabled": false,          # Pulsing animation
+	"particle_enabled": false,       # Sparkle particles
+	# ... and more (see full list in file)
+}
+```
+
+**To enable an effect:** Set to `true`
+**To disable an effect:** Set to `false`
+
+### Available Effects
+1. **Image Swap** - Change piece appearance when held
+2. **Scale** - Enlarge piece (1.3x default)
+3. **Glow** - Glowing outline (customizable color)
+4. **Pulse** - Breathing/pulsing animation
+5. **Rotation** - Gentle swaying rotation
+6. **Shimmer** - Light sweeping across piece
+7. **Particles** - Sparkles around piece
+8. **Shadow Blur** - Enhanced shadow depth
+9. **Color Shift** - Tint piece when held
+10. **Sparkle** - Random sparkle flashes
+11. **Aura** - Large colored energy field
+12. **Trail** - Motion trail (experimental)
+
+### Using Presets
+**Search:** `apply_preset_` in `piece_effects.gd`
+
+Available presets:
+- `apply_preset_minimal()` - Clean, professional (scale + glow)
+- `apply_preset_moderate()` - Balanced effects
+- `apply_preset_elegant()` - Refined look (glow + shimmer + pulse)
+- `apply_preset_magical()` - Fantasy theme (particles + sparkles + aura)
+- `apply_preset_maximum()` - All effects (may be overwhelming)
+
+**To use a preset:**
+```gdscript
+# In main_game.gd _ready() function, after piece_effects initialization:
+if piece_effects:
+	piece_effects.apply_preset_elegant()
+```
+
+### Custom Held Images
+Create alternate images for when pieces are held:
+
+**Directory structure:**
+```
+assets/characters/character_X/pieces/held/
+├── white_king.png     (held version of king)
+├── white_queen.png
+├── white_rook.png
+└── ... (etc.)
+```
+
+**Configure paths:**
+**File:** `scripts/piece_effects.gd`
+**Search:** `var held_piece_image_paths`
+
+```gdscript
+var held_piece_image_paths = {
+	"king": "res://assets/characters/character_1/pieces/held/white_king.png",
+	"queen": "res://assets/characters/character_1/pieces/held/white_queen.png",
+	# ... add more
+}
+```
+
+**Supported formats:** PNG, JPEG, OGV (video)
+
+### Customizing Effect Colors
+
+#### Glow Color
+**Search:** `apply_glow_effect(piece_node,` in `apply_drag_effects()` function
+
+```gdscript
+# Golden glow (default)
+apply_glow_effect(piece_node, Color(1.0, 0.9, 0.3, 0.8))
+
+# Blue glow (uncomment to use)
+#apply_glow_effect(piece_node, Color(0.3, 0.8, 1.0, 0.8))
+
+# Red glow
+#apply_glow_effect(piece_node, Color(1.0, 0.3, 0.3, 0.8))
+
+# Green glow
+#apply_glow_effect(piece_node, Color(0.5, 1.0, 0.3, 0.8))
+```
+
+#### Aura Color
+**Search:** `apply_aura_effect(piece_node,` in `apply_drag_effects()` function
+
+```gdscript
+# Golden aura (default)
+apply_aura_effect(piece_node, Color(1.0, 0.8, 0.0, 0.5))
+
+# Blue aura (uncomment to use)
+#apply_aura_effect(piece_node, Color(0.0, 0.5, 1.0, 0.5))
+```
+
+### Adjusting Effect Parameters
+
+#### Pulse Speed and Intensity
+**Search:** `apply_pulse_effect(piece_node,`
+
+```gdscript
+apply_pulse_effect(piece_node, 1.0, 1.15, 1.5)
+# Parameters: min_scale, max_scale, duration (seconds)
+
+# Faster pulse:
+apply_pulse_effect(piece_node, 1.0, 1.15, 0.8)
+
+# More dramatic pulse:
+apply_pulse_effect(piece_node, 1.0, 1.25, 1.5)
+```
+
+#### Rotation Amount
+**Search:** `apply_rotation_effect(piece_node,`
+
+```gdscript
+apply_rotation_effect(piece_node, 10.0, 3.0)
+# Parameters: max_rotation_degrees, duration
+
+# More rotation:
+apply_rotation_effect(piece_node, 25.0, 2.0)
+```
+
+#### Scale Factor
+**Search:** `apply_enhanced_scale(piece_node,`
+
+```gdscript
+apply_enhanced_scale(piece_node, 1.3)  # 30% larger
+# Change to 1.5 for 50% larger, or 1.2 for 20% larger
+```
+
+### Runtime Configuration
+Change effects while game is running:
+
+**File:** `scripts/main_game.gd`
+
+```gdscript
+# Enable an effect at runtime
+piece_effects.set_config("glow_enabled", true)
+
+# Disable an effect at runtime
+piece_effects.set_config("particle_enabled", false)
+
+# Check if effect is enabled
+var is_glow_on = piece_effects.get_config("glow_enabled")
+```
+
+### Integration Points
+The effects system is integrated in:
+
+1. **Initialization** - `main_game.gd` line ~346-349
+   ```gdscript
+   piece_effects = preload("res://scripts/piece_effects.gd").new()
+   add_child(piece_effects)
+   ```
+
+2. **Drag Start** - `start_drag()` function line ~1933-1941
+   - Applies effects when piece is picked up
+   - Passes piece metadata (type, color, character)
+
+3. **Drag End** - `end_drag()` and `return_piece_to_original_position()` functions
+   - Removes effects when piece is dropped
+   - Restores original appearance
+
+### Troubleshooting
+
+**Effects not appearing?**
+1. Check config settings are `true` in `piece_effects.gd`
+2. Verify piece_effects is initialized in `main_game.gd` `_ready()` function
+
+**Performance issues?**
+1. Use lighter preset: `piece_effects.apply_preset_minimal()`
+2. Disable heavy effects (particles, shimmer)
+
+**Image swap not working?**
+1. Verify image files exist at specified paths
+2. Check `image_swap_enabled` is `true`
+3. Ensure file paths in `held_piece_image_paths` are correct
+
+### Complete Documentation
+**See:** `PIECE_EFFECTS_README.md` for:
+- Detailed effect descriptions
+- Advanced customization
+- Per-piece effect customization
+- Performance optimization tips
+- Full API reference
+
+---
+
+## 10. Game State Variables
 
 ### Global State File
 **Path:** `scripts/game_state.gd`
@@ -466,6 +672,9 @@ Shows:
 | Font sizes | `add_theme_font_size_override` |
 | Layout spacing | `MainContainer` in .tscn |
 | Piece images | `create_visual_piece` |
+| Piece drag effects | `var config =` in `piece_effects.gd` |
+| Effect colors | `apply_glow_effect` or `apply_aura_effect` |
+| Held piece images | `held_piece_image_paths` |
 
 ---
 
@@ -478,6 +687,7 @@ chess-thesis/
 │       └── main_game.tscn          ← UI layout
 ├── scripts/
 │   ├── main_game.gd                ← Main game logic
+│   ├── piece_effects.gd            ← Piece drag effects system
 │   └── game_state.gd               ← Global state
 ├── assets/
 │   ├── backgrounds/                ← Game backgrounds
@@ -485,7 +695,11 @@ chess-thesis/
 │       ├── character_1/
 │       ├── character_2/
 │       └── character_3/
-│           └── pieces/             ← Piece images
+│           └── pieces/
+│               ├── white_*.png     ← Default piece images
+│               └── held/           ← Alternate images when held (optional)
+│                   └── white_*.png
+├── PIECE_EFFECTS_README.md         ← Complete effects documentation
 └── project.godot                   ← Project settings
 ```
 
@@ -495,7 +709,11 @@ chess-thesis/
 
 1. **For scene layout changes:** Edit `scenes/game/main_game.tscn`
 2. **For behavior changes:** Edit `scripts/main_game.gd`
-3. **For global settings:** Edit `scripts/game_state.gd`
-4. **For visuals/assets:** Check `assets/` folders
+3. **For piece drag effects:** Edit `scripts/piece_effects.gd` (see `PIECE_EFFECTS_README.md`)
+4. **For global settings:** Edit `scripts/game_state.gd`
+5. **For visuals/assets:** Check `assets/` folders
 
 Use Ctrl+F (or Cmd+F) with the search terms in this guide to quickly find the code you need to modify.
+
+### Additional Documentation
+- **Piece Effects System:** See `PIECE_EFFECTS_README.md` for complete documentation on customizing drag effects, creating held images, and using effect presets.
