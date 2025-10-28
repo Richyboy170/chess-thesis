@@ -144,6 +144,14 @@ var animation_debug_panel: PanelContainer = null
 var animation_debug_visible: bool = false
 
 # ============================================================================
+# LIVE2D DEBUGGER VARIABLES
+# ============================================================================
+# Debug panel for Live2D characters
+var live2d_debug_panel: PanelContainer = null
+# Toggle visibility of Live2D debug panel
+var live2d_debug_visible: bool = false
+
+# ============================================================================
 # Animation Error Viewer
 var error_viewer: PanelContainer = null
 var error_viewer_visible: bool = false
@@ -358,6 +366,9 @@ func _ready():
 
 	# Initialize character animation debugger
 	create_animation_debugger()
+
+	# Initialize Live2D debugger
+	create_live2d_debugger()
 
 	# Initialize animation error viewer
 	create_error_viewer()
@@ -853,6 +864,7 @@ func _unhandled_key_input(event):
 	"""
 	Handles keyboard shortcuts for the debug panels.
 	Press 'D' to toggle the character animation debugger.
+	Press 'L' to toggle the Live2D character debugger.
 	Press 'F9' to toggle the animation error viewer.
 	Press 'F10' to export errors to file.
 	Press 'F11' to clear all errors.
@@ -861,6 +873,8 @@ func _unhandled_key_input(event):
 		match event.keycode:
 			KEY_D:
 				toggle_animation_debugger()
+			KEY_L:
+				toggle_live2d_debugger()
 			KEY_F9:
 				toggle_error_viewer()
 			KEY_F10:
@@ -879,6 +893,63 @@ func toggle_animation_debugger():
 			print("Character Animation Debugger: VISIBLE")
 		else:
 			print("Character Animation Debugger: HIDDEN")
+
+func create_live2d_debugger():
+	"""
+	Creates the Live2D character debug panel.
+	"""
+	live2d_debug_panel = Live2DDebugger.create_debug_panel(self)
+	print("Live2D Debugger created. Press 'L' to toggle.")
+
+func toggle_live2d_debugger():
+	"""
+	Toggles the visibility of the Live2D debug panel.
+	"""
+	if live2d_debug_panel:
+		live2d_debug_visible = !live2d_debug_visible
+		live2d_debug_panel.visible = live2d_debug_visible
+		if live2d_debug_visible:
+			print("Live2D Debugger: VISIBLE")
+			# Update the panel with current character info
+			update_live2d_debug_info()
+		else:
+			print("Live2D Debugger: HIDDEN")
+
+func update_live2d_debug_info():
+	"""
+	Updates the Live2D debug panel with current character information.
+	"""
+	if not live2d_debug_panel:
+		return
+
+	var info_label = live2d_debug_panel.find_child("InfoLabel", true, false)
+	if info_label:
+		var info_text = "[b]Current Game Characters:[/b]\n\n"
+
+		# Player 1 info
+		info_text += "[color=cyan]Player 1:[/color] Character %d\n" % (GameState.player1_character + 1)
+		if Live2DDebugger.is_live2d_character(GameState.player1_character):
+			var char_info = Live2DDebugger.get_character_info(GameState.player1_character)
+			info_text += "  Name: %s (Live2D)\n" % char_info["name"]
+			info_text += "  Status: %s\n" % Live2DDebugger.get_status_message(GameState.player1_character)
+		else:
+			info_text += "  Type: Standard (Video/Image)\n"
+
+		info_text += "\n"
+
+		# Player 2 info
+		info_text += "[color=cyan]Player 2:[/color] Character %d\n" % (GameState.player2_character + 1)
+		if Live2DDebugger.is_live2d_character(GameState.player2_character):
+			var char_info = Live2DDebugger.get_character_info(GameState.player2_character)
+			info_text += "  Name: %s (Live2D)\n" % char_info["name"]
+			info_text += "  Status: %s\n" % Live2DDebugger.get_status_message(GameState.player2_character)
+		else:
+			info_text += "  Type: Standard (Video/Image)\n"
+
+		info_text += "\n[color=yellow]Click buttons above to debug specific Live2D characters.[/color]\n"
+		info_text += "[color=yellow]Check the console output for detailed reports.[/color]"
+
+		info_label.text = info_text
 
 # ============================================================================
 # FRAME UPDATE FUNCTIONS
@@ -1149,6 +1220,7 @@ func load_character_assets():
 	Loads themed assets for both players including:
 	- Character background images (displayed in player area)
 	- Character animation videos (.mp4) (displayed in CharacterDisplay)
+	- Live2D models (for characters 4, 5, 6)
 	- Custom chess piece sprites
 	This function will attempt to load assets from the assets/ folder structure.
 	If assets are not found, it will use default placeholders.
@@ -1160,12 +1232,12 @@ func load_character_assets():
 	# Find Player 1 background (support multiple image formats)
 	var p1_anim_path = char1_path + "animations/"
 	var p1_bg_path = find_character_background(char1_path)
-	load_character_media(player1_character_display, player1_area, p1_anim_path, p1_bg_path)
+	load_character_media(player1_character_display, player1_area, p1_anim_path, p1_bg_path, GameState.player1_character)
 
 	# Find Player 2 background (support multiple image formats)
 	var p2_anim_path = char2_path + "animations/"
 	var p2_bg_path = find_character_background(char2_path)
-	load_character_media(player2_character_display, player2_area, p2_anim_path, p2_bg_path)
+	load_character_media(player2_character_display, player2_area, p2_anim_path, p2_bg_path, GameState.player2_character)
 
 	print("Character assets loaded for Player 1 (", GameState.player1_character, ") and Player 2 (", GameState.player2_character, ")")
 
@@ -1225,19 +1297,99 @@ func load_random_game_background():
 	else:
 		print("Error: Background file does not exist: ", selected_background)
 
-func load_character_media(display_node: Control, _area_node: Control, animations_dir: String, _bg_path: String):
+func load_live2d_character(display_node: Control, character_id: int) -> bool:
+	"""
+	Loads a Live2D character model into the display node.
+
+	Args:
+		display_node: The Control node to display the Live2D model
+		character_id: The character ID (3, 4, or 5 for Live2D characters)
+
+	Returns:
+		bool: True if the Live2D model was loaded successfully, False otherwise
+	"""
+	print("\n===== LOADING LIVE2D CHARACTER =====")
+	print("Character ID: ", character_id)
+
+	# Run debug check first
+	var debug_report = Live2DDebugger.debug_character(character_id)
+	print(debug_report.to_string())
+
+	if not debug_report.success:
+		print("✗ Live2D character failed debug check")
+		return false
+
+	# Get model path
+	var model_path = Live2DDebugger.get_model_path(character_id)
+	print("Model path: ", model_path)
+
+	# Check if GDCubism is available
+	if not ClassDB.class_exists("GDCubismUserModel"):
+		print("✗ GDCubism plugin not available")
+		return false
+
+	# Create Live2D model instance
+	var live2d_model = ClassDB.instantiate("GDCubismUserModel")
+	if not live2d_model:
+		print("✗ Failed to instantiate GDCubismUserModel")
+		return false
+
+	# Configure the Live2D model
+	live2d_model.assets = model_path
+	live2d_model.name = "Live2DCharacter"
+	live2d_model.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Set up sizing and positioning
+	live2d_model.anchor_right = 1.0
+	live2d_model.anchor_bottom = 1.0
+	live2d_model.custom_minimum_size = Vector2(0, 200)
+	live2d_model.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	# Try to set auto_scale if available (makes model fit the container)
+	if "auto_scale" in live2d_model:
+		live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
+
+	# Start with idle animation if method is available
+	if live2d_model.has_method("start_motion"):
+		# Try to start idle animation (most models have this)
+		# Priority 2 = PRIORITY_IDLE
+		live2d_model.start_motion("Idle", 0, 2, true)
+		print("✓ Started Idle animation")
+
+	# Add to display node
+	display_node.add_child(live2d_model)
+	print("✓ Live2D model added to scene")
+
+	return true
+
+func load_character_media(display_node: Control, _area_node: Control, animations_dir: String, _bg_path: String, character_id: int = -1):
 	"""
 	Helper function to load and display character media.
 	- Video/GIF animations are displayed in the CharacterDisplay node (enlarged to fill more space)
+	- Live2D models are displayed for characters 4, 5, 6 (character IDs 3, 4, 5)
 	- Background images are NOT loaded in Main Game (only animations are shown)
 	- Supports idle, victory, defeat, and capture effect animations
 
 	Args:
-		display_node: The Control node to display video/GIF animations
+		display_node: The Control node to display video/GIF animations or Live2D models
 		_area_node: The Control node to display background images (unused in Main Game)
 		animations_dir: Path to the character's animations directory
 		_bg_path: Path to the character background image (unused in Main Game)
+		character_id: The character ID (0-5), used to determine if Live2D should be loaded
 	"""
+	print("\n===== LOADING CHARACTER MEDIA =====")
+	print("Character ID: ", character_id)
+	print("Animations dir: ", animations_dir)
+
+	# Check if this is a Live2D character (characters 4, 5, 6 = IDs 3, 4, 5)
+	if character_id >= 0 and Live2DDebugger.is_live2d_character(character_id):
+		print("Detected Live2D character!")
+		if load_live2d_character(display_node, character_id):
+			print("✓ Live2D character loaded successfully")
+			return
+		else:
+			print("⚠ Live2D character load failed, falling back to video/image")
+
 	# Try to load idle animation (default animation)
 	# Supports both video (.ogv, .webm, .mp4) and GIF formats
 	var supported_video_extensions = [".ogv", ".webm", ".mp4"]
