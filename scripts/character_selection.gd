@@ -123,23 +123,30 @@ func load_character_previews():
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character1Button, 0)
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
 
 	# Player 2 character buttons
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character1Button, 0)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
 
 func load_character_preview_on_button(button: Button, character_id: int):
 	"""
-	Loads and displays a character preview (video or image) on a button.
+	Loads and displays a character preview (video, image, or Live2D) on a button.
 
 	Args:
 		button: The button to add the preview to
-		character_id: The character ID (0-2)
+		character_id: The character ID (0-3)
 	"""
 	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
 	print("\n===== LOADING CHARACTER ", character_id + 1, " PREVIEW =====")
 	print("Character path: ", char_path)
+
+	# Special handling for Character 4 (Live2D)
+	if character_id == 3:
+		load_live2d_preview_on_button(button, char_path)
+		return
 
 	# Find character background image (support multiple formats)
 	var bg_path = ""
@@ -441,3 +448,83 @@ func toggle_background_debugger():
 			print("Character Background Debugger: VISIBLE")
 		else:
 			print("Character Background Debugger: HIDDEN")
+
+func load_live2d_preview_on_button(button: Button, char_path: String):
+	"""
+	Loads and displays a Live2D character preview on a button.
+	Falls back to texture preview if GDCubism is not available.
+
+	Args:
+		button: The button to add the preview to
+		char_path: Path to the character folder
+	"""
+	print("Loading Live2D preview for Character 4...")
+
+	# Create a container for the preview
+	var preview_container = Control.new()
+	preview_container.name = "PreviewContainer"
+	preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	preview_container.anchor_right = 1.0
+	preview_container.anchor_bottom = 1.0
+	preview_container.z_index = -1
+
+	# Check if GDCubism is available
+	var model_path = char_path + "Scyka.model3.json"
+
+	if ClassDB.class_exists("GDCubismUserModel") and FileAccess.file_exists(model_path):
+		print("  GDCubism is available, loading Live2D model...")
+		# Create Live2D model instance
+		var live2d_model = ClassDB.instantiate("GDCubismUserModel")
+
+		if live2d_model:
+			# Configure the Live2D model
+			live2d_model.assets = model_path
+			# Try to set auto_scale if available
+			if "auto_scale" in live2d_model:
+				live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
+			live2d_model.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			live2d_model.anchor_right = 1.0
+			live2d_model.anchor_bottom = 1.0
+
+			# Start with idle animation if method is available
+			if live2d_model.has_method("start_motion"):
+				live2d_model.start_motion("Idle", 0, 2, true)  # PRIORITY_IDLE = 2
+
+			preview_container.add_child(live2d_model)
+			button.add_child(preview_container)
+			button.move_child(preview_container, 0)
+			print("  ✓ LOADED: Live2D model preview")
+			return
+		else:
+			print("  ✗ ERROR: Could not instantiate GDCubismUserModel")
+	else:
+		if not ClassDB.class_exists("GDCubismUserModel"):
+			print("  ⚠ WARNING: GDCubism plugin not loaded")
+			print("    See LIVE2D_SETUP.md for installation instructions")
+		else:
+			print("  ✗ ERROR: Model file not found: ", model_path)
+
+	# Fallback to texture preview
+	print("  Falling back to texture preview...")
+	var texture_path = char_path + "Scyka.4096/texture_00.png"
+
+	if FileAccess.file_exists(texture_path):
+		var texture = load(texture_path)
+		if texture:
+			var texture_rect = TextureRect.new()
+			texture_rect.texture = texture
+			texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			texture_rect.anchor_right = 1.0
+			texture_rect.anchor_bottom = 1.0
+			texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			preview_container.add_child(texture_rect)
+			button.add_child(preview_container)
+			button.move_child(preview_container, 0)
+			print("  ✓ LOADED: Texture preview")
+		else:
+			print("  ✗ ERROR: Could not load texture")
+	else:
+		print("  ✗ ERROR: Texture not found: ", texture_path)
+
+	print("===== END CHARACTER 4 PREVIEW =====\n")
