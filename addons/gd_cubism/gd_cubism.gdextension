@@ -5,6 +5,11 @@ compatibility_minimum = 4.3
 
 [libraries]
 
+# NOTE: This project currently only includes Linux builds for gd_cubism (Live2D support).
+# Windows and macOS builds are not available. If you need to run on those platforms,
+# you would need to build the gd_cubism library for your target platform.
+# See: https://github.com/MizunagiKB/gd_cubism for build instructions.
+
 # macos.debug = "bin/libgd_cubism.macos.debug.framework"
 # macos.release = "bin/libgd_cubism.macos.release.framework"
 # windows.debug.x86_64 = "bin/libgd_cubism.windows.debug.x86_64.dll"
