@@ -21,6 +21,8 @@ GameState="*res://scripts/game_state.gd"
 ChessPieces="*res://scripts/chess_pieces.gd"
 ChessboardStorage="*res://scripts/chessboard_storage.gd"
 ThemeManager="*res://scripts/theme_manager.gd"
+PieceEffects="*res://scripts/piece_effects.gd"
+AnimationErrorDetector="*res://scripts/animation_error_detector.gd"
 
 [display]
 
