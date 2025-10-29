@@ -1,0 +1,90 @@
+{
+  "character_name": "Scyka",
+  "character_id": 3,
+  "version": "1.0",
+  "animations": {
+    "idle": {
+      "motion_file": "Idle",
+      "group": 0,
+      "priority": 2,
+      "fade_in": true,
+      "loop": true,
+      "description": "Default idle breathing animation"
+    },
+    "hover_piece": {
+      "motion_file": "Hover Piece",
+      "group": 0,
+      "priority": 1,
+      "fade_in": true,
+      "loop": false,
+      "description": "When player hovers over a chess piece"
+    },
+    "select_piece": {
+      "motion_file": "Hover Piece",
+      "group": 0,
+      "priority": 1,
+      "fade_in": true,
+      "loop": false,
+      "description": "When player selects a chess piece"
+    },
+    "piece_captured": {
+      "motion_file": "Shock (Been Eated)",
+      "group": 0,
+      "priority": 0,
+      "fade_in": false,
+      "loop": false,
+      "description": "When a piece is captured"
+    },
+    "win_enter": {
+      "motion_file": "Win (Enter)",
+      "group": 0,
+      "priority": 0,
+      "fade_in": false,
+      "loop": false,
+      "description": "Victory celebration start"
+    },
+    "win_idle": {
+      "motion_file": "Win (Idle)",
+      "group": 0,
+      "priority": 2,
+      "fade_in": true,
+      "loop": true,
+      "description": "Victory idle loop after win_enter completes"
+    },
+    "lose_enter": {
+      "motion_file": "Lose(Enter)",
+      "group": 0,
+      "priority": 0,
+      "fade_in": false,
+      "loop": false,
+      "description": "Defeat reaction"
+    },
+    "lose_idle": {
+      "motion_file": "Idle",
+      "group": 0,
+      "priority": 2,
+      "fade_in": true,
+      "loop": true,
+      "description": "Idle after lose animation (fallback to normal idle)"
+    }
+  },
+  "default_animation": "idle",
+  "animation_transitions": {
+    "win_enter": {
+      "next_animation": "win_idle",
+      "delay": 0.5
+    },
+    "lose_enter": {
+      "next_animation": "lose_idle",
+      "delay": 0.5
+    },
+    "piece_captured": {
+      "next_animation": "idle",
+      "delay": 0.3
+    },
+    "hover_piece": {
+      "next_animation": "idle",
+      "delay": 0.2
+    }
+  }
+}

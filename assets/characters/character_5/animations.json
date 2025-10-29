@@ -1,0 +1,91 @@
+{
+  "character_name": "Hiyori",
+  "character_id": 4,
+  "version": "1.0",
+  "animations": {
+    "idle": {
+      "motion_file": "Hiyori_m01",
+      "group": 0,
+      "priority": 2,
+      "fade_in": true,
+      "loop": true,
+      "description": "Default idle animation",
+      "variants": ["Hiyori_m01", "Hiyori_m02", "Hiyori_m03", "Hiyori_m05", "Hiyori_m06", "Hiyori_m07", "Hiyori_m08", "Hiyori_m09", "Hiyori_m10"]
+    },
+    "hover_piece": {
+      "motion_file": "Hiyori_m02",
+      "group": 0,
+      "priority": 1,
+      "fade_in": true,
+      "loop": false,
+      "description": "When player hovers over a chess piece"
+    },
+    "select_piece": {
+      "motion_file": "Hiyori_m03",
+      "group": 0,
+      "priority": 1,
+      "fade_in": true,
+      "loop": false,
+      "description": "When player selects a chess piece"
+    },
+    "piece_captured": {
+      "motion_file": "Hiyori_m04",
+      "group": 0,
+      "priority": 0,
+      "fade_in": false,
+      "loop": false,
+      "description": "When a piece is captured (TapBody animation)"
+    },
+    "win_enter": {
+      "motion_file": "Hiyori_m05",
+      "group": 0,
+      "priority": 0,
+      "fade_in": false,
+      "loop": false,
+      "description": "Victory celebration start"
+    },
+    "win_idle": {
+      "motion_file": "Hiyori_m06",
+      "group": 0,
+      "priority": 2,
+      "fade_in": true,
+      "loop": true,
+      "description": "Victory idle loop"
+    },
+    "lose_enter": {
+      "motion_file": "Hiyori_m07",
+      "group": 0,
+      "priority": 0,
+      "fade_in": false,
+      "loop": false,
+      "description": "Defeat reaction"
+    },
+    "lose_idle": {
+      "motion_file": "Hiyori_m08",
+      "group": 0,
+      "priority": 2,
+      "fade_in": true,
+      "loop": true,
+      "description": "Idle after lose animation"
+    }
+  },
+  "default_animation": "idle",
+  "animation_transitions": {
+    "win_enter": {
+      "next_animation": "win_idle",
+      "delay": 0.5
+    },
+    "lose_enter": {
+      "next_animation": "lose_idle",
+      "delay": 0.5
+    },
+    "piece_captured": {
+      "next_animation": "idle",
+      "delay": 0.3
+    },
+    "hover_piece": {
+      "next_animation": "idle",
+      "delay": 0.2
+    }
+  }
+}

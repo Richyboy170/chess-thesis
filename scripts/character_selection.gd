@@ -520,9 +520,16 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 			live2d_model.anchor_right = 1.0
 			live2d_model.anchor_bottom = 1.0
 
-			# Start with idle animation if method is available
+			# Store character ID as metadata
+			live2d_model.set_meta("character_id", character_id)
+
+			# Start with idle animation using JSON configuration
 			if live2d_model.has_method("start_motion"):
-				live2d_model.start_motion("Idle", 0, 2, true)  # PRIORITY_IDLE = 2
+				var default_action = Live2DAnimationConfig.get_default_animation(character_id)
+				var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, default_action)
+				if not success:
+					# Fallback to hardcoded idle if config fails
+					live2d_model.start_motion("Idle", 0, 2, true)
 
 			preview_container.add_child(live2d_model)
 			button.add_child(preview_container)
