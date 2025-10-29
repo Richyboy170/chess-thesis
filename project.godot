@@ -23,6 +23,7 @@ ChessboardStorage="*res://scripts/chessboard_storage.gd"
 ThemeManager="*res://scripts/theme_manager.gd"
 PieceEffects="*res://scripts/piece_effects.gd"
 AnimationErrorDetector="*res://scripts/animation_error_detector.gd"
+GDExtensionErrorDetector="*res://scripts/gdextension_error_detector.gd"
 
 [display]
 
