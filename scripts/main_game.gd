@@ -1349,12 +1349,19 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	if "auto_scale" in live2d_model:
 		live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
 
-	# Start with idle animation if method is available
+	# Store character ID as metadata for later animation triggers
+	live2d_model.set_meta("character_id", character_id)
+
+	# Start with idle animation using JSON configuration
 	if live2d_model.has_method("start_motion"):
-		# Try to start idle animation (most models have this)
-		# Priority 2 = PRIORITY_IDLE
-		live2d_model.start_motion("Idle", 0, 2, true)
-		print("✓ Started Idle animation")
+		var default_action = Live2DAnimationConfig.get_default_animation(character_id)
+		var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, default_action)
+		if success:
+			print("✓ Started animation from JSON config: " + default_action)
+		else:
+			# Fallback to hardcoded idle if config fails
+			live2d_model.start_motion("Idle", 0, 2, true)
+			print("✓ Started fallback Idle animation")
 
 	# Add to display node
 	display_node.add_child(live2d_model)
@@ -1485,13 +1492,58 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 	"""
 	Plays a special animation (victory, defeat, or capture effect) on the character display.
 	Temporarily replaces the idle animation with the special animation, then restores it.
+	For Live2D characters, uses JSON-based animation configuration.
 
 	Args:
 		display_node: The Control node containing the character animations
 		animation_type: The type of animation to play ("character_victory", "character_defeat", "piece_capture_effect")
 		duration: How long to play the animation before returning to idle (in seconds)
 	"""
-	# Check if the animation is available
+	# Check if this is a Live2D character
+	var is_live2d = false
+	var live2d_model = null
+	var character_id = -1
+
+	if display_node.get_child_count() > 0:
+		var child = display_node.get_child(0)
+		if child.has_method("start_motion") and child.has_meta("character_id"):
+			is_live2d = true
+			live2d_model = child
+			character_id = child.get_meta("character_id")
+
+	# Handle Live2D animations using JSON configuration
+	if is_live2d and live2d_model != null:
+		# Map animation_type to action name
+		var action = ""
+		match animation_type:
+			"character_victory":
+				action = "win_enter"
+			"character_defeat":
+				action = "lose_enter"
+			"piece_capture_effect":
+				action = "piece_captured"
+			_:
+				print("Unknown animation type for Live2D: ", animation_type)
+				return
+
+		# Play the animation using the config
+		var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, action)
+		if success:
+			print("Playing Live2D animation: ", action)
+			# Check for transition to next animation
+			var transition = Live2DAnimationConfig.get_animation_transition(character_id, action)
+			if not transition.is_empty():
+				var next_action = transition.get("next_animation", "")
+				var delay = transition.get("delay", 0.5)
+				if not next_action.is_empty():
+					await get_tree().create_timer(delay).timeout
+					if live2d_model != null and is_instance_valid(live2d_model):
+						Live2DAnimationConfig.play_animation(live2d_model, character_id, next_action)
+		else:
+			print("Failed to play Live2D animation: ", action)
+		return
+
+	# Check if the animation is available (for non-Live2D characters)
 	if not display_node.has_meta(animation_type):
 		print("Special animation not available: ", animation_type)
 		AnimationErrorDetector.log_error(
