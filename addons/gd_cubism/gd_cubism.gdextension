@@ -5,21 +5,28 @@ compatibility_minimum = 4.3
 
 [libraries]
 
-macos.debug = "bin/libgd_cubism.macos.debug.framework"
-macos.release = "bin/libgd_cubism.macos.release.framework"
-windows.debug.x86_64 = "bin/libgd_cubism.windows.debug.x86_64.dll"
-windows.release.x86_64 = "bin/libgd_cubism.windows.release.x86_64.dll"
-linux.debug.x86_64 = "bin/libgd_cubism.linux.debug.x86_64.so"
-linux.release.x86_64 = "bin/libgd_cubism.linux.release.x86_64.so"
+# NOTE: All library entries are commented out because the binary files are not included
+# in the repository (they are gitignored). To enable GDCubism functionality:
+# 1. Download pre-built binaries from https://github.com/MizunagiKB/gd_cubism/releases
+# 2. Place them in the addons/gd_cubism/bin/ directory
+# 3. Uncomment the appropriate platform entries below
+# See README_BINARIES.md for detailed instructions
+
+# macos.debug = "bin/libgd_cubism.macos.debug.framework"
+# macos.release = "bin/libgd_cubism.macos.release.framework"
+# windows.debug.x86_64 = "bin/libgd_cubism.windows.debug.x86_64.dll"
+# windows.release.x86_64 = "bin/libgd_cubism.windows.release.x86_64.dll"
+# linux.debug.x86_64 = "bin/libgd_cubism.linux.debug.x86_64.so"
+# linux.release.x86_64 = "bin/libgd_cubism.linux.release.x86_64.so"
 # linux.debug.arm64 = "bin/libgd_cubism.linux.debug.arm64.so"
 # linux.release.arm64 = "bin/libgd_cubism.linux.release.arm64.so"
 # linux.debug.rv64 = "bin/libgd_cubism.linux.debug.rv64.so"
 # linux.release.rv64 = "bin/libgd_cubism.linux.release.rv64.so"
-ios.debug.arm64 = "bin/libgd_cubism.ios.debug.arm64.dylib"
-ios.release.arm64 = "bin/libgd_cubism.ios.release.arm64.dylib"
-ios.debug.universal = "bin/libgd_cubism.ios.debug.universal.dylib"
-ios.release.universal = "bin/libgd_cubism.ios.release.universal.dylib"
-android.debug.arm32 = "bin/libgd_cubism.android.debug.arm32.so"
-android.release.arm32 = "bin/libgd_cubism.android.release.arm32.so"
-android.debug.arm64 = "bin/libgd_cubism.android.debug.arm64.so"
-android.release.arm64 = "bin/libgd_cubism.android.release.arm64.so"
+# ios.debug.arm64 = "bin/libgd_cubism.ios.debug.arm64.dylib"
+# ios.release.arm64 = "bin/libgd_cubism.ios.release.arm64.dylib"
+# ios.debug.universal = "bin/libgd_cubism.ios.debug.universal.dylib"
+# ios.release.universal = "bin/libgd_cubism.ios.release.universal.dylib"
+# android.debug.arm32 = "bin/libgd_cubism.android.debug.arm32.so"
+# android.release.arm32 = "bin/libgd_cubism.android.release.arm32.so"
+# android.debug.arm64 = "bin/libgd_cubism.android.debug.arm64.so"
+# android.release.arm64 = "bin/libgd_cubism.android.release.arm64.so"
