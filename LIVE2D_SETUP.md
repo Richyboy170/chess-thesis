@@ -7,7 +7,7 @@ This project uses the **GDCubism plugin** to enable Live2D Cubism functionality 
 ## Current Status
 
 ✅ **PLUGIN STRUCTURE INSTALLED:**
-- GDCubism plugin structure (v0.9.1) installed in `gd_cubism/`
+- GDCubism plugin structure (v0.9.1) installed in `addons/gd_cubism/`
 - Plugin ready for binary installation
 
 ⚠️ **BINARIES REQUIRED:**
@@ -41,11 +41,11 @@ This is the easiest method and works for most users.
    cd /path/to/chess-thesis
 
    # Copy ONLY the bin folder contents to your project
-   cp -r /tmp/gd_cubism_release/demo/addons/gd_cubism/bin/* gd_cubism/bin/
+   cp -r /tmp/gd_cubism_release/demo/addons/gd_cubism/bin/* addons/gd_cubism/bin/
    ```
 
 3. **Verify installation:**
-   The `gd_cubism/bin/` folder should now contain platform-specific libraries:
+   The `addons/gd_cubism/bin/` folder should now contain platform-specific libraries:
    - **Linux:** `libgd_cubism.linux.debug.x86_64.so` and `libgd_cubism.linux.release.x86_64.so`
    - **Windows:** `libgd_cubism.windows.debug.x86_64.dll` and `libgd_cubism.windows.release.x86_64.dll`
    - **macOS:** `libgd_cubism.macos.debug.framework` and `libgd_cubism.macos.release.framework`
@@ -87,7 +87,7 @@ If pre-built binaries don't work or aren't available for your platform:
 3. **Copy built binaries:**
    ```bash
    # Copy built libraries to your project
-   cp demo/addons/gd_cubism/bin/* /path/to/chess-thesis/gd_cubism/bin/
+   cp demo/addons/gd_cubism/bin/* /path/to/chess-thesis/addons/gd_cubism/bin/
    ```
 
 ### Enable the Plugin in Godot
@@ -153,7 +153,7 @@ assets/characters/character_4/
 **Symptoms:** Error messages mentioning "GDCubism" or "GDCubismUserModel" in console
 
 **Solutions:**
-1. Verify binaries exist in `gd_cubism/bin/`
+1. Verify binaries exist in `addons/gd_cubism/bin/`
 2. Check that binaries match your platform (Linux/Windows/macOS)
 3. Ensure you have both debug and release versions
 4. Confirm Godot version is 4.3 or later

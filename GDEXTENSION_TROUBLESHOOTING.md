@@ -9,21 +9,21 @@ This document explains the GDExtension errors encountered and how they were reso
 **Error:**
 ```
 ERROR: platform/windows/os_windows.cpp:475 - Condition "!FileAccess::exists(path)" is true. Returning: ERR_FILE_NOT_FOUND
-ERROR: GDExtension dynamic library not found: 'res://gd_cubism/gd_cubism.gdextension'.
+ERROR: GDExtension dynamic library not found: 'res://addons/gd_cubism/gd_cubism.gdextension'.
 ```
 
 **Root Cause:**
-The compiled library files (`.dll`, `.so`, `.dylib`) are missing from `gd_cubism/bin/` directory. These files are gitignored (see `gd_cubism/bin/.gitignore`) and must be built or downloaded.
+The compiled library files (`.dll`, `.so`, `.dylib`) are missing from `addons/gd_cubism/bin/` directory. These files are gitignored (see `addons/gd_cubism/bin/.gitignore`) and must be built or downloaded.
 
 **Solution:**
 1. **Option A - Build from source:**
-   - Navigate to `gd_cubism-0.9.1/`
+   - Navigate to `addons/gd_cubism-0.9.1/`
    - Follow the build instructions for your platform
-   - Copy the built libraries to `gd_cubism/bin/`
+   - Copy the built libraries to `addons/gd_cubism/bin/`
 
 2. **Option B - Download precompiled binaries:**
    - Download the appropriate binaries for your platform from the gd_cubism releases
-   - Place them in `gd_cubism/bin/`
+   - Place them in `addons/gd_cubism/bin/`
 
 3. **Expected library files:**
    - Windows: `libgd_cubism.windows.debug.x86_64.dll` and `libgd_cubism.windows.release.x86_64.dll`
@@ -34,7 +34,7 @@ The compiled library files (`.dll`, `.so`, `.dylib`) are missing from `gd_cubism
 
 **Warning:**
 ```
-WARNING: editor/file_system/editor_file_system.cpp:3446 - Detected another project.godot at res://gd_cubism-0.9.1/demo. The folder will be ignored.
+WARNING: editor/file_system/editor_file_system.cpp:3446 - Detected another project.godot at res://addons/gd_cubism-0.9.1/demo. The folder will be ignored.
 ```
 
 **Root Cause:**
@@ -43,7 +43,7 @@ The demo folder inside `gd_cubism-0.9.1` contains its own `project.godot` file, 
 **Solution:**
 The file has been renamed from `project.godot` to `project.godot.disabled`:
 ```bash
-mv gd_cubism-0.9.1/demo/project.godot gd_cubism-0.9.1/demo/project.godot.disabled
+mv addons/gd_cubism-0.9.1/demo/project.godot addons/gd_cubism-0.9.1/demo/project.godot.disabled
 ```
 
 This prevents the warning while preserving the demo configuration for reference.
@@ -90,7 +90,7 @@ GDExtensionErrorDetector.export_errors_to_file()
 # Log custom errors
 GDExtensionErrorDetector.log_library_not_found(
     "bin/libgd_cubism.windows.debug.x86_64.dll",
-    "res://gd_cubism/gd_cubism.gdextension"
+    "res://addons/gd_cubism/gd_cubism.gdextension"
 )
 ```
 
