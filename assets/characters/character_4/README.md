@@ -162,7 +162,7 @@ Live2D rendering is generally performant, but for lower-end devices:
 
 Please review Live2D licensing terms before distribution:
 - **Live2D Cubism SDK:** https://www.live2d.com/en/download/cubism-sdk/
-- **GDCubism:** See `gd_cubism/LICENSE.adoc`
+- **GDCubism:** See `addons/gd_cubism/LICENSE.adoc`
 
 ## Resources
 
