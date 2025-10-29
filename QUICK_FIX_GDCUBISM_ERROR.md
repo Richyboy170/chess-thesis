@@ -4,12 +4,12 @@
 
 ```
 ERROR: platform/windows/os_windows.cpp:475 - Condition "!FileAccess::exists(path)" is true. Returning: ERR_FILE_NOT_FOUND
-ERROR: GDExtension dynamic library not found: 'res://addons/gd_cubism/gd_cubism.gdextension'.
+ERROR: GDExtension dynamic library not found: 'res://gd_cubism/gd_cubism.gdextension'.
 ```
 
 ## What This Means
 
-This error appears because the **GDCubism plugin binaries are missing**. The plugin structure is installed, but the actual compiled library files (`.dll`, `.so`, `.framework`) are not present in `addons/gd_cubism/bin/`.
+This error appears because the **GDCubism plugin binaries are missing**. The plugin structure is installed, but the actual compiled library files (`.dll`, `.so`, `.framework`) are not present in `gd_cubism/bin/`.
 
 ## Good News: Your Project Will Still Work!
 
@@ -71,11 +71,11 @@ This requires downloading the Cubism SDK and building from source.
    scons platform=macos target=template_debug
 
    # Copy binaries to your project
-   cp bin/*.so /path/to/chess-thesis/addons/gd_cubism/bin/     # Linux
+   cp bin/*.so /path/to/chess-thesis/gd_cubism/bin/     # Linux
    # OR
-   cp bin/*.dll /path/to/chess-thesis/addons/gd_cubism/bin/    # Windows
+   cp bin/*.dll /path/to/chess-thesis/gd_cubism/bin/    # Windows
    # OR
-   cp -r bin/*.framework /path/to/chess-thesis/addons/gd_cubism/bin/  # macOS
+   cp -r bin/*.framework /path/to/chess-thesis/gd_cubism/bin/  # macOS
    ```
 
 3. Restart Godot and the error should be gone with full Live2D support
