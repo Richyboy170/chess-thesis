@@ -77,6 +77,9 @@ if env["platform"] == "windows":
     if arch == "x86_32":
         arch = "x86"
 
+    if "MSVC_VERSION" not in env or env["MSVC_VERSION"] is None:
+        env["MSVC_VERSION"] = "14.5"  # Your actual MSVC version/toolset
+
     o_cubism_lib = (
         Path(CUBISM_NATIVE_CORE_DIR)
         .joinpath("lib")
@@ -233,7 +236,11 @@ if env["target"] in ["editor", "template_debug"]:
         print("Not including class reference as we're targeting a pre-4.3 baseline.")
 
 
-(extension_path,) = glob("demo/addons/*/*.gdextension")
+extension_paths = glob("demo/addons/*/*.gdextension")
+if extension_paths:
+    extension_path = extension_paths[0]
+else:
+    extension_path = None  # Or handle gracefully
 
 # Find the addon path (e.g. project/addons/example).
 addon_path = Path(extension_path).parent
