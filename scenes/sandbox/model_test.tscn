@@ -1,0 +1,96 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwydk4xmvh1cp"]
+
+[ext_resource type="Script" path="res://scripts/model_test.gd" id="1_2v8qr"]
+
+[node name="ModelTest" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2v8qr")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 150.0
+grow_horizontal = 2
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Live2D Model Test Sandbox"
+horizontal_alignment = 1
+
+[node name="CharacterLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Character: Loading..."
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Initializing..."
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="CharacterButtons" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer/CharacterButtons"]
+layout_mode = 2
+text = "Switch Character:"
+
+[node name="Character3" type="Button" parent="VBoxContainer/CharacterButtons"]
+layout_mode = 2
+text = "Scyka (3)"
+
+[node name="Character4" type="Button" parent="VBoxContainer/CharacterButtons"]
+layout_mode = 2
+text = "Hiyori (4)"
+
+[node name="Character5" type="Button" parent="VBoxContainer/CharacterButtons"]
+layout_mode = 2
+text = "Mark (5)"
+
+[node name="AnimationButtons" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer/AnimationButtons"]
+layout_mode = 2
+text = "Play Animation:"
+
+[node name="Idle" type="Button" parent="VBoxContainer/AnimationButtons"]
+layout_mode = 2
+text = "Idle"
+
+[node name="PieceCaptured" type="Button" parent="VBoxContainer/AnimationButtons"]
+layout_mode = 2
+text = "Piece Captured"
+
+[node name="Check" type="Button" parent="VBoxContainer/AnimationButtons"]
+layout_mode = 2
+text = "Check"
+
+[node name="ModelContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="pressed" from="VBoxContainer/CharacterButtons/Character3" to="." method="_on_character_3_pressed"]
+[connection signal="pressed" from="VBoxContainer/CharacterButtons/Character4" to="." method="_on_character_4_pressed"]
+[connection signal="pressed" from="VBoxContainer/CharacterButtons/Character5" to="." method="_on_character_5_pressed"]
+[connection signal="pressed" from="VBoxContainer/AnimationButtons/Idle" to="." method="_on_idle_animation_pressed"]
+[connection signal="pressed" from="VBoxContainer/AnimationButtons/PieceCaptured" to="." method="_on_piece_captured_pressed"]
+[connection signal="pressed" from="VBoxContainer/AnimationButtons/Check" to="." method="_on_check_pressed"]
