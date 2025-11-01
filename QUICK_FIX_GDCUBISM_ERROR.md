@@ -37,6 +37,18 @@ If the error message bothers you:
 
 This requires downloading the Cubism SDK and building from source.
 
+#### 🪟 For Windows Users
+
+**See the detailed guide:** [`WINDOWS_GDCUBISM_SETUP.md`](WINDOWS_GDCUBISM_SETUP.md)
+
+This guide includes:
+- Step-by-step instructions for checking if you already have the DLL files
+- How to build from source if needed
+- Troubleshooting common Windows build issues
+- All prerequisites (Visual Studio, Python, SCons, Cubism SDK)
+
+#### 🐧 For Linux Users
+
 **Quick Steps:**
 1. Download Cubism SDK from: https://www.live2d.com/download/cubism-sdk/
    - You'll need to create a free Live2D account
@@ -46,7 +58,7 @@ This requires downloading the Cubism SDK and building from source.
 2. Extract and build GDCubism:
    ```bash
    # Install build tools (if not already installed)
-   pip3 install scons
+   pip3 install scons==4.7
 
    # Clone GDCubism
    cd /tmp
@@ -60,25 +72,19 @@ This requires downloading the Cubism SDK and building from source.
    # (Unzip your downloaded CubismSdkForNative-*.zip here)
    unzip ~/Downloads/CubismSdkForNative-*.zip -d thirdparty/
 
-   # Build for your platform
-   scons platform=linux target=template_release    # Linux
-   scons platform=linux target=template_debug
-   # OR
-   scons platform=windows target=template_release  # Windows
-   scons platform=windows target=template_debug
-   # OR
-   scons platform=macos target=template_release    # macOS
-   scons platform=macos target=template_debug
+   # Build for Linux
+   scons platform=linux arch=x86_64 target=template_release
+   scons platform=linux arch=x86_64 target=template_debug
 
    # Copy binaries to your project
-   cp bin/*.so /path/to/chess-thesis/addons/gd_cubism/bin/     # Linux
-   # OR
-   cp bin/*.dll /path/to/chess-thesis/addons/gd_cubism/bin/    # Windows
-   # OR
-   cp -r bin/*.framework /path/to/chess-thesis/addons/gd_cubism/bin/  # macOS
+   cp demo/addons/gd_cubism/bin/*.so /path/to/chess-thesis/gd_cubism/bin/
    ```
 
 3. Restart Godot and the error should be gone with full Live2D support
+
+#### 🍎 For macOS Users
+
+See `LIVE2D_SETUP.md` for detailed macOS build instructions.
 
 ## Understanding the Error
 
@@ -117,7 +123,8 @@ The error message is informational and doesn't prevent your project from working
 
 ## Need Help?
 
-- Full setup guide: See `LIVE2D_SETUP.md`
+- **Windows users:** See `WINDOWS_GDCUBISM_SETUP.md` for detailed Windows instructions
+- **All platforms:** See `LIVE2D_SETUP.md` for general setup guide
 - GDCubism documentation: https://mizunagikb.github.io/gd_cubism/
 - Live2D Cubism SDK: https://www.live2d.com/download/cubism-sdk/
 - GDCubism GitHub: https://github.com/MizunagiKB/gd_cubism
@@ -126,4 +133,4 @@ The error message is informational and doesn't prevent your project from working
 
 **Status:** This is expected behavior when GDCubism binaries are not installed.
 **Impact:** Low - Project works with static character preview fallback.
-**Date:** 2025-10-28
+**Date:** 2025-11-01 (Updated with Windows guide)
