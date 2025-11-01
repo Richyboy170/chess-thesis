@@ -1867,7 +1867,7 @@ func update_character_displays():
 	"""
 	Updates the character name labels to show which character each player selected.
 	"""
-	var character_names = ["Character 1", "Character 2", "Character 3"]
+	var character_names = ["Character 1", "Character 2", "Character 3", "Character 4 (Scyka)", "Character 5 (Hiyori)", "Character 6 (Mark)"]
 
 	# Update Player 1 character display
 	if GameState.player1_character >= 0 and GameState.player1_character < character_names.size():
