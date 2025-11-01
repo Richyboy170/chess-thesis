@@ -70,7 +70,7 @@ var error_log_path: String = "user://gdextension_errors.log"
 
 ## Known extensions to monitor
 var monitored_extensions: Array[String] = [
-	"res://addons/gd_cubism/gd_cubism.gdextension"
+	"res://gd_cubism/gd_cubism.gdextension"
 ]
 
 ## Helper function to repeat strings
