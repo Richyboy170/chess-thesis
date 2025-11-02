@@ -9,9 +9,9 @@ extends Control
 var current_model = null
 var current_character_id = 4  # Start with character 4 (Scyka)
 
-# Zoom settings
-var zoom_level: float = 1.0
-const ZOOM_MIN: float = 0.5
+# Zoom settings - start at 0.5 to prevent cropping
+var zoom_level: float = 0.5
+const ZOOM_MIN: float = 0.3
 const ZOOM_MAX: float = 3.0
 const ZOOM_STEP: float = 0.1
 
@@ -45,12 +45,15 @@ func load_character(character_id: int):
 	print("\n--- Loading Character %d ---" % character_id)
 	current_character_id = character_id
 
-	# Reset zoom level
-	zoom_level = 1.0
+	# Reset zoom level to 0.5 to prevent cropping
+	zoom_level = 0.5
 	update_zoom()
 
 	# Clear existing model
 	if current_model:
+		# Disconnect signals if connected
+		if current_model.motion_finished.is_connected(_on_motion_finished):
+			current_model.motion_finished.disconnect(_on_motion_finished)
 		current_model.queue_free()
 		current_model = null
 
@@ -110,10 +113,16 @@ func load_character(character_id: int):
 	live2d_model.position = center_position
 	print("Model centered at position: %s" % center_position)
 
+	# Connect motion_finished signal for animation transitions
+	if live2d_model.has_signal("motion_finished"):
+		live2d_model.motion_finished.connect(_on_motion_finished)
+		print("Connected to motion_finished signal")
+
 	# Start default animation
 	if live2d_model.has_method("start_motion"):
 		var default_action = Live2DAnimationConfig.get_default_animation(character_id)
 		print("Starting default animation: %s" % default_action)
+		current_animation = default_action
 		var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, default_action)
 		if not success:
 			print("Warning: Failed to start default animation")
@@ -125,6 +134,30 @@ func load_character(character_id: int):
 	status_label.text = "Model loaded successfully!"
 	status_label.add_theme_color_override("font_color", Color.GREEN)
 	print("SUCCESS: Model loaded and displayed")
+
+# Motion finished callback - handles animation transitions
+var current_animation: String = "idle"
+
+func _on_motion_finished():
+	print("Motion finished for animation: %s" % current_animation)
+
+	# Check if there's a transition defined for the current animation
+	var transition = Live2DAnimationConfig.get_animation_transition(current_character_id, current_animation)
+
+	if not transition.is_empty() and transition.has("next_animation"):
+		var next_anim = transition["next_animation"]
+		var delay = transition.get("delay", 0.0)
+
+		print("Transitioning to: %s (delay: %.2fs)" % [next_anim, delay])
+
+		if delay > 0.0:
+			# Wait for the delay before transitioning
+			await get_tree().create_timer(delay).timeout
+
+		# Play the next animation
+		if current_model and current_model.has_method("start_motion"):
+			current_animation = next_anim
+			Live2DAnimationConfig.play_animation(current_model, current_character_id, next_anim)
 
 # Button callbacks
 func _on_character_3_pressed():
@@ -139,14 +172,17 @@ func _on_character_5_pressed():
 func _on_idle_animation_pressed():
 	if current_model and current_model.has_method("start_motion"):
 		print("Playing idle animation")
+		current_animation = "idle"
 		Live2DAnimationConfig.play_animation(current_model, current_character_id, "idle")
 
 func _on_piece_captured_pressed():
 	if current_model and current_model.has_method("start_motion"):
 		print("Playing piece_captured animation")
+		current_animation = "piece_captured"
 		Live2DAnimationConfig.play_animation(current_model, current_character_id, "piece_captured")
 
 func _on_check_pressed():
 	if current_model and current_model.has_method("start_motion"):
 		print("Playing check animation")
+		current_animation = "check"
 		Live2DAnimationConfig.play_animation(current_model, current_character_id, "check")
