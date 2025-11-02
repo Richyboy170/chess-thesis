@@ -18,9 +18,9 @@ enum ErrorType {
 
 ## Character ID to model name mapping
 const LIVE2D_CHARACTERS = {
-	3: {"name": "Scyka", "texture_dir": "Scyka.4096"},
-	4: {"name": "Hiyori", "texture_dir": "Hiyori.2048"},
-	5: {"name": "Mark", "texture_dir": "Mark.2048"}
+	4: {"name": "Scyka", "texture_dir": "Scyka.4096"},
+	5: {"name": "Hiyori", "texture_dir": "Hiyori.2048"},
+	6: {"name": "Mark", "texture_dir": "Mark.2048"}
 }
 
 ## Debug report structure
@@ -92,7 +92,7 @@ static func get_model_path(character_id: int) -> String:
 	if char_info.is_empty():
 		return ""
 
-	var char_path = "res://assets/characters/character_%d/" % (character_id + 1)
+	var char_path = "res://assets/characters/character_%d/" % character_id
 	return char_path + char_info["name"] + ".model3.json"
 
 ## Get the path to a character's texture directory
@@ -101,7 +101,7 @@ static func get_texture_dir(character_id: int) -> String:
 	if char_info.is_empty():
 		return ""
 
-	var char_path = "res://assets/characters/character_%d/" % (character_id + 1)
+	var char_path = "res://assets/characters/character_%d/" % character_id
 	return char_path + char_info["texture_dir"] + "/"
 
 ## Comprehensive debug check for a Live2D character
@@ -117,7 +117,7 @@ static func debug_character(character_id: int) -> DebugReport:
 
 	var char_info = get_character_info(character_id)
 	report.character_name = char_info["name"]
-	report.add_info("Character folder: res://assets/characters/character_%d/" % (character_id + 1))
+	report.add_info("Character folder: res://assets/characters/character_%d/" % character_id)
 
 	# Step 1: Check if GDCubism plugin is loaded
 	report.add_info("Checking GDCubism plugin availability...")
@@ -226,7 +226,7 @@ static func debug_all_characters() -> String:
 		var model_path = get_model_path(char_id)
 		var status = "✓" if FileAccess.file_exists(model_path) else "✗"
 
-		output += "%s Character %d (%s):\n" % [status, char_id + 1, char_info["name"]]
+		output += "%s Character %d (%s):\n" % [status, char_id, char_info["name"]]
 		output += "    Model: %s\n" % model_path
 
 		if FileAccess.file_exists(model_path):
