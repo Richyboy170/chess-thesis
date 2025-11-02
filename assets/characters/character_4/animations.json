@@ -35,6 +35,14 @@
       "loop": false,
       "description": "When a piece is captured"
     },
+    "check": {
+      "motion_file": "Shock (Been Eated)",
+      "group": 0,
+      "priority": 1,
+      "fade_in": false,
+      "loop": false,
+      "description": "When the king is in check"
+    },
     "win_enter": {
       "motion_file": "Win (Enter)",
       "group": 0,
@@ -79,6 +87,10 @@
       "delay": 0.5
     },
     "piece_captured": {
+      "next_animation": "idle",
+      "delay": 0.3
+    },
+    "check": {
       "next_animation": "idle",
       "delay": 0.3
     },
