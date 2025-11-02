@@ -56,8 +56,8 @@ func load_character(character_id: int):
 
 	# Configure the model
 	live2d_model.assets = model_path
-	live2d_model.anchor_right = 1.0
-	live2d_model.anchor_bottom = 1.0
+	#live2d_model.anchor_right = 1.0
+	#live2d_model.anchor_bottom = 1.0
 
 	# Set auto_scale if available
 	if "auto_scale" in live2d_model:
