@@ -1360,7 +1360,7 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 			print("✓ Started animation from JSON config: " + default_action)
 		else:
 			# Fallback to hardcoded idle if config fails
-			live2d_model.start_motion("Idle", 0, 2, true)
+			live2d_model.start_motion_loop("Idle", 0, 2, true, true)
 			print("✓ Started fallback Idle animation")
 
 	# Add to display node
