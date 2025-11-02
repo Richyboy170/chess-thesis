@@ -96,12 +96,6 @@ func load_character(character_id: int):
 		live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
 		print("Auto-scale enabled")
 
-	# Center the model in the container
-	# GDCubismUserModel is a Node2D, so we position it at the center of the container
-	var container_center = model_container.size / 2.0
-	live2d_model.position = container_center
-	print("Model centered at: %s" % container_center)
-
 	# Add to scene
 	model_container.add_child(live2d_model)
 	current_model = live2d_model

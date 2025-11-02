@@ -117,78 +117,39 @@ func load_random_background():
 
 func load_character_previews():
 	"""
-	Dynamically loads character preview images/animations onto the character selection buttons.
-	Automatically detects available characters by scanning the assets/characters/ folder.
-	Accepts ANY folder name - assigns to buttons based on alphabetical order.
+	Loads character preview images/animations onto the character selection buttons.
 	"""
-	# Array of button nodes for easy indexing
-	var player1_buttons = [
-		$VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character1Button,
-		$VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character2Button,
-		$VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character3Button,
-		$VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character4Button,
-		$VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character5Button,
-		$VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character6Button
-	]
+	# Player 1 character buttons
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character1Button, 0)
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character5Button, 4)
+	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character6Button, 5)
 
-	var player2_buttons = [
-		$VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character1Button,
-		$VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character2Button,
-		$VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character3Button,
-		$VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character4Button,
-		$VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character5Button,
-		$VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character6Button
-	]
+	# Player 2 character buttons
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character1Button, 0)
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character5Button, 4)
+	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character6Button, 5)
 
-	# Scan for available characters (ANY folder name accepted)
-	var characters_dir = "res://assets/characters/"
-	var available_folders = []
-
-	var dir = DirAccess.open(characters_dir)
-	if dir:
-		dir.list_dir_begin()
-		var folder_name = dir.get_next()
-
-		while folder_name != "":
-			# Accept any directory except hidden folders (starting with .)
-			if dir.current_is_dir() and not folder_name.begins_with("."):
-				available_folders.append(folder_name)
-
-			folder_name = dir.get_next()
-
-		dir.list_dir_end()
-
-	# Sort alphabetically for consistent button assignment
-	available_folders.sort()
-	print("Character Selection: Found %d character folders (alphabetically): %s" % [available_folders.size(), str(available_folders)])
-
-	# Load previews for available characters (map to buttons 1-6)
-	for i in range(min(available_folders.size(), 6)):
-		var folder_name = available_folders[i]
-		var char_path = characters_dir + folder_name + "/"
-
-		# Load on both player buttons (button index i = 0-5)
-		load_character_preview_on_button(player1_buttons[i], i, folder_name, char_path)
-		load_character_preview_on_button(player2_buttons[i], i, folder_name, char_path)
-
-func load_character_preview_on_button(button: Button, character_id: int, folder_name: String, char_path: String):
+func load_character_preview_on_button(button: Button, character_id: int):
 	"""
 	Loads and displays a character preview (video, image, or Live2D) on a button.
 
 	Args:
 		button: The button to add the preview to
-		character_id: The button index (0-5)
-		folder_name: The name of the character folder
-		char_path: Full path to the character folder
+		character_id: The character ID (0-5)
 	"""
-	print("\n===== LOADING CHARACTER '%s' (Button %d) PREVIEW =====" % [folder_name, character_id + 1])
+	var char_path = "res://assets/characters/character_" + str(character_id + 1) + "/"
+	print("\n===== LOADING CHARACTER ", character_id + 1, " PREVIEW =====")
 	print("Character path: ", char_path)
 
-	# Check if this is a Live2D character by looking for animations.json
-	var animations_config_path = char_path + "animations.json"
-	if FileAccess.file_exists(animations_config_path):
-		print("Detected Live2D character (has animations.json)")
-		load_live2d_preview_on_button(button, char_path, folder_name, character_id)
+	# Special handling for Live2D characters (4, 5, 6)
+	if character_id == 3 or character_id == 4 or character_id == 5:
+		load_live2d_preview_on_button(button, char_path, character_id)
 		return
 
 	# Find character background image (support multiple formats)
@@ -504,46 +465,34 @@ func toggle_background_debugger():
 		else:
 			print("Character Background Debugger: HIDDEN")
 
-func load_live2d_preview_on_button(button: Button, char_path: String, folder_name: String, character_id: int):
+func load_live2d_preview_on_button(button: Button, char_path: String, character_id: int):
 	"""
 	Loads and displays a Live2D character preview on a button.
 	Falls back to texture preview if GDCubism is not available.
-	Automatically detects model name and texture directory.
 
 	Args:
 		button: The button to add the preview to
 		char_path: Path to the character folder
-		folder_name: The name of the character folder
-		character_id: The button index (0-5)
+		character_id: The character ID (3=Scyka, 4=Hiyori, 5=Mark)
 	"""
-	# Auto-detect model name by finding .model3.json file
-	var model_name = ""
-	var texture_dir = ""
+	# Map character IDs to model names
+	var model_names = {
+		3: "Scyka",
+		4: "Hiyori",
+		5: "Mark"
+	}
 
-	var dir = DirAccess.open(char_path)
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
+	# Map character IDs to texture directories
+	var texture_dirs = {
+		3: "Scyka.4096",
+		4: "Hiyori.2048",
+		5: "Mark.2048"
+	}
 
-		while file_name != "":
-			if file_name.ends_with(".model3.json"):
-				model_name = file_name.trim_suffix(".model3.json")
-			elif dir.current_is_dir() and (file_name.contains(".") or model_name != "" and file_name.begins_with(model_name)):
-				# Look for texture directory (usually ModelName.Resolution format)
-				texture_dir = file_name
+	var model_name = model_names.get(character_id, "Scyka")
+	var texture_dir = texture_dirs.get(character_id, "Scyka.4096")
 
-			file_name = dir.get_next()
-
-		dir.list_dir_end()
-
-	if model_name == "":
-		print("ERROR: Could not find .model3.json file in ", char_path)
-		return
-
-	if texture_dir == "":
-		texture_dir = model_name  # Fallback to model name
-
-	print("Loading Live2D preview for '%s' (Button %d, Model: %s) with texture dir: %s..." % [folder_name, character_id + 1, model_name, texture_dir])
+	print("Loading Live2D preview for Character ", character_id + 1, " (", model_name, ")...")
 
 	# Create a container for the preview
 	var preview_container = Control.new()
@@ -569,22 +518,15 @@ func load_live2d_preview_on_button(button: Button, char_path: String, folder_nam
 				live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
 			# Note: GDCubismUserModel extends Node2D, not Control, so it doesn't have mouse_filter or anchor properties
 
-			# Get the Live2D character ID from folder name (assigned by alphabetical order)
-			var live2d_char_id = Live2DAnimationConfig.get_character_id_from_folder(folder_name)
-			if live2d_char_id == -1:
-				print("WARNING: Could not find Live2D character ID for folder: ", folder_name)
-				live2d_char_id = character_id + 1  # Fallback to button-based ID
-
 			# Store character ID as metadata
-			live2d_model.set_meta("character_id", live2d_char_id)
+			live2d_model.set_meta("character_id", character_id)
 
 			# Start with idle animation using JSON configuration
 			if live2d_model.has_method("start_motion"):
-				var default_action = Live2DAnimationConfig.get_default_animation(live2d_char_id)
-				var success = Live2DAnimationConfig.play_animation(live2d_model, live2d_char_id, default_action)
+				var default_action = Live2DAnimationConfig.get_default_animation(character_id)
+				var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, default_action)
 				if not success:
 					# Fallback to hardcoded idle if config fails
-					print("WARNING: Failed to play configured animation, trying fallback...")
 					live2d_model.start_motion("Idle", 0, 2, true)
 
 			preview_container.add_child(live2d_model)
@@ -636,13 +578,13 @@ func load_live2d_preview_on_button(button: Button, char_path: String, folder_nam
 			print("  ✗ ERROR: Could not load texture")
 			AnimationErrorDetector.log_load_failed(
 				texture_path,
-				"Live2D fallback texture for '%s'" % folder_name
+				"Live2D fallback texture for character " + str(character_id + 1)
 			)
 	else:
 		print("  ✗ ERROR: Texture not found: ", texture_path)
 		AnimationErrorDetector.log_file_not_found(
 			texture_path,
-			char_path + texture_dir + "/"
+			char_path + "Scyka.4096/"
 		)
 
-	print("===== END CHARACTER '%s' PREVIEW =====\n" % folder_name)
+	print("===== END CHARACTER 4 PREVIEW =====\n")
