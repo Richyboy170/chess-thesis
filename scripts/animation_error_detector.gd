@@ -53,10 +53,17 @@ class AnimationError:
 
 ## Storage
 var errors: Array[AnimationError] = []
-var error_count_by_type: Dictionary = {}
+var error_count_by_type: Dictionary = _initialize_error_counts()
 var max_errors: int = 1000  # Prevent memory issues
 var auto_save_enabled: bool = true
 var error_log_path: String = "user://animation_errors.log"
+
+## Initialize error counts dictionary
+static func _initialize_error_counts() -> Dictionary:
+	var counts = {}
+	for type in ErrorType.values():
+		counts[type] = 0
+	return counts
 
 ## Helper function to repeat strings
 static func repeat_string(s: String, count: int) -> String:
@@ -82,7 +89,8 @@ func log_error(type: ErrorType, message: String, context: Dictionary = {}) -> vo
 
 	# Store error
 	errors.append(error)
-	error_count_by_type[type] += 1
+	# Safely increment error count (initialize if not present)
+	error_count_by_type[type] = error_count_by_type.get(type, 0) + 1
 
 	# Limit storage to prevent memory issues
 	if errors.size() > max_errors:
