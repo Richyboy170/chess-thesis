@@ -1,4 +1,14 @@
-# Character 2 (Modern Theme) Assets
+# Character 2 - Modern Theme
+
+## Character Configuration
+
+**Character Name:** `Character 2`
+**Character ID:** `2` (used in code references)
+**Folder:** `character_2`
+
+> **Important:** The configuration file (`piece_effects_config.gd`) uses `character_id: 2` and `character_name: "Character 2"`. This ID must match across all character references in the codebase.
+
+## Overview
 
 This folder contains all assets for Character 2 with the Modern theme.
 
@@ -35,3 +45,32 @@ Place character animation files here:
 - Videos: MP4 format, H.264 codec
 - Recommended video resolution: 512x512px or 1024x1024px
 - Keep file sizes optimized for mobile devices (< 5MB per file)
+
+## Configuration Files
+
+### Piece Effects Config
+**File:** `piece_effects_config.gd`
+
+Defines the visual effects for Character 2's chess pieces with a **modern blue/cyan theme**:
+- Cool blue/cyan glowing effects
+- 35% scale increase when holding pieces (more dramatic than Character 1)
+- Rotation and pulse animations enabled
+- Color shift effects
+- Modern, futuristic appearance
+
+**Configuration:**
+- `character_id = 2`
+- `character_name = "Character 2"`
+- `glow_color = Color(0.3, 0.8, 1.0, 0.8)` (cool blue glow)
+- `scale_factor = 1.35` (35% larger when held)
+- `rotation_enabled = true`
+- `pulse_enabled = true`
+- `color_shift_enabled = true`
+
+## File Naming
+
+All configuration files use:
+- `character_id: 2` in all config files
+- Folder name: `character_2`
+
+**No file name changes needed** - all files are properly named and configured.

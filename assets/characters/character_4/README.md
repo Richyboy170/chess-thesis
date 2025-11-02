@@ -3,10 +3,10 @@
 ## Character Configuration
 
 **Character Name:** `Scyka`
-**Character ID:** `3` (used in code references)
+**Character ID:** `4` (used in code references)
 **Folder:** `character_4`
 
-> **Important:** The JSON configuration files (`animations.json`) use `character_id: 3` and `character_name: "Scyka"`. This is required for the Live2D animation system to work correctly. The character ID maps to the character in `live2d_animation_config.gd`.
+> **Important:** The JSON configuration files (`animations.json`) use `character_id: 4` and `character_name: "Scyka"`. This is required for the Live2D animation system to work correctly. The character ID maps to the character in `live2d_animation_config.gd` and `piece_effects_config.gd`.
 
 ## Overview
 
@@ -49,7 +49,7 @@ This JSON file defines all animations for Scyka. The file MUST include:
 ```json
 {
   "character_name": "Scyka",
-  "character_id": 3,
+  "character_id": 4,
   "version": "1.0",
   "animations": {
     // ... animation definitions
@@ -57,7 +57,7 @@ This JSON file defines all animations for Scyka. The file MUST include:
 }
 ```
 
-**Critical:** The `character_id` must be `3` to match the mapping in `live2d_animation_config.gd`. The `character_name` should be `"Scyka"` for proper identification.
+**Critical:** The `character_id` must be `4` to match the mapping in `live2d_animation_config.gd` and `piece_effects_config.gd`. The `character_name` should be `"Scyka"` for proper identification.
 
 ### Piece Effects Config
 **File:** `piece_effects_config.gd`
@@ -140,7 +140,7 @@ Example code to trigger animations using the Live2D Animation Config system:
 
 ```gdscript
 # Using the Live2DAnimationConfig helper (RECOMMENDED)
-const SCYKA_ID = 3  # Character ID for Scyka
+const SCYKA_ID = 4  # Character ID for Scyka
 
 # Get the Live2D model node
 var live2d_model = get_character_live2d_model()
