@@ -475,24 +475,28 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 		char_path: Path to the character folder
 		character_id: The character ID (3=Scyka, 4=Hiyori, 5=Mark)
 	"""
+	# Map button indices to actual character IDs (since characters 1-3 were removed)
+	# Button index 3 → Character 4, Button index 4 → Character 5, Button index 5 → Character 6
+	var actual_character_id = character_id + 1
+
 	# Map character IDs to model names
 	var model_names = {
-		3: "Scyka",
-		4: "Hiyori",
-		5: "Mark"
+		4: "Scyka",
+		5: "Hiyori",
+		6: "Mark"
 	}
 
 	# Map character IDs to texture directories
 	var texture_dirs = {
-		3: "Scyka.4096",
-		4: "Hiyori.2048",
-		5: "Mark.2048"
+		4: "Scyka.4096",
+		5: "Hiyori.2048",
+		6: "Mark.2048"
 	}
 
-	var model_name = model_names.get(character_id, "Scyka")
-	var texture_dir = texture_dirs.get(character_id, "Scyka.4096")
+	var model_name = model_names.get(actual_character_id, "Scyka")
+	var texture_dir = texture_dirs.get(actual_character_id, "Scyka.4096")
 
-	print("Loading Live2D preview for Character ", character_id + 1, " (", model_name, ")...")
+	print("Loading Live2D preview for Character ", actual_character_id, " (", model_name, ")...")
 
 	# Create a container for the preview
 	var preview_container = Control.new()
@@ -518,13 +522,13 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 				live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
 			# Note: GDCubismUserModel extends Node2D, not Control, so it doesn't have mouse_filter or anchor properties
 
-			# Store character ID as metadata
-			live2d_model.set_meta("character_id", character_id)
+			# Store character ID as metadata (use actual character ID, not button index)
+			live2d_model.set_meta("character_id", actual_character_id)
 
 			# Start with idle animation using JSON configuration
 			if live2d_model.has_method("start_motion"):
-				var default_action = Live2DAnimationConfig.get_default_animation(character_id)
-				var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, default_action)
+				var default_action = Live2DAnimationConfig.get_default_animation(actual_character_id)
+				var success = Live2DAnimationConfig.play_animation(live2d_model, actual_character_id, default_action)
 				if not success:
 					# Fallback to hardcoded idle if config fails
 					live2d_model.start_motion("Idle", 0, 2, true)
@@ -539,7 +543,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 			AnimationErrorDetector.log_error(
 				AnimationErrorDetector.ErrorType.INVALID_RESOURCE,
 				"Failed to instantiate GDCubismUserModel class",
-				{"model_path": model_path, "character_id": character_id + 1}
+				{"model_path": model_path, "character_id": actual_character_id}
 			)
 	else:
 		if not ClassDB.class_exists("GDCubismUserModel"):
@@ -578,7 +582,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 			print("  ✗ ERROR: Could not load texture")
 			AnimationErrorDetector.log_load_failed(
 				texture_path,
-				"Live2D fallback texture for character " + str(character_id + 1)
+				"Live2D fallback texture for character " + str(actual_character_id)
 			)
 	else:
 		print("  ✗ ERROR: Texture not found: ", texture_path)
