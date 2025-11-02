@@ -84,11 +84,11 @@ static func get_motion_file(character_id: int, action: String) -> String:
 		return ""
 	return anim_data.get("motion_file", "")
 
-## Get animation parameters (group, priority, fade_in)
+## Get animation parameters (group, priority, fade_in, loop)
 static func get_animation_params(character_id: int, action: String) -> Dictionary:
 	var anim_data = get_animation(character_id, action)
 	if anim_data.is_empty():
-		return {"group": 0, "priority": 2, "fade_in": true}
+		return {"group": 0, "priority": 2, "fade_in": true, "loop": true}
 
 	return {
 		"group": anim_data.get("group", 0),
@@ -117,12 +117,13 @@ static func play_animation(live2d_model: Node, character_id: int, action: String
 
 	print("Live2DAnimationConfig: Playing animation '" + action + "' (motion: " + motion_file + ", loop: " + str(params["loop"]) + ") on character " + str(character_id))
 
-	# Start the motion (GDCubism start_motion expects 4 arguments: motion_file, group, priority, loop)
-	live2d_model.start_motion(
+	# Start the motion using start_motion_loop (expects 5 arguments: group, no, priority, loop, loop_fade_in)
+	live2d_model.start_motion_loop(
 		motion_file,
 		params["group"],
 		params["priority"],
-		params["loop"]
+		params["loop"],
+		params["fade_in"]
 	)
 
 	return true

@@ -531,7 +531,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 				var success = Live2DAnimationConfig.play_animation(live2d_model, actual_character_id, default_action)
 				if not success:
 					# Fallback to hardcoded idle if config fails
-					live2d_model.start_motion("Idle", 0, 2, true)
+					live2d_model.start_motion_loop("Idle", 0, 2, true, true)
 
 			preview_container.add_child(live2d_model)
 			button.add_child(preview_container)
