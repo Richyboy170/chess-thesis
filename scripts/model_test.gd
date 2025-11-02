@@ -100,6 +100,16 @@ func load_character(character_id: int):
 	model_container.add_child(live2d_model)
 	current_model = live2d_model
 
+	# Center the model in the container
+	# Wait one frame for the model to initialize and get its size
+	await get_tree().process_frame
+
+	# Position the model at the center of the container
+	var container_size = model_container.size
+	var center_position = Vector2(container_size.x / 2.0, container_size.y / 2.0)
+	live2d_model.position = center_position
+	print("Model centered at position: %s" % center_position)
+
 	# Start default animation
 	if live2d_model.has_method("start_motion"):
 		var default_action = Live2DAnimationConfig.get_default_animation(character_id)
