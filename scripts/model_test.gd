@@ -7,15 +7,47 @@ extends Control
 @onready var character_label = $VBoxContainer/CharacterLabel
 
 var current_model = null
-var current_character_id = 3  # Start with character 3 (Scyka)
+var current_character_id = 4  # Start with character 4 (Scyka)
+
+# Zoom settings
+var zoom_level: float = 1.0
+const ZOOM_MIN: float = 0.5
+const ZOOM_MAX: float = 3.0
+const ZOOM_STEP: float = 0.1
 
 func _ready():
 	print("=== Live2D Model Test Sandbox ===")
 	load_character(current_character_id)
 
+func _input(event):
+	# Handle mouse wheel for zooming
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
+			zoom_in()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
+			zoom_out()
+
+func zoom_in():
+	zoom_level = clamp(zoom_level + ZOOM_STEP, ZOOM_MIN, ZOOM_MAX)
+	update_zoom()
+	print("Zoom in: %.1fx" % zoom_level)
+
+func zoom_out():
+	zoom_level = clamp(zoom_level - ZOOM_STEP, ZOOM_MIN, ZOOM_MAX)
+	update_zoom()
+	print("Zoom out: %.1fx" % zoom_level)
+
+func update_zoom():
+	if model_container:
+		model_container.scale = Vector2(zoom_level, zoom_level)
+
 func load_character(character_id: int):
 	print("\n--- Loading Character %d ---" % character_id)
 	current_character_id = character_id
+
+	# Reset zoom level
+	zoom_level = 1.0
+	update_zoom()
 
 	# Clear existing model
 	if current_model:
@@ -86,13 +118,13 @@ func load_character(character_id: int):
 
 # Button callbacks
 func _on_character_3_pressed():
-	load_character(3)
-
-func _on_character_4_pressed():
 	load_character(4)
 
-func _on_character_5_pressed():
+func _on_character_4_pressed():
 	load_character(5)
+
+func _on_character_5_pressed():
+	load_character(6)
 
 func _on_idle_animation_pressed():
 	if current_model and current_model.has_method("start_motion"):

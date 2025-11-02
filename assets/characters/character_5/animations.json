@@ -36,6 +36,14 @@
       "loop": false,
       "description": "When a piece is captured (TapBody animation)"
     },
+    "check": {
+      "motion_file": "Hiyori_m04",
+      "group": 0,
+      "priority": 1,
+      "fade_in": false,
+      "loop": false,
+      "description": "When the king is in check"
+    },
     "win_enter": {
       "motion_file": "Hiyori_m05",
       "group": 0,
@@ -80,6 +88,10 @@
       "delay": 0.5
     },
     "piece_captured": {
+      "next_animation": "idle",
+      "delay": 0.3
+    },
+    "check": {
       "next_animation": "idle",
       "delay": 0.3
     },
