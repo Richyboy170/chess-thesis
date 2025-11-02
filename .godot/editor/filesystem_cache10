@@ -1,5 +1,5 @@
 72322a848ab928aa5c89f0cb78209805
-::res://::1762100809
+::res://::1762101577
 ANIMATION_ERROR_DETECTOR.md::TextFile::-1::1762017166::0::1::::<><><>0<>0<><>::
 CHARACTER_EFFECTS_SETUP.md::TextFile::-1::1762017166::0::1::::<><><>0<>0<><>::
 desktop.ini::TextFile::-1::1762017169::0::1::::<><><>0<>0<><>::
@@ -17,7 +17,7 @@ README.md::TextFile::-1::1762017166::0::1::::<><><>0<>0<><>::
 gd_cubism.gdextension::GDExtension::8689015402339381427::1762045712::0::1::::<><><>0<>0<><>::
 plugin.cfg::TextFile::-1::1762045713::0::1::::<><><>0<>0<><>::
 plugin.gd::GDScript::839934386144879475::1762100761::0::1::::<>EditorPlugin<><>0<>1<><>::
-::res://addons/gd_cubism/bin/::1762100801
+::res://addons/gd_cubism/bin/::1762101569
 ::res://addons/gd_cubism/cs/::1762045712
 ::res://addons/gd_cubism/example/::1762046406
 demo_effect_custom_01.gd::GDScript::4115423399158580703::1762045712::0::1::::<>Node2D<><>0<>0<><>::
@@ -138,8 +138,8 @@ white_knight.png::CompressedTexture2D::8347007771910258044::1762017169::17620173
 white_pawn.png::CompressedTexture2D::3975107543606153905::1762017169::1762017331::1::::<><><>0<>0<>36babdc62af057f9ef4062166d258c8c<>res://.godot/imported/white_pawn.png-ee7665bad238dce3cf16a2ac4fdc775e.ctex::
 white_queen.png::CompressedTexture2D::8037874362624355847::1762017169::1762017331::1::::<><><>0<>0<>890f151bd596f9abb21ea05782e62778<>res://.godot/imported/white_queen.png-ffc82469a6bd01ff045afa49ef5e39f2.ctex::
 white_rook.png::CompressedTexture2D::8303737386568092192::1762017169::1762017331::1::::<><><>0<>0<>afd9246d1bd9e48ea6c723d0f5e26481<>res://.godot/imported/white_rook.png-b32b1cda4107ddf0aa827a8f9d040674.ctex::
-::res://assets/characters/character_4/::1762085891
-animations.json::JSON::-1::1762085891::0::1::::<><><>0<>0<><>::
+::res://assets/characters/character_4/::1762101551
+animations.json::JSON::-1::1762101551::0::1::::<><><>0<>0<><>::
 Hover Piece.motion3.json::JSON::7677308244882578814::1762017169::0::1::::<><><>0<>0<><>::
 Idle.motion3.json::JSON::3032863680578725222::1762017169::0::1::::<><><>0<>0<><>::
 Lose(Enter).motion3.json::JSON::1234187010371933629::1762017169::0::1::::<><><>0<>0<><>::
@@ -160,8 +160,8 @@ texture_00.png::CompressedTexture2D::4172414919941344937::1762017169::1762017336
 texture_01.png::CompressedTexture2D::5810748536967615787::1762017169::1762017336::1::::<><><>0<>0<>a9eec9e3fbd790ec4c1fe6889d3f8550<>res://.godot/imported/texture_01.png-8d8ced2170ddb164573a9f566c665631.ctex::
 texture_02.png::CompressedTexture2D::6173961697471871960::1762017169::1762017334::1::::<><><>0<>0<>99f9ebe58327ec1f0d95774a6f607324<>res://.godot/imported/texture_02.png-d03bc18c172e8401bdd870077adb5063.ctex::
 texture_03.png::CompressedTexture2D::160171884299299174::1762017169::1762017334::1::::<><><>0<>0<>b85ef275f56f75e5d0db406bd1a63ae9<>res://.godot/imported/texture_03.png-ac104e8d92e13d366fe005b4d66b4a23.ctex::
-::res://assets/characters/character_5/::1762085891
-animations.json::JSON::-1::1762085891::0::1::::<><><>0<>0<><>::
+::res://assets/characters/character_5/::1762101551
+animations.json::JSON::-1::1762101551::0::1::::<><><>0<>0<><>::
 Hiyori.cdi3.json::JSON::-1::1762017169::0::1::::<><><>0<>0<><>::
 Hiyori.model3.json::JSON::-1::1762017169::0::1::::<><><>0<>0<><>::
 Hiyori.physics3.json::JSON::-1::1762017169::0::1::::<><><>0<>0<><>::
@@ -185,8 +185,8 @@ Hiyori_m07.motion3.json::JSON::1122306936131157798::1762017169::0::1::::<><><>0<
 Hiyori_m08.motion3.json::JSON::6942576171406154342::1762017169::0::1::::<><><>0<>0<><>::
 Hiyori_m09.motion3.json::JSON::2890990459891821843::1762017169::0::1::::<><><>0<>0<><>::
 Hiyori_m10.motion3.json::JSON::6257016176555131154::1762017169::0::1::::<><><>0<>0<><>::
-::res://assets/characters/character_6/::1762085891
-animations.json::JSON::-1::1762085891::0::1::::<><><>0<>0<><>::
+::res://assets/characters/character_6/::1762101551
+animations.json::JSON::-1::1762101551::0::1::::<><><>0<>0<><>::
 Mark.cdi3.json::JSON::-1::1762017169::0::1::::<><><>0<>0<><>::
 Mark.model3.json::JSON::-1::1762017169::0::1::::<><><>0<>0<><>::
 Mark.physics3.json::JSON::-1::1762017169::0::1::::<><><>0<>0<><>::
@@ -909,7 +909,7 @@ README.md::TextFile::-1::1762017169::0::1::::<><><>0<>0<><>::
 ::res://scenes/ui/::1762017169
 character_selection.tscn::PackedScene::6385717420630671164::1762017169::0::1::::<><><>0<>0<><>::res://scripts/character_selection.gd
 login_page.tscn::PackedScene::4047925081359635663::1762017169::0::1::::<><><>0<>0<><>::res://scripts/login_page.gd
-::res://scripts/::1762091791
+::res://scripts/::1762101551
 animation_error_detector.gd::GDScript::8774860603303973675::1762017169::0::1::::<>Node<><>0<>0<><>::
 animation_error_viewer.gd::GDScript::2594811155737183095::1762017169::0::1::::<>PanelContainer<><>0<>0<><>::
 character_selection.gd::GDScript::1580051330443687543::1762051699::0::1::::<>Control<><>0<>0<><>::
@@ -921,11 +921,11 @@ chess_piece.gd::GDScript::2174625388039789211::1762017169::0::1::::ChessPiece<>N
 chess_pieces.gd::GDScript::5278464903077807793::1762017169::0::1::::<>Node<><>0<>0<><>::
 game_state.gd::GDScript::7170636022792330861::1762017169::0::1::::<>Node<><>0<>0<><>::
 gdextension_error_detector.gd::GDScript::3582426838699555771::1762019456::0::1::::<>Node<><>0<>0<><>::
-live2d_animation_config.gd::GDScript::7825246965181793663::1762091791::0::1::::Live2DAnimationConfig<>Node<><>0<>0<><>::
-live2d_debugger.gd::GDScript::6392242167857135134::1762017169::0::1::::Live2DDebugger<>Node<><>0<>0<><>::
+live2d_animation_config.gd::GDScript::7825246965181793663::1762101551::0::1::::Live2DAnimationConfig<>Node<><>0<>0<><>::
+live2d_debugger.gd::GDScript::6392242167857135134::1762101551::0::1::::Live2DDebugger<>Node<><>0<>0<><>::
 login_page.gd::GDScript::8146014109777437171::1762017169::0::1::::<>Control<><>0<>0<><>::
 main_game.gd::GDScript::1063598807600793956::1762017169::0::1::::<>Control<><>0<>0<><>::
-model_test.gd::GDScript::797100904047268557::1762051935::0::1::::<>Control<><>0<>0<><>::
+model_test.gd::GDScript::797100904047268557::1762101551::0::1::::<>Control<><>0<>0<><>::
 piece_effects.gd::GDScript::5353345601905213264::1762017169::0::1::::<>Node<><>0<>0<><>::
 piece_effects_config.gd::GDScript::2674057940260172160::1762017169::0::1::::PieceEffectsConfig<>Resource<><>0<>0<><>::
 theme_manager.gd::GDScript::7670422072006327044::1762017169::0::1::::<>Node<><>0<>0<><>::
