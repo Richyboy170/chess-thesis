@@ -516,7 +516,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 			# Try to set auto_scale if available
 			if "auto_scale" in live2d_model:
 				live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
-			live2d_model.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			# Note: GDCubismUserModel extends Node2D, not Control, so it doesn't have mouse_filter
 			live2d_model.anchor_right = 1.0
 			live2d_model.anchor_bottom = 1.0
 
