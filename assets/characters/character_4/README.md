@@ -1,5 +1,13 @@
 # Character 4 - Scyka (Live2D)
 
+## Character Configuration
+
+**Character Name:** `Scyka`
+**Character ID:** `3` (used in code references)
+**Folder:** `character_4`
+
+> **Important:** The JSON configuration files (`animations.json`) use `character_id: 3` and `character_name: "Scyka"`. This is required for the Live2D animation system to work correctly. The character ID maps to the character in `live2d_animation_config.gd`.
+
 ## Overview
 
 Character 4 features **Scyka**, a fully animated Live2D character model. This character uses the Live2D Cubism SDK through the GDCubism plugin to provide dynamic, real-time 2D animations.
@@ -32,6 +40,24 @@ High-resolution textures (4096x4096) for detailed rendering.
 | **Lose Enter** | `Lose(Enter).motion3.json` | Defeat reaction |
 
 ## Configuration Files
+
+### Animation Configuration
+**File:** `animations.json`
+
+This JSON file defines all animations for Scyka. The file MUST include:
+
+```json
+{
+  "character_name": "Scyka",
+  "character_id": 3,
+  "version": "1.0",
+  "animations": {
+    // ... animation definitions
+  }
+}
+```
+
+**Critical:** The `character_id` must be `3` to match the mapping in `live2d_animation_config.gd`. The `character_name` should be `"Scyka"` for proper identification.
 
 ### Piece Effects Config
 **File:** `piece_effects_config.gd`
@@ -110,13 +136,22 @@ When Character 4 is selected, the Live2D model can react to game events through 
 
 ### Animation Triggering
 
-Example code to trigger animations:
+Example code to trigger animations using the Live2D Animation Config system:
 
 ```gdscript
+# Using the Live2DAnimationConfig helper (RECOMMENDED)
+const SCYKA_ID = 3  # Character ID for Scyka
+
 # Get the Live2D model node
 var live2d_model = get_character_live2d_model()
 
-# Trigger different animations
+# Play animations using action names from animations.json
+Live2DAnimationConfig.play_animation(live2d_model, SCYKA_ID, "hover_piece")
+Live2DAnimationConfig.play_animation(live2d_model, SCYKA_ID, "piece_captured")
+Live2DAnimationConfig.play_animation(live2d_model, SCYKA_ID, "win_enter")
+Live2DAnimationConfig.play_animation(live2d_model, SCYKA_ID, "idle")
+
+# Manual method (if needed)
 if live2d_model and live2d_model.has_method("start_motion"):
     # Hover animation when selecting a piece
     live2d_model.start_motion("Hover Piece", 0, 2, false)
@@ -127,6 +162,8 @@ if live2d_model and live2d_model.has_method("start_motion"):
     # Victory animation
     live2d_model.start_motion("Win (Enter)", 0, 2, false)
 ```
+
+**Note:** Using `Live2DAnimationConfig.play_animation()` is recommended as it automatically loads the correct animation parameters from `animations.json`.
 
 ## Customization
 
