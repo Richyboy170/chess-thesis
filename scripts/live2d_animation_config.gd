@@ -117,12 +117,11 @@ static func play_animation(live2d_model: Node, character_id: int, action: String
 
 	print("Live2DAnimationConfig: Playing animation '" + action + "' (motion: " + motion_file + ") on character " + str(character_id))
 
-	# Start the motion
+	# Start the motion (GDCubism start_motion expects 3 arguments: motion_file, group, priority)
 	live2d_model.start_motion(
 		motion_file,
 		params["group"],
-		params["priority"],
-		params["fade_in"]
+		params["priority"]
 	)
 
 	return true
