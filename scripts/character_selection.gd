@@ -118,19 +118,15 @@ func load_random_background():
 func load_character_previews():
 	"""
 	Loads character preview images/animations onto the character selection buttons.
+	Note: Characters 1-3 have been removed, so only characters 4-6 are loaded.
 	"""
-	# Player 1 character buttons
-	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character1Button, 0)
-	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
-	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
+	# Player 1 character buttons (only load characters 4, 5, 6)
+	# Characters 1-3 buttons exist but have no preview loaded
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character5Button, 4)
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character6Button, 5)
 
-	# Player 2 character buttons
-	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character1Button, 0)
-	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
-	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
+	# Player 2 character buttons (only load characters 4, 5, 6)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character5Button, 4)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character6Button, 5)
