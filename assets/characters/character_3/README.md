@@ -1,4 +1,14 @@
-# Character 3 (Fantasy Theme) Assets
+# Character 3 - Fantasy Theme
+
+## Character Configuration
+
+**Character Name:** `Character 3`
+**Character ID:** `3` (used in code references)
+**Folder:** `character_3`
+
+> **Important:** The configuration file (`piece_effects_config.gd`) uses `character_id: 3` and `character_name: "Character 3"`. This ID must match across all character references in the codebase.
+
+## Overview
 
 This folder contains all assets for Character 3 with the Fantasy theme.
 
@@ -35,3 +45,32 @@ Place character animation files here:
 - Videos: MP4 format, H.264 codec
 - Recommended video resolution: 512x512px or 1024x1024px
 - Keep file sizes optimized for mobile devices (< 5MB per file)
+
+## Configuration Files
+
+### Piece Effects Config
+**File:** `piece_effects_config.gd`
+
+Defines the visual effects for Character 3's chess pieces with a **fantasy magical pink/purple theme**:
+- Pink/magenta glowing effects
+- 40% scale increase when holding pieces (most dramatic scaling)
+- Shimmer, particles, sparkles, and aura effects enabled
+- Magical, fantasy appearance
+
+**Configuration:**
+- `character_id = 3`
+- `character_name = "Character 3"`
+- `glow_color = Color(1.0, 0.3, 0.8, 0.8)` (pink/magenta glow)
+- `scale_factor = 1.4` (40% larger when held)
+- `shimmer_enabled = true`
+- `particle_enabled = true`
+- `sparkle_enabled = true`
+- `aura_enabled = true`
+
+## File Naming
+
+All configuration files use:
+- `character_id: 3` in all config files
+- Folder name: `character_3`
+
+**No file name changes needed** - all files are properly named and configured.

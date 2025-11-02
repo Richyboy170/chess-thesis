@@ -1,4 +1,14 @@
-# Character 1 (Classic Theme) Assets
+# Character 1 - Classic Theme
+
+## Character Configuration
+
+**Character Name:** `Character 1`
+**Character ID:** `1` (used in code references)
+**Folder:** `character_1`
+
+> **Important:** The configuration file (`piece_effects_config.gd`) uses `character_id: 1` and `character_name: "Character 1"`. This ID must match across all character references in the codebase.
+
+## Overview
 
 This folder contains all assets for Character 1 with the Classic theme.
 
@@ -35,3 +45,28 @@ Place character animation files here:
 - Videos: MP4 format, H.264 codec
 - Recommended video resolution: 512x512px or 1024x1024px
 - Keep file sizes optimized for mobile devices (< 5MB per file)
+
+## Configuration Files
+
+### Piece Effects Config
+**File:** `piece_effects_config.gd`
+
+Defines the visual effects for Character 1's chess pieces with a **classic golden theme**:
+- Golden/yellow glowing effects
+- 30% scale increase when holding pieces
+- Blurred shadow effects
+- Traditional, elegant appearance
+
+**Configuration:**
+- `character_id = 1`
+- `character_name = "Character 1"`
+- `glow_color = Color(1.0, 0.9, 0.3, 0.8)` (golden glow)
+- `scale_factor = 1.3` (30% larger when held)
+
+## File Naming
+
+All configuration files use:
+- `character_id: 1` in all config files
+- Folder name: `character_1`
+
+**No file name changes needed** - all files are properly named and configured.
