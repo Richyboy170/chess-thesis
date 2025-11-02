@@ -115,7 +115,7 @@ func load_character(character_id: int):
 			print("Warning: Failed to start default animation")
 
 	# Update UI
-	var character_info = Live2DDebugger.LIVE2D_CHARACTERS.get(character_id, {})
+	var character_info = Live2DDebugger.get_character_info(character_id)
 	var character_name = character_info.get("name", "Unknown")
 	character_label.text = "Character: %s (ID: %d)" % [character_name, character_id]
 	status_label.text = "Model loaded successfully!"
