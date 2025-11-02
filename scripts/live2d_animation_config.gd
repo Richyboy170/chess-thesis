@@ -8,26 +8,70 @@ class_name Live2DAnimationConfig
 # Cache for loaded animation configs
 static var _animation_configs: Dictionary = {}
 
-# Character ID to character path mapping
-const CHARACTER_PATHS = {
-	4: "res://assets/characters/character_4/",  # Scyka
-	5: "res://assets/characters/character_5/",  # Hiyori
-	6: "res://assets/characters/character_6/"   # Mark
-}
+# Dynamically detected character paths
+static var _character_paths: Dictionary = {}
+static var _paths_initialized: bool = false
+
+# Auto-detect available characters by scanning assets/characters/ folder
+static func _initialize_character_paths():
+	if _paths_initialized:
+		return
+
+	_paths_initialized = true
+	_character_paths.clear()
+
+	var characters_dir = "res://assets/characters/"
+	var dir = DirAccess.open(characters_dir)
+
+	if not dir:
+		push_error("Live2DAnimationConfig: Failed to open characters directory: " + characters_dir)
+		return
+
+	dir.list_dir_begin()
+	var folder_name = dir.get_next()
+
+	while folder_name != "":
+		if dir.current_is_dir() and folder_name.begins_with("character_"):
+			# Extract character ID from folder name (e.g., "character_4" -> 4)
+			var id_str = folder_name.trim_prefix("character_")
+			if id_str.is_valid_int():
+				var char_id = id_str.to_int()
+				var char_path = characters_dir + folder_name + "/"
+
+				# Check if animations.json exists to confirm it's a valid Live2D character
+				if FileAccess.file_exists(char_path + "animations.json"):
+					_character_paths[char_id] = char_path
+					print("Live2DAnimationConfig: Found character %d at %s" % [char_id, char_path])
+
+		folder_name = dir.get_next()
+
+	dir.list_dir_end()
+
+	print("Live2DAnimationConfig: Detected %d Live2D characters" % _character_paths.size())
+
+# Get all available character IDs
+static func get_available_characters() -> Array:
+	_initialize_character_paths()
+	var ids = _character_paths.keys()
+	ids.sort()
+	return ids
 
 ## Load animation configuration for a character
 ## Returns the animation config dictionary or null if failed
 static func load_animation_config(character_id: int) -> Dictionary:
+	# Initialize paths on first use
+	_initialize_character_paths()
+
 	# Return cached config if already loaded
 	if _animation_configs.has(character_id):
 		return _animation_configs[character_id]
 
 	# Get character path
-	if not CHARACTER_PATHS.has(character_id):
+	if not _character_paths.has(character_id):
 		push_error("Live2DAnimationConfig: Unknown character ID: " + str(character_id))
 		return {}
 
-	var char_path = CHARACTER_PATHS[character_id]
+	var char_path = _character_paths[character_id]
 	var config_path = char_path + "animations.json"
 
 	# Load the JSON file
