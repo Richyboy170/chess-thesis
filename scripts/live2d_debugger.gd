@@ -16,12 +16,87 @@ enum ErrorType {
 	INSTANTIATION_FAILED    ## Failed to create GDCubismUserModel instance
 }
 
-## Character ID to model name mapping
-const LIVE2D_CHARACTERS = {
-	4: {"name": "Scyka", "texture_dir": "Scyka.4096"},
-	5: {"name": "Hiyori", "texture_dir": "Hiyori.2048"},
-	6: {"name": "Mark", "texture_dir": "Mark.2048"}
-}
+## Dynamically detected character information
+static var _live2d_characters: Dictionary = {}  # ID -> character info
+static var _character_folders: Dictionary = {}  # ID -> folder name
+static var _folder_to_id: Dictionary = {}       # folder name -> ID
+static var _characters_initialized: bool = false
+
+## Auto-detect available Live2D characters by scanning assets/characters/ folder
+## Accepts ANY folder name, assigns IDs based on alphabetical order
+static func _initialize_characters():
+	if _characters_initialized:
+		return
+
+	_characters_initialized = true
+	_live2d_characters.clear()
+	_character_folders.clear()
+	_folder_to_id.clear()
+
+	var characters_dir = "res://assets/characters/"
+	var dir = DirAccess.open(characters_dir)
+
+	if not dir:
+		push_error("Live2DDebugger: Failed to open characters directory: " + characters_dir)
+		return
+
+	# Collect all Live2D character folders
+	var folders_with_models = []
+	dir.list_dir_begin()
+	var folder_name = dir.get_next()
+
+	while folder_name != "":
+		if dir.current_is_dir() and not folder_name.begins_with("."):
+			var char_path = characters_dir + folder_name + "/"
+
+			# Look for .model3.json file to identify Live2D character
+			var char_dir = DirAccess.open(char_path)
+			if char_dir:
+				char_dir.list_dir_begin()
+				var file = char_dir.get_next()
+				var model_file = ""
+				var texture_dir = ""
+
+				while file != "":
+					if file.ends_with(".model3.json"):
+						model_file = file.trim_suffix(".model3.json")
+					elif char_dir.current_is_dir() and (file.contains(".") or file.contains("texture")):
+						# Look for texture directory (usually has resolution in name like "Scyka.4096")
+						if model_file == "" or file.begins_with(model_file) or file.contains("texture") or file.contains("."):
+							texture_dir = file
+					file = char_dir.get_next()
+
+				char_dir.list_dir_end()
+
+				# If we found a model file, this is a Live2D character
+				if model_file != "":
+					folders_with_models.append({
+						"folder_name": folder_name,
+						"path": char_path,
+						"model_name": model_file,
+						"texture_dir": texture_dir if texture_dir != "" else model_file
+					})
+
+		folder_name = dir.get_next()
+
+	dir.list_dir_end()
+
+	# Sort folders alphabetically for consistent ID assignment
+	folders_with_models.sort_custom(func(a, b): return a["folder_name"] < b["folder_name"])
+
+	# Assign IDs starting from 1
+	var char_id = 1
+	for folder_data in folders_with_models:
+		_live2d_characters[char_id] = {
+			"name": folder_data["model_name"],
+			"texture_dir": folder_data["texture_dir"]
+		}
+		_character_folders[char_id] = folder_data["folder_name"]
+		_folder_to_id[folder_data["folder_name"]] = char_id
+		print("Live2DDebugger: Found Live2D character %d '%s' (%s) with texture dir: %s" % [char_id, folder_data["folder_name"], folder_data["model_name"], folder_data["texture_dir"]])
+		char_id += 1
+
+	print("Live2DDebugger: Detected %d Live2D characters" % _live2d_characters.size())
 
 ## Debug report structure
 class DebugReport:
@@ -74,13 +149,32 @@ class DebugReport:
 
 ## Check if a character ID is a Live2D character
 static func is_live2d_character(character_id: int) -> bool:
-	return character_id in LIVE2D_CHARACTERS
+	_initialize_characters()
+	return character_id in _live2d_characters
 
 ## Get character information
 static func get_character_info(character_id: int) -> Dictionary:
-	if character_id in LIVE2D_CHARACTERS:
-		return LIVE2D_CHARACTERS[character_id]
+	_initialize_characters()
+	if character_id in _live2d_characters:
+		return _live2d_characters[character_id]
 	return {}
+
+## Get all available Live2D character IDs
+static func get_available_characters() -> Array:
+	_initialize_characters()
+	var ids = _live2d_characters.keys()
+	ids.sort()
+	return ids
+
+## Get character folder name from ID
+static func get_character_folder(character_id: int) -> String:
+	_initialize_characters()
+	return _character_folders.get(character_id, "")
+
+## Get character ID from folder name
+static func get_character_id_from_folder(folder_name: String) -> int:
+	_initialize_characters()
+	return _folder_to_id.get(folder_name, -1)
 
 ## Check if GDCubism plugin is available
 static func check_plugin_available() -> bool:
@@ -88,20 +182,30 @@ static func check_plugin_available() -> bool:
 
 ## Get the path to a character's model file
 static func get_model_path(character_id: int) -> String:
+	_initialize_characters()
 	var char_info = get_character_info(character_id)
 	if char_info.is_empty():
 		return ""
 
-	var char_path = "res://assets/characters/character_%d/" % character_id
+	var folder_name = get_character_folder(character_id)
+	if folder_name == "":
+		return ""
+
+	var char_path = "res://assets/characters/%s/" % folder_name
 	return char_path + char_info["name"] + ".model3.json"
 
 ## Get the path to a character's texture directory
 static func get_texture_dir(character_id: int) -> String:
+	_initialize_characters()
 	var char_info = get_character_info(character_id)
 	if char_info.is_empty():
 		return ""
 
-	var char_path = "res://assets/characters/character_%d/" % character_id
+	var folder_name = get_character_folder(character_id)
+	if folder_name == "":
+		return ""
+
+	var char_path = "res://assets/characters/%s/" % folder_name
 	return char_path + char_info["texture_dir"] + "/"
 
 ## Comprehensive debug check for a Live2D character
@@ -117,7 +221,8 @@ static func debug_character(character_id: int) -> DebugReport:
 
 	var char_info = get_character_info(character_id)
 	report.character_name = char_info["name"]
-	report.add_info("Character folder: res://assets/characters/character_%d/" % character_id)
+	var folder_name = get_character_folder(character_id)
+	report.add_info("Character folder: res://assets/characters/%s/" % folder_name)
 
 	# Step 1: Check if GDCubism plugin is loaded
 	report.add_info("Checking GDCubism plugin availability...")
@@ -205,6 +310,8 @@ static func debug_character(character_id: int) -> DebugReport:
 
 ## Quick check for all Live2D characters
 static func debug_all_characters() -> String:
+	_initialize_characters()
+
 	var output = "\n"
 	output += "╔" + "═".repeat(78) + "╗\n"
 	output += "║" + " ".repeat(20) + "LIVE2D CHARACTERS DEBUG SUMMARY" + " ".repeat(26) + "║\n"
@@ -220,9 +327,17 @@ static func debug_all_characters() -> String:
 	else:
 		output += "✓ GDCubism plugin is loaded\n\n"
 
+	if _live2d_characters.is_empty():
+		output += "⚠ No Live2D characters detected in assets/characters/\n"
+		output += "  Expected: character_N folders with .model3.json files\n\n"
+		return output
+
 	# Check each character
-	for char_id in LIVE2D_CHARACTERS:
-		var char_info = LIVE2D_CHARACTERS[char_id]
+	var char_ids = _live2d_characters.keys()
+	char_ids.sort()
+
+	for char_id in char_ids:
+		var char_info = _live2d_characters[char_id]
 		var model_path = get_model_path(char_id)
 		var status = "✓" if FileAccess.file_exists(model_path) else "✗"
 
@@ -296,8 +411,12 @@ static func create_debug_panel(parent_node: Control) -> PanelContainer:
 	vbox.add_child(button_container)
 
 	# Create debug buttons for each character
-	for char_id in LIVE2D_CHARACTERS:
-		var char_info = LIVE2D_CHARACTERS[char_id]
+	_initialize_characters()
+	var char_ids = _live2d_characters.keys()
+	char_ids.sort()
+
+	for char_id in char_ids:
+		var char_info = _live2d_characters[char_id]
 		var btn = Button.new()
 		btn.text = "Debug %s" % char_info["name"]
 		btn.custom_minimum_size = Vector2(120, 40)
