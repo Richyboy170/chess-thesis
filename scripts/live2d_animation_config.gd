@@ -84,11 +84,11 @@ static func get_motion_file(character_id: int, action: String) -> String:
 		return ""
 	return anim_data.get("motion_file", "")
 
-## Get animation parameters (group, priority, fade_in)
+## Get animation parameters (group, priority, fade_in, loop)
 static func get_animation_params(character_id: int, action: String) -> Dictionary:
 	var anim_data = get_animation(character_id, action)
 	if anim_data.is_empty():
-		return {"group": 0, "priority": 2, "fade_in": true}
+		return {"group": 0, "priority": 2, "fade_in": true, "loop": true}
 
 	return {
 		"group": anim_data.get("group", 0),
