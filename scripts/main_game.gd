@@ -593,37 +593,43 @@ func create_animation_debugger():
 	# Connect signals for Player 1
 	p1_scale_slider.value_changed.connect(func(value):
 		p1_scale_label.text = "Scale: %.1fx" % value
-		if player1_character_display.get_child_count() > 0:
-			player1_character_display.get_child(0).scale = Vector2(value, value)
+		var model = get_live2d_model_from_display(player1_character_display)
+		if model:
+			model.scale = Vector2(value, value)
 	)
 
 	p1_opacity_slider.value_changed.connect(func(value):
 		p1_opacity_label.text = "Opacity: %d%%" % int(value * 100)
-		if player1_character_display.get_child_count() > 0:
-			player1_character_display.get_child(0).modulate.a = value
+		var model = get_live2d_model_from_display(player1_character_display)
+		if model:
+			model.modulate.a = value
 	)
 
 	p1_visibility.toggled.connect(func(pressed):
-		if player1_character_display.get_child_count() > 0:
-			player1_character_display.get_child(0).visible = pressed
+		var model = get_live2d_model_from_display(player1_character_display)
+		if model:
+			model.visible = pressed
 	)
 
 	# Connect signals for Player 2
 	p2_scale_slider.value_changed.connect(func(value):
 		p2_scale_label.text = "Scale: %.1fx" % value
-		if player2_character_display.get_child_count() > 0:
-			player2_character_display.get_child(0).scale = Vector2(value, value)
+		var model = get_live2d_model_from_display(player2_character_display)
+		if model:
+			model.scale = Vector2(value, value)
 	)
 
 	p2_opacity_slider.value_changed.connect(func(value):
 		p2_opacity_label.text = "Opacity: %d%%" % int(value * 100)
-		if player2_character_display.get_child_count() > 0:
-			player2_character_display.get_child(0).modulate.a = value
+		var model = get_live2d_model_from_display(player2_character_display)
+		if model:
+			model.modulate.a = value
 	)
 
 	p2_visibility.toggled.connect(func(pressed):
-		if player2_character_display.get_child_count() > 0:
-			player2_character_display.get_child(0).visible = pressed
+		var model = get_live2d_model_from_display(player2_character_display)
+		if model:
+			model.visible = pressed
 	)
 
 	# Add panel to scene
@@ -1297,6 +1303,29 @@ func load_random_game_background():
 	else:
 		print("Error: Background file does not exist: ", selected_background)
 
+func get_live2d_model_from_display(display_node: Control):
+	"""
+	Helper function to get the Live2D model from a CharacterDisplay node.
+
+	Args:
+		display_node: The CharacterDisplay Control node
+
+	Returns:
+		The Live2D model instance, or null if not found
+	"""
+	if display_node.get_child_count() == 0:
+		return null
+
+	var container = display_node.get_child(0)  # Live2DContainer
+	if container.get_child_count() == 0:
+		return null
+
+	var viewport = container.get_child(0)  # Live2DViewport
+	if viewport.get_child_count() == 0:
+		return null
+
+	return viewport.get_child(0)  # Live2DCharacter
+
 func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	"""
 	Loads a Live2D character model into the display node.
@@ -1328,6 +1357,24 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 		print("✗ GDCubism plugin not available")
 		return false
 
+	# Create a wrapper container for the Live2D model to ensure proper boundaries
+	var model_container = SubViewportContainer.new()
+	model_container.name = "Live2DContainer"
+	model_container.anchor_right = 1.0
+	model_container.anchor_bottom = 1.0
+	model_container.stretch = true
+	model_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Create SubViewport for isolated rendering with proper boundaries
+	var viewport = SubViewport.new()
+	viewport.name = "Live2DViewport"
+	viewport.transparent_bg = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+
+	# Set viewport size to match container (200px height, width will auto-adjust)
+	# We'll update this dynamically when the container resizes
+	viewport.size = Vector2(400, 200)  # Default size, will be adjusted
+
 	# Create Live2D model instance
 	var live2d_model = ClassDB.instantiate("GDCubismUserModel")
 	if not live2d_model:
@@ -1337,17 +1384,14 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	# Configure the Live2D model
 	live2d_model.assets = model_path
 	live2d_model.name = "Live2DCharacter"
-	live2d_model.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Set up sizing and positioning
-	live2d_model.anchor_right = 1.0
-	live2d_model.anchor_bottom = 1.0
-	live2d_model.custom_minimum_size = Vector2(0, 200)
-	live2d_model.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# Position the model in the center of the viewport
+	live2d_model.position = Vector2(200, 100)  # Center position, will be adjusted
 
 	# Try to set auto_scale if available (makes model fit the container)
 	if "auto_scale" in live2d_model:
 		live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
+		print("✓ Auto-scale enabled for Live2D model")
 
 	# Store character ID as metadata for later animation triggers
 	live2d_model.set_meta("character_id", character_id)
@@ -1363,9 +1407,21 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 			live2d_model.start_motion_loop("Idle", 0, 2, true, true)
 			print("✓ Started fallback Idle animation")
 
-	# Add to display node
-	display_node.add_child(live2d_model)
-	print("✓ Live2D model added to scene")
+	# Build the hierarchy: display_node -> model_container -> viewport -> live2d_model
+	viewport.add_child(live2d_model)
+	model_container.add_child(viewport)
+	display_node.add_child(model_container)
+
+	# Connect to container resize to update viewport size dynamically
+	model_container.resized.connect(func():
+		var new_size = model_container.size
+		viewport.size = new_size
+		# Re-center the model when viewport resizes
+		live2d_model.position = new_size / 2
+		print("✓ Live2D viewport resized to: ", new_size)
+	)
+
+	print("✓ Live2D model added to scene with proper boundaries")
 
 	return true
 
@@ -1504,12 +1560,11 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 	var live2d_model = null
 	var character_id = -1
 
-	if display_node.get_child_count() > 0:
-		var child = display_node.get_child(0)
-		if child.has_method("start_motion") and child.has_meta("character_id"):
-			is_live2d = true
-			live2d_model = child
-			character_id = child.get_meta("character_id")
+	# Use helper function to get Live2D model from display node
+	live2d_model = get_live2d_model_from_display(display_node)
+	if live2d_model != null and live2d_model.has_method("start_motion") and live2d_model.has_meta("character_id"):
+		is_live2d = true
+		character_id = live2d_model.get_meta("character_id")
 
 	# Handle Live2D animations using JSON configuration
 	if is_live2d and live2d_model != null:
