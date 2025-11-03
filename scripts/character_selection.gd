@@ -163,13 +163,24 @@ func load_character_preview_on_button(button: Button, character_id: int):
 	if bg_path == "":
 		print("  ✗ No background image found")
 
-	# Create a container for the preview that doesn't interfere with button functionality
-	var preview_container = Control.new()
+	# Create a wrapper container with SubViewport for 1:1 square bounding box
+	var preview_container = SubViewportContainer.new()
 	preview_container.name = "PreviewContainer"
 	preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE  # Let clicks pass through to button
 	preview_container.anchor_right = 1.0
 	preview_container.anchor_bottom = 1.0
+	preview_container.stretch = true
 	preview_container.z_index = -1  # Place behind button text
+
+	# Create SubViewport for isolated rendering with 1:1 square boundaries
+	var viewport = SubViewport.new()
+	viewport.name = "CharacterViewport"
+	viewport.transparent_bg = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+
+	# Set viewport to square size (will be adjusted dynamically to maintain 1:1 aspect ratio)
+	var square_size = 400  # Default square size for character selection button
+	viewport.size = Vector2(square_size, square_size)
 
 	# Try to load video animation first
 	# Godot natively supports .ogv (Ogg Theora) format
@@ -193,10 +204,20 @@ func load_character_preview_on_button(button: Button, character_id: int):
 				video_player.anchor_right = 1.0
 				video_player.anchor_bottom = 1.0
 				video_player.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				preview_container.add_child(video_player)
+				viewport.add_child(video_player)
+				preview_container.add_child(viewport)
 				button.add_child(preview_container)
 				button.move_child(preview_container, 0)  # Move to back
-				print("  ✓ LOADED: Video preview (", ext, ")")
+
+				# Connect to container resize to maintain square aspect ratio
+				preview_container.resized.connect(func():
+					var new_size = preview_container.size
+					var min_dimension = min(new_size.x, new_size.y)
+					viewport.size = Vector2(min_dimension, min_dimension)
+					print("  ✓ Character viewport resized to square: ", viewport.size)
+				)
+
+				print("  ✓ LOADED: Video preview in 1:1 square bounding box (", ext, ")")
 				video_loaded = true
 				break
 			else:
@@ -219,14 +240,24 @@ func load_character_preview_on_button(button: Button, character_id: int):
 				var texture_rect = TextureRect.new()
 				texture_rect.texture = texture
 				texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 				texture_rect.anchor_right = 1.0
 				texture_rect.anchor_bottom = 1.0
 				texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				preview_container.add_child(texture_rect)
+				viewport.add_child(texture_rect)
+				preview_container.add_child(viewport)
 				button.add_child(preview_container)
 				button.move_child(preview_container, 0)  # Move to back
-				print("  ✓ LOADED: Background image preview")
+
+				# Connect to container resize to maintain square aspect ratio
+				preview_container.resized.connect(func():
+					var new_size = preview_container.size
+					var min_dimension = min(new_size.x, new_size.y)
+					viewport.size = Vector2(min_dimension, min_dimension)
+					print("  ✓ Character viewport resized to square: ", viewport.size)
+				)
+
+				print("  ✓ LOADED: Background image preview in 1:1 square bounding box")
 			else:
 				print("  ✗ ERROR: Could not load background texture")
 				AnimationErrorDetector.log_load_failed(
@@ -562,13 +593,15 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 			button.add_child(model_container)
 			button.move_child(model_container, 0)  # Move to back
 
-			# Connect to container resize to update viewport size dynamically
+			# Connect to container resize to maintain 1:1 square aspect ratio
 			model_container.resized.connect(func():
 				var new_size = model_container.size
-				viewport.size = new_size
+				# Maintain 1:1 square aspect ratio by using the smaller dimension
+				var min_dimension = min(new_size.x, new_size.y)
+				viewport.size = Vector2(min_dimension, min_dimension)
 				# Re-center the model when viewport resizes
-				live2d_model.position = new_size / 2
-				print("  ✓ Live2D viewport resized to: ", new_size)
+				live2d_model.position = viewport.size / 2
+				print("  ✓ Live2D viewport resized to square: ", viewport.size)
 			)
 
 			print("  ✓ LOADED: Live2D model preview with bounding box")
