@@ -44,16 +44,6 @@ var character_data = [
 		"name": "Character 4 (Scyka)",
 		"description": "Live2D character with mystical theme",
 		"piece_style": "mystical"
-	},
-	{
-		"name": "Character 5 (Hiyori)",
-		"description": "Live2D character with elegant theme",
-		"piece_style": "elegant"
-	},
-	{
-		"name": "Character 6 (Mark)",
-		"description": "Live2D character with cool theme",
-		"piece_style": "professional"
 	}
 ]
 

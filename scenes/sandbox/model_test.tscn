@@ -89,8 +89,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [connection signal="pressed" from="VBoxContainer/CharacterButtons/Character3" to="." method="_on_character_3_pressed"]
-[connection signal="pressed" from="VBoxContainer/CharacterButtons/Character4" to="." method="_on_character_4_pressed"]
-[connection signal="pressed" from="VBoxContainer/CharacterButtons/Character5" to="." method="_on_character_5_pressed"]
 [connection signal="pressed" from="VBoxContainer/AnimationButtons/Idle" to="." method="_on_idle_animation_pressed"]
 [connection signal="pressed" from="VBoxContainer/AnimationButtons/PieceCaptured" to="." method="_on_piece_captured_pressed"]
 [connection signal="pressed" from="VBoxContainer/AnimationButtons/Check" to="." method="_on_check_pressed"]
