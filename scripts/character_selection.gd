@@ -526,13 +526,22 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 			# Store character ID as metadata (use actual character ID, not button index)
 			live2d_model.set_meta("character_id", actual_character_id)
 
+			# Connect motion_finished signal for animation transitions
+			if live2d_model.has_signal("motion_finished"):
+				live2d_model.motion_finished.connect(_on_preview_motion_finished.bind(live2d_model, actual_character_id))
+				print("  ✓ motion_finished signal connected for preview")
+
 			# Start with idle animation using JSON configuration
 			if live2d_model.has_method("start_motion"):
 				var default_action = Live2DAnimationConfig.get_default_animation(actual_character_id)
 				var success = Live2DAnimationConfig.play_animation(live2d_model, actual_character_id, default_action)
-				if not success:
+				if success:
+					# Store current animation in metadata
+					live2d_model.set_meta("current_animation", default_action)
+				else:
 					# Fallback to hardcoded idle if config fails
 					live2d_model.start_motion_loop("Idle", 0, 2, true, true)
+					live2d_model.set_meta("current_animation", "idle")
 
 			preview_container.add_child(live2d_model)
 			button.add_child(preview_container)
@@ -593,3 +602,34 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 		)
 
 	print("===== END CHARACTER 4 PREVIEW =====\n")
+
+func _on_preview_motion_finished(live2d_model: Node, character_id: int):
+	"""
+	Motion finished callback for Live2D preview animations.
+	Handles animation transitions for character previews.
+
+	Args:
+		live2d_model: The Live2D model that finished playing
+		character_id: The character ID
+	"""
+	if not is_instance_valid(live2d_model):
+		return
+
+	var current_animation = live2d_model.get_meta("current_animation", "idle")
+
+	# Check if there's a transition defined for the current animation
+	var transition = Live2DAnimationConfig.get_animation_transition(character_id, current_animation)
+
+	if not transition.is_empty() and transition.has("next_animation"):
+		var next_anim = transition["next_animation"]
+		var delay = transition.get("delay", 0.5)
+
+		if delay > 0.0:
+			await get_tree().create_timer(delay).timeout
+
+		# Play the next animation
+		if live2d_model and is_instance_valid(live2d_model) and live2d_model.has_method("start_motion"):
+			var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, next_anim)
+			if success:
+				# Update current animation metadata
+				live2d_model.set_meta("current_animation", next_anim)

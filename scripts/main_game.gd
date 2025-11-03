@@ -1396,16 +1396,27 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	# Store character ID as metadata for later animation triggers
 	live2d_model.set_meta("character_id", character_id)
 
+	# Connect motion_finished signal for animation transitions
+	print("\n🔔 Connecting Signals:")
+	if live2d_model.has_signal("motion_finished"):
+		live2d_model.motion_finished.connect(_on_live2d_motion_finished.bind(live2d_model, character_id))
+		print("   ✓ motion_finished signal connected")
+	else:
+		print("   ⚠️ motion_finished signal not available")
+
 	# Start with idle animation using JSON configuration
 	if live2d_model.has_method("start_motion"):
 		var default_action = Live2DAnimationConfig.get_default_animation(character_id)
 		var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, default_action)
 		if success:
 			print("✓ Started animation from JSON config: " + default_action)
+			# Store current animation in metadata
+			live2d_model.set_meta("current_animation", default_action)
 		else:
 			# Fallback to hardcoded idle if config fails
 			live2d_model.start_motion_loop("Idle", 0, 2, true, true)
 			print("✓ Started fallback Idle animation")
+			live2d_model.set_meta("current_animation", "idle")
 
 	# Build the hierarchy: display_node -> model_container -> viewport -> live2d_model
 	viewport.add_child(live2d_model)
@@ -1585,15 +1596,9 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 		var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, action)
 		if success:
 			print("Playing Live2D animation: ", action)
-			# Check for transition to next animation
-			var transition = Live2DAnimationConfig.get_animation_transition(character_id, action)
-			if not transition.is_empty():
-				var next_action = transition.get("next_animation", "")
-				var delay = transition.get("delay", 0.5)
-				if not next_action.is_empty():
-					await get_tree().create_timer(delay).timeout
-					if live2d_model != null and is_instance_valid(live2d_model):
-						Live2DAnimationConfig.play_animation(live2d_model, character_id, next_action)
+			# Update current animation metadata
+			live2d_model.set_meta("current_animation", action)
+			# Note: Transition handling is now done automatically by motion_finished signal
 		else:
 			print("Failed to play Live2D animation: ", action)
 		return
@@ -1661,6 +1666,61 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 		anim_node.queue_free()
 		if display_node.get_child_count() > 0:
 			display_node.get_child(0).visible = true
+
+func _on_live2d_motion_finished(live2d_model: Node, character_id: int):
+	"""
+	Motion finished callback - handles animation transitions for Live2D characters.
+	This is called when a Live2D animation completes.
+
+	Args:
+		live2d_model: The Live2D model that finished playing
+		character_id: The character ID
+	"""
+	if not is_instance_valid(live2d_model):
+		return
+
+	var current_animation = live2d_model.get_meta("current_animation", "idle")
+
+	print("\n" + "=".repeat(60))
+	print("🔔 Live2D Motion Finished Callback")
+	print("=".repeat(60))
+	print("   Current animation: %s" % current_animation)
+	print("   Character ID: %d" % character_id)
+
+	# Check if there's a transition defined for the current animation
+	var transition = Live2DAnimationConfig.get_animation_transition(character_id, current_animation)
+	print("   Transition config: %s" % transition)
+
+	if not transition.is_empty() and transition.has("next_animation"):
+		var next_anim = transition["next_animation"]
+		var delay = transition.get("delay", 0.5)
+
+		print("\n▶️ Animation Transition:")
+		print("   From: %s" % current_animation)
+		print("   To: %s" % next_anim)
+		print("   Delay: %.2fs" % delay)
+
+		if delay > 0.0:
+			print("   ⏳ Waiting %.2fs before transition..." % delay)
+			await get_tree().create_timer(delay).timeout
+			print("   ✓ Delay complete")
+
+		# Play the next animation
+		if live2d_model and is_instance_valid(live2d_model) and live2d_model.has_method("start_motion"):
+			print("   🎬 Starting next animation: %s" % next_anim)
+			var success = Live2DAnimationConfig.play_animation(live2d_model, character_id, next_anim)
+			if success:
+				print("   ✓ Transition successful")
+				# Update current animation metadata
+				live2d_model.set_meta("current_animation", next_anim)
+			else:
+				print("   ❌ Transition failed")
+		else:
+			print("   ❌ ERROR: Model not available or missing start_motion method")
+	else:
+		print("   ℹ️ No transition defined for '%s'" % current_animation)
+
+	print("=".repeat(60) + "\n")
 
 	# ============================================================================
 	# CHARACTER BACKGROUND REMOVED IN MAIN GAME
