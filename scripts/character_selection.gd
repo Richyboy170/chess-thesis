@@ -463,7 +463,8 @@ func toggle_background_debugger():
 
 func load_live2d_preview_on_button(button: Button, char_path: String, character_id: int):
 	"""
-	Loads and displays a Live2D character preview on a button.
+	Loads and displays a Live2D character preview on a button with proper bounding box.
+	Uses SubViewportContainer + SubViewport for isolated rendering with boundaries.
 	Falls back to texture preview if GDCubism is not available.
 
 	Args:
@@ -490,29 +491,45 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 
 	print("Loading Live2D preview for Character ", actual_character_id, " (", model_name, ")...")
 
-	# Create a container for the preview
-	var preview_container = Control.new()
-	preview_container.name = "PreviewContainer"
-	preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	preview_container.anchor_right = 1.0
-	preview_container.anchor_bottom = 1.0
-	preview_container.z_index = -1
-
 	# Check if GDCubism is available
 	var model_path = char_path + model_name + ".model3.json"
 
 	if ClassDB.class_exists("GDCubismUserModel") and FileAccess.file_exists(model_path):
-		print("  GDCubism is available, loading Live2D model...")
+		print("  GDCubism is available, loading Live2D model with bounding box...")
+
+		# Create a wrapper container for the Live2D model to ensure proper boundaries
+		var model_container = SubViewportContainer.new()
+		model_container.name = "Live2DContainer"
+		model_container.anchor_right = 1.0
+		model_container.anchor_bottom = 1.0
+		model_container.stretch = true
+		model_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		model_container.z_index = -1  # Place behind button text
+
+		# Create SubViewport for isolated rendering with proper boundaries
+		var viewport = SubViewport.new()
+		viewport.name = "Live2DViewport"
+		viewport.transparent_bg = true
+		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+
+		# Set viewport size to match button (will be adjusted dynamically)
+		viewport.size = Vector2(400, 400)  # Default size for character selection button
+
 		# Create Live2D model instance
 		var live2d_model = ClassDB.instantiate("GDCubismUserModel")
 
 		if live2d_model:
 			# Configure the Live2D model
 			live2d_model.assets = model_path
-			# Try to set auto_scale if available
+			live2d_model.name = "Live2DCharacter"
+
+			# Position the model in the center of the viewport
+			live2d_model.position = Vector2(200, 200)  # Center position
+
+			# Try to set auto_scale if available (makes model fit the container)
 			if "auto_scale" in live2d_model:
 				live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
-			# Note: GDCubismUserModel extends Node2D, not Control, so it doesn't have mouse_filter or anchor properties
+				print("  ✓ Auto-scale enabled for Live2D model")
 
 			# Store character ID as metadata (use actual character ID, not button index)
 			live2d_model.set_meta("character_id", actual_character_id)
@@ -527,17 +544,31 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 				var default_action = Live2DAnimationConfig.get_default_animation(actual_character_id)
 				var success = Live2DAnimationConfig.play_animation(live2d_model, actual_character_id, default_action)
 				if success:
+					print("  ✓ Started idle animation from JSON config: " + default_action)
 					# Store current animation in metadata
 					live2d_model.set_meta("current_animation", default_action)
 				else:
 					# Fallback to hardcoded idle if config fails
 					live2d_model.start_motion_loop("Idle", 0, 2, true, true)
+					print("  ✓ Started fallback Idle animation")
 					live2d_model.set_meta("current_animation", "idle")
 
-			preview_container.add_child(live2d_model)
-			button.add_child(preview_container)
-			button.move_child(preview_container, 0)
-			print("  ✓ LOADED: Live2D model preview")
+			# Build the hierarchy: button -> model_container -> viewport -> live2d_model
+			viewport.add_child(live2d_model)
+			model_container.add_child(viewport)
+			button.add_child(model_container)
+			button.move_child(model_container, 0)  # Move to back
+
+			# Connect to container resize to update viewport size dynamically
+			model_container.resized.connect(func():
+				var new_size = model_container.size
+				viewport.size = new_size
+				# Re-center the model when viewport resizes
+				live2d_model.position = new_size / 2
+				print("  ✓ Live2D viewport resized to: ", new_size)
+			)
+
+			print("  ✓ LOADED: Live2D model preview with bounding box")
 			return
 		else:
 			print("  ✗ ERROR: Could not instantiate GDCubismUserModel")
@@ -563,6 +594,13 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 
 	# Fallback to texture preview
 	print("  Falling back to texture preview...")
+	var preview_container = Control.new()
+	preview_container.name = "PreviewContainer"
+	preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	preview_container.anchor_right = 1.0
+	preview_container.anchor_bottom = 1.0
+	preview_container.z_index = -1
+
 	var texture_path = char_path + texture_dir + "/texture_00.png"
 
 	if FileAccess.file_exists(texture_path):
