@@ -342,6 +342,7 @@ func _ready():
 	chess_board.piece_captured.connect(_on_piece_captured)
 	chess_board.turn_changed.connect(_on_turn_changed)
 	chess_board.game_over.connect(_on_game_over)
+	chess_board.check_detected.connect(_on_check_detected)
 	print("STEP 6: Signals connected ✓")
 
 	# STEP 7: Initialize all game components
@@ -1724,13 +1725,18 @@ func preload_special_animations(display_node: Control, animations_dir: String):
 
 func play_special_animation(display_node: Control, animation_type: String, duration: float = 3.0):
 	"""
-	Plays a special animation (victory, defeat, or capture effect) on the character display.
+	Plays a special animation on the character display.
 	Temporarily replaces the idle animation with the special animation, then restores it.
 	For Live2D characters, uses JSON-based animation configuration.
 
 	Args:
 		display_node: The Control node containing the character animations
-		animation_type: The type of animation to play ("character_victory", "character_defeat", "piece_capture_effect")
+		animation_type: The type of animation to play:
+			- "character_victory": Win animation (maps to win_enter → win_idle)
+			- "character_defeat": Lose animation (maps to lose_enter)
+			- "piece_capture_effect": Piece captured animation (maps to piece_captured)
+			- "hover_piece": Hovering over/picking a piece (maps to hover_piece)
+			- "check": King in check animation (maps to check)
 		duration: How long to play the animation before returning to idle (in seconds)
 	"""
 	# Check if this is a Live2D character
@@ -1755,6 +1761,10 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 				action = "lose_enter"
 			"piece_capture_effect":
 				action = "piece_captured"
+			"hover_piece":
+				action = "hover_piece"
+			"check":
+				action = "check"
 			_:
 				print("Unknown animation type for Live2D: ", animation_type)
 				return
@@ -2720,6 +2730,12 @@ func start_drag(pos: Vector2i):
 			# Update drag state
 			is_dragging = true
 
+			# Play hover_piece animation for the player who is dragging
+			var piece = chess_board.get_piece_at(pos)
+			if piece:
+				var display_node = player1_character_display if piece.piece_color == ChessPiece.PieceColor.WHITE else player2_character_display
+				play_special_animation(display_node, "hover_piece", 1.0)
+
 			print("Started dragging piece at ", pos)
 
 func end_drag(drop_position: Vector2):
@@ -2944,6 +2960,21 @@ func _on_turn_changed(is_white_turn: bool):
 	var turn_text = "White's Turn" if is_white_turn else "Black's Turn"
 	turn_indicator.text = turn_text
 	print(turn_text)
+
+func _on_check_detected(color: ChessPiece.PieceColor):
+	"""
+	Called when a king is in check.
+	Plays the shock animation for the player whose king is in check.
+	Connected to the chess_board.check_detected signal.
+
+	Args:
+		color: The color of the king that is in check
+	"""
+	print("Check detected! ", "White" if color == ChessPiece.PieceColor.WHITE else "Black", "'s king is in check")
+
+	# Play check animation for the player whose king is in check
+	var display_node = player1_character_display if color == ChessPiece.PieceColor.WHITE else player2_character_display
+	play_special_animation(display_node, "check", 2.0)
 
 func _on_game_over(result: String):
 	"""
