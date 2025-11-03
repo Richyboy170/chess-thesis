@@ -1371,9 +1371,9 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	viewport.transparent_bg = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 
-	# Set viewport size to match container (140px height, width will auto-adjust)
+	# Set viewport size to match container (200px height, width will auto-adjust)
 	# We'll update this dynamically when the container resizes
-	viewport.size = Vector2(280, 140)  # Default size, will be adjusted
+	viewport.size = Vector2(400, 200)  # Default size, will be adjusted
 
 	# Create Live2D model instance
 	var live2d_model = ClassDB.instantiate("GDCubismUserModel")
@@ -1386,7 +1386,7 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	live2d_model.name = "Live2DCharacter"
 
 	# Position the model in the center of the viewport
-	live2d_model.position = Vector2(140, 70)  # Center position, will be adjusted
+	live2d_model.position = Vector2(200, 100)  # Center position, will be adjusted
 
 	# Try to set auto_scale if available (makes model fit the container)
 	if "auto_scale" in live2d_model:
@@ -1472,7 +1472,7 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 				video_player.anchor_right = 1.0
 				video_player.anchor_bottom = 1.0
 				# Fixed height with unlimited width
-				video_player.custom_minimum_size = Vector2(0, 140)
+				video_player.custom_minimum_size = Vector2(0, 200)
 				video_player.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				video_player.name = "IdleAnimation"
 				display_node.add_child(video_player)
@@ -1499,7 +1499,7 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 				texture_rect.anchor_right = 1.0
 				texture_rect.anchor_bottom = 1.0
 				# Fixed height with unlimited width
-				texture_rect.custom_minimum_size = Vector2(0, 140)
+				texture_rect.custom_minimum_size = Vector2(0, 200)
 				texture_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				texture_rect.name = "IdleAnimation"
 				display_node.add_child(texture_rect)
@@ -1626,7 +1626,7 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 			anim_node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 			anim_node.anchor_right = 1.0
 			anim_node.anchor_bottom = 1.0
-			anim_node.custom_minimum_size = Vector2(280, 280)
+			anim_node.custom_minimum_size = Vector2(400, 400)
 		else:
 			# GIF file exists but failed to load
 			AnimationErrorDetector.log_load_failed(
@@ -1643,7 +1643,7 @@ func play_special_animation(display_node: Control, animation_type: String, durat
 			anim_node.expand = true
 			anim_node.anchor_right = 1.0
 			anim_node.anchor_bottom = 1.0
-			anim_node.custom_minimum_size = Vector2(280, 280)
+			anim_node.custom_minimum_size = Vector2(400, 400)
 		else:
 			# Video file exists but failed to load
 			AnimationErrorDetector.log_load_failed(
