@@ -18,12 +18,15 @@ extends Control
 #    - Player 2 (Top): $MainContainer/TopPlayerArea
 #    - To adjust: Modify size_flags, custom_minimum_size in the scene file
 #
-# 3. CHARACTER ANIMATIONS:
+# 3. CHARACTER ANIMATIONS (Live2D & Video):
 #    - Player 1: $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper/CharacterDisplay
 #    - Player 2: $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper/CharacterDisplay
-#    - To adjust: Use the Character Animation Debugger (Press 'D' in game)
+#    - To adjust size: Modify 'custom_minimum_size' in scenes/game/main_game.tscn (lines ~87, 95, 242, 250)
+#    - Current size: 400x400px (increased to show full Live2D character)
+#    - Recommended range: 300-600px (adjust both CharacterDisplayWrapper and CharacterDisplay to same value)
+#    - Aspect ratio: 1:1 (square) enforced by AspectRatioContainer
+#    - For Live2D scale/position adjustments: Use Character Animation Debugger (Press 'D' in game)
 #    - Code location: load_character_media() function (line ~957)
-#    - Size: Square bounding box (200x200px minimum) with 1:1 aspect ratio enforced
 #
 # 4. PLAYER INFO LABELS (Names, Timers, Captured Pieces):
 #    - Located in: $MainContainer/BottomPlayerArea/.../PlayerInfo
