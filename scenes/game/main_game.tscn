@@ -25,7 +25,7 @@ grow_vertical = 2
 theme_override_constants/separation = 3
 
 [node name="TopPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 600)
+custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
 size_flags_vertical = 8
 
@@ -81,6 +81,7 @@ ratio = 1.0
 stretch_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 
 [node name="GameArea" type="HBoxContainer" parent="MainContainer"]
@@ -202,7 +203,7 @@ theme_override_font_sizes/font_size = 44
 text = "MENU"
 
 [node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 600)
+custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
 size_flags_vertical = 8
 
@@ -218,18 +219,19 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="CharacterDisplayWrapper" type="AspectRatioContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 200)
+custom_minimum_size = Vector2(200, 300)
 layout_mode = 2
 size_flags_horizontal = 4
 ratio = 1.0
 stretch_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 
 [node name="PlayerInfo" type="VBoxContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 2
 
 [node name="PlayerName" type="Label" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo"]
 layout_mode = 2

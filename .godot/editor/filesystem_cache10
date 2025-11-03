@@ -1,5 +1,5 @@
 72322a848ab928aa5c89f0cb78209805
-::res://::1762201122
+::res://::1762209145
 ANIMATION_DEBUG_GUIDE.md::TextFile::-1::1762130249::0::1::::<><><>0<>0<><>::
 ANIMATION_ERROR_DETECTOR.md::TextFile::-1::1762017166::0::1::::<><><>0<>0<><>::
 CHARACTER_EFFECTS_SETUP.md::TextFile::-1::1762017166::0::1::::<><><>0<>0<><>::
@@ -18,7 +18,7 @@ README.md::TextFile::-1::1762017166::0::1::::<><><>0<>0<><>::
 gd_cubism.gdextension::GDExtension::8689015402339381427::1762045712::0::1::::<><><>0<>0<><>::
 plugin.cfg::TextFile::-1::1762045713::0::1::::<><><>0<>0<><>::
 plugin.gd::GDScript::839934386144879475::1762100761::0::1::::<>EditorPlugin<><>0<>1<><>::
-::res://addons/gd_cubism/bin/::1762201116
+::res://addons/gd_cubism/bin/::1762209138
 ::res://addons/gd_cubism/cs/::1762045712
 ::res://addons/gd_cubism/example/::1762046406
 demo_effect_custom_01.gd::GDScript::4115423399158580703::1762045712::0::1::::<>Node2D<><>0<>0<><>::
@@ -872,8 +872,8 @@ README.md::TextFile::-1::1762036286::0::1::::<><><>0<>0<><>::
 S__20307976_0.jpg::CompressedTexture2D::6034405289214065745::1762017169::1762017332::1::::<><><>0<>0<>0cbcbdf4d98f82037d77d4e3f9ec9407<>res://.godot/imported/S__20307976_0.jpg-1c2a56df95b68a0c112bb1eebee0be4b.ctex::
 S__20307977_0.jpg::CompressedTexture2D::6520078883704490666::1762017169::1762017332::1::::<><><>0<>0<>c6c0fcd23ead4ae619395baa8990774d<>res://.godot/imported/S__20307977_0.jpg-1d2f18e891a6d0da8a6bcdcebc9ba050.ctex::
 ::res://scenes/::1762017169
-::res://scenes/game/::1762129319
-main_game.tscn::PackedScene::68356272596805699::1762129319::0::1::::<><><>0<>0<><>::uid://pfhk1odaxqw7::::res://scripts/main_game.gd
+::res://scenes/game/::1762205413
+main_game.tscn::PackedScene::68356272596805699::1762208453::0::1::::<><><>0<>0<><>::uid://pfhk1odaxqw7::::res://scripts/main_game.gd
 ::res://scenes/sandbox/::1762198156
 model_test.tscn::PackedScene::6366742561718946691::1762198156::0::1::::<><><>0<>0<><>::uid://lmeeutalnkrl::::res://scripts/model_test.gd
 README.md::TextFile::-1::1762017169::0::1::::<><><>0<>0<><>::
@@ -881,10 +881,10 @@ scyka_model_test.tscn::PackedScene::3578224500640386329::1762182023::0::1::::<><
 ::res://scenes/ui/::1762198156
 character_selection.tscn::PackedScene::6385717420630671164::1762198156::0::1::::<><><>0<>0<><>::uid://wrnhkbhvgg3h::::res://scripts/character_selection.gd
 login_page.tscn::PackedScene::4047925081359635663::1762017169::0::1::::<><><>0<>0<><>::res://scripts/login_page.gd
-::res://scripts/::1762201109
+::res://scripts/::1762205413
 animation_error_detector.gd::GDScript::8774860603303973675::1762107881::0::1::::<>Node<><>0<>0<><>::
 animation_error_viewer.gd::GDScript::2594811155737183095::1762017169::0::1::::<>PanelContainer<><>0<>0<><>::
-character_selection.gd::GDScript::1580051330443687543::1762201109::0::1::::<>Control<><>0<>0<><>::
+character_selection.gd::GDScript::1580051330443687543::1762204598::0::1::::<>Control<><>0<>0<><>::
 chessboard_factory.gd::GDScript::438792594509836754::1762017169::0::1::::ChessboardFactory<>Node<><>0<>0<><>::
 chessboard_storage.gd::GDScript::1736549318767800456::1762017169::0::1::::<>Node<><>0<>0<><>::
 chessboard_validator.gd::GDScript::911490096036248677::1762017169::0::1::::ChessboardValidator<>Node<><>0<>0<><>::
@@ -896,7 +896,7 @@ gdextension_error_detector.gd::GDScript::3582426838699555771::1762019456::0::1::
 live2d_animation_config.gd::GDScript::7825246965181793663::1762198156::0::1::::Live2DAnimationConfig<>Node<><>0<>0<><>::
 live2d_debugger.gd::GDScript::6392242167857135134::1762198156::0::1::::Live2DDebugger<>Node<><>0<>0<><>::
 login_page.gd::GDScript::8146014109777437171::1762017169::0::1::::<>Control<><>0<>0<><>::
-main_game.gd::GDScript::1063598807600793956::1762198156::0::1::::<>Control<><>0<>0<><>::
+main_game.gd::GDScript::1063598807600793956::1762205413::0::1::::<>Control<><>0<>0<><>::
 model_test.gd::GDScript::797100904047268557::1762198156::0::1::::<>Control<><>0<>0<><>::
 piece_effects.gd::GDScript::5353345601905213264::1762017169::0::1::::<>Node<><>0<>0<><>::
 piece_effects_config.gd::GDScript::2674057940260172160::1762017169::0::1::::PieceEffectsConfig<>Resource<><>0<>0<><>::
