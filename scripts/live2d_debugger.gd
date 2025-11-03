@@ -18,9 +18,7 @@ enum ErrorType {
 
 ## Character ID to model name mapping
 const LIVE2D_CHARACTERS = {
-	4: {"name": "Scyka", "texture_dir": "Scyka.4096"},
-	5: {"name": "Hiyori", "texture_dir": "Hiyori.2048"},
-	6: {"name": "Mark", "texture_dir": "Mark.2048"}
+	4: {"name": "Scyka", "texture_dir": "Scyka.4096"}
 }
 
 ## Debug report structure

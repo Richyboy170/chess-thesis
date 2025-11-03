@@ -340,12 +340,6 @@ func _on_motion_finished():
 func _on_character_3_pressed():
 	load_character(4)
 
-func _on_character_4_pressed():
-	load_character(5)
-
-func _on_character_5_pressed():
-	load_character(6)
-
 func _on_idle_animation_pressed():
 	print("\n" + "=".repeat(60))
 	print("🎮 IDLE Animation Button Pressed")

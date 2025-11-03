@@ -1226,7 +1226,7 @@ func load_character_assets():
 	Loads themed assets for both players including:
 	- Character background images (displayed in player area)
 	- Character animation videos (.mp4) (displayed in CharacterDisplay)
-	- Live2D models (for characters 4, 5, 6)
+	- Live2D models (for character 4)
 	- Custom chess piece sprites
 	This function will attempt to load assets from the assets/ folder structure.
 	If assets are not found, it will use default placeholders.
@@ -1982,7 +1982,7 @@ func update_character_displays():
 	"""
 	Updates the character name labels to show which character each player selected.
 	"""
-	var character_names = ["Character 1", "Character 2", "Character 3", "Character 4 (Scyka)", "Character 5 (Hiyori)", "Character 6 (Mark)"]
+	var character_names = ["Character 1", "Character 2", "Character 3", "Character 4 (Scyka)"]
 
 	# Update Player 1 character display
 	if GameState.player1_character >= 0 and GameState.player1_character < character_names.size():

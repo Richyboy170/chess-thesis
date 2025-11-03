@@ -10,9 +10,7 @@ static var _animation_configs: Dictionary = {}
 
 # Character ID to character path mapping
 const CHARACTER_PATHS = {
-	4: "res://assets/characters/character_4/",  # Scyka
-	5: "res://assets/characters/character_5/",  # Hiyori
-	6: "res://assets/characters/character_6/"   # Mark
+	4: "res://assets/characters/character_4/"  # Scyka
 }
 
 ## Load animation configuration for a character
