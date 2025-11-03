@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cw8j3k5m2pqrs"]
 
-[ext_resource type="Script" path="res://scripts/character_selection.gd" id="1_m4k9p"]
+[ext_resource type="Script" uid="uid://wrnhkbhvgg3h" path="res://scripts/character_selection.gd" id="1_m4k9p"]
 
 [node name="CharacterSelection" type="Control"]
 layout_mode = 3
@@ -84,24 +84,21 @@ custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Character 4
-(Live2D)"
+text = "Scyka"
 
 [node name="Character5Button" type="Button" parent="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Character 5
-(Hiyori)"
+text = "Hiyori"
 
 [node name="Character6Button" type="Button" parent="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Character 6
-(Mark)"
+text = "Mark"
 
 [node name="Player2Section" type="VBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -156,24 +153,21 @@ custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Character 4
-(Live2D)"
+text = "Scyka"
 
 [node name="Character5Button" type="Button" parent="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Character 5
-(Hiyori)"
+text = "Hiyori"
 
 [node name="Character6Button" type="Button" parent="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(150, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Character 6
-(Mark)"
+text = "Mark"
 
 [node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 100)

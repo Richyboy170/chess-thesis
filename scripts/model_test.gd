@@ -46,7 +46,7 @@ func load_character(character_id: int):
 	current_character_id = character_id
 
 	# Reset zoom level to 0.5 to prevent cropping
-	zoom_level = 0.5
+	zoom_level = 0.3
 	update_zoom()
 
 	# Clear existing model
