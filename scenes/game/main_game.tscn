@@ -82,7 +82,6 @@ stretch_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
 layout_mode = 2
-clip_contents = true
 
 [node name="GameArea" type="HBoxContainer" parent="MainContainer"]
 layout_mode = 2
@@ -231,7 +230,6 @@ stretch_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
 layout_mode = 2
-clip_contents = true
 
 [node name="PlayerInfo" type="VBoxContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
 layout_mode = 2
