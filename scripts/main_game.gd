@@ -19,11 +19,11 @@ extends Control
 #    - To adjust: Modify size_flags, custom_minimum_size in the scene file
 #
 # 3. CHARACTER ANIMATIONS:
-#    - Player 1: $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
-#    - Player 2: $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
+#    - Player 1: $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper/CharacterDisplay
+#    - Player 2: $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper/CharacterDisplay
 #    - To adjust: Use the Character Animation Debugger (Press 'D' in game)
 #    - Code location: load_character_media() function (line ~957)
-#    - Size: Fixed height (200px) with unlimited width for better aspect ratio
+#    - Size: Square bounding box (200x200px minimum) with 1:1 aspect ratio enforced
 #
 # 4. PLAYER INFO LABELS (Names, Timers, Captured Pieces):
 #    - Located in: $MainContainer/BottomPlayerArea/.../PlayerInfo
@@ -83,8 +83,8 @@ extends Control
 
 # Player character display areas (for video animations)
 # UI ADJUSTMENT: To change character animation size, use the debugger (Press 'D') or modify custom_minimum_size in load_character_media()
-@onready var player1_character_display = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
-@onready var player2_character_display = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplay
+@onready var player1_character_display = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper/CharacterDisplay
+@onready var player2_character_display = $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper/CharacterDisplay
 
 # Player area containers (for background images)
 # UI ADJUSTMENT: Character backgrounds are disabled in Main Game. To re-enable, uncomment code in load_character_media() (line ~637)
@@ -1518,9 +1518,9 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	viewport.transparent_bg = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 
-	# Set viewport size to match container (200px height, width will auto-adjust)
+	# Set viewport size to match container (200x200 for 1:1 square aspect ratio)
 	# We'll update this dynamically when the container resizes
-	viewport.size = Vector2(400, 200)  # Default size, will be adjusted
+	viewport.size = Vector2(200, 200)  # Square viewport, will be adjusted
 
 	# Create Live2D model instance
 	var live2d_model = ClassDB.instantiate("GDCubismUserModel")
@@ -1533,7 +1533,7 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	live2d_model.name = "Live2DCharacter"
 
 	# Position the model in the center of the viewport
-	live2d_model.position = Vector2(200, 100)  # Center position, will be adjusted
+	live2d_model.position = Vector2(100, 100)  # Center position for square viewport, will be adjusted
 
 	# Scale down the model to 1/7 of its original size
 	live2d_model.scale = Vector2(1.0/7.0, 1.0/7.0)
