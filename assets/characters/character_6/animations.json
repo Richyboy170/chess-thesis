@@ -6,7 +6,7 @@
     "idle": {
       "motion_file": "mark_m01",
       "group": 0,
-      "priority": 2,
+      "priority": 1,
       "fade_in": true,
       "loop": true,
       "description": "Default idle animation",
@@ -15,7 +15,7 @@
     "hover_piece": {
       "motion_file": "mark_m02",
       "group": 0,
-      "priority": 1,
+      "priority": 2,
       "fade_in": true,
       "loop": false,
       "description": "When player hovers over a chess piece"
@@ -23,7 +23,7 @@
     "select_piece": {
       "motion_file": "mark_m03",
       "group": 0,
-      "priority": 1,
+      "priority": 2,
       "fade_in": true,
       "loop": false,
       "description": "When player selects a chess piece"
@@ -31,7 +31,7 @@
     "piece_captured": {
       "motion_file": "mark_m04",
       "group": 0,
-      "priority": 0,
+      "priority": 3,
       "fade_in": false,
       "loop": false,
       "description": "When a piece is captured"
@@ -39,7 +39,7 @@
     "check": {
       "motion_file": "mark_m04",
       "group": 0,
-      "priority": 1,
+      "priority": 3,
       "fade_in": false,
       "loop": false,
       "description": "When the king is in check"
@@ -47,7 +47,7 @@
     "win_enter": {
       "motion_file": "mark_m05",
       "group": 0,
-      "priority": 0,
+      "priority": 3,
       "fade_in": false,
       "loop": false,
       "description": "Victory celebration start"
@@ -55,7 +55,7 @@
     "win_idle": {
       "motion_file": "mark_m06",
       "group": 0,
-      "priority": 2,
+      "priority": 1,
       "fade_in": true,
       "loop": true,
       "description": "Victory idle loop"
@@ -63,7 +63,7 @@
     "lose_enter": {
       "motion_file": "mark_m02",
       "group": 0,
-      "priority": 0,
+      "priority": 3,
       "fade_in": false,
       "loop": false,
       "description": "Defeat reaction"
@@ -71,7 +71,7 @@
     "lose_idle": {
       "motion_file": "mark_m01",
       "group": 0,
-      "priority": 2,
+      "priority": 1,
       "fade_in": true,
       "loop": true,
       "description": "Idle after lose animation (back to normal idle)"
