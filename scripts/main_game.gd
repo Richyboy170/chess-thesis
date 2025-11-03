@@ -1379,12 +1379,12 @@ func load_scyka_live2d(display_node: Control, character_id: int) -> bool:
 	model_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	print("   ✓ Container created")
 
-	# Create SubViewport for isolated rendering
+	# Create SubViewport for isolated rendering with 1:1 aspect ratio
 	var viewport = SubViewport.new()
 	viewport.name = "Live2DViewport"
 	viewport.transparent_bg = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	viewport.size = Vector2(400, 200)
+	viewport.size = Vector2(200, 200)  # Square viewport to prevent cropping
 	print("   ✓ Viewport created")
 
 	# Create Live2D model instance
@@ -1405,8 +1405,8 @@ func load_scyka_live2d(display_node: Control, character_id: int) -> bool:
 		live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
 		print("   ✓ Auto-scale enabled")
 
-	# Position model
-	live2d_model.position = Vector2(200, 100)
+	# Position model at center of square viewport
+	live2d_model.position = Vector2(100, 100)
 	print("   ✓ Initial position set")
 
 	# Scale down the model to 1/7 of its original size
@@ -2944,8 +2944,8 @@ func _on_piece_captured(piece: ChessPiece, captured_by: ChessPiece):
 	print(captured_by.get_piece_name(), " captured ", piece.get_piece_name())
 	update_captured_display()
 
-	# Play capture effect animation for the capturing player
-	var display_node = player1_character_display if captured_by.piece_color == ChessPiece.PieceColor.WHITE else player2_character_display
+	# Play piece_captured animation for the player whose piece was captured (victim)
+	var display_node = player1_character_display if piece.piece_color == ChessPiece.PieceColor.WHITE else player2_character_display
 	play_special_animation(display_node, "piece_capture_effect", 2.0)
 
 func _on_turn_changed(is_white_turn: bool):
