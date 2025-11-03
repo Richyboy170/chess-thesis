@@ -1,10 +1,10 @@
 extends PieceEffectsConfig
 
 # ============================================================================
-# CHARACTER 6 - PIECE EFFECTS CONFIGURATION (MARK - LIVE2D)
+# CHARACTER 4 - PIECE EFFECTS CONFIGURATION (LIVE2D)
 # ============================================================================
-# This configuration defines the visual effects for Character 6's chess pieces.
-# Character 6 features the Mark Live2D model with a cool, professional theme.
+# This configuration defines the visual effects for Character 4's chess pieces.
+# Character 4 features the Scyka Live2D model with a mystical/magical theme.
 #
 # To adjust effects:
 # 1. Enable/disable effects by setting the boolean values (true/false)
@@ -14,8 +14,8 @@ extends PieceEffectsConfig
 
 func _init():
 	# Character identification
-	character_id = 6
-	character_name = "Character 6 (Mark)"
+	character_id = 4
+	character_name = "Character 4 (Scyka)"
 
 	# ========================================
 	# EFFECT TOGGLES
@@ -39,37 +39,48 @@ func _init():
 	# ========================================
 	# Customize the appearance of each effect
 
-	# Glow effect - Cool cyan/blue professional glow
-	glow_color = Color(0.4, 0.8, 1.0, 0.85)  # Bright cyan
+	# Glow effect - Purple/violet mystical glow
+	glow_color = Color(0.8, 0.4, 1.0, 0.9)  # Vibrant purple
 
 	# Scale effect
-	scale_factor = 1.32  # 32% larger when held
+	scale_factor = 1.35  # 35% larger when held (slightly more dramatic)
 
 	# Rotation effect
-	max_rotation = 10.0  # degrees (subtle rotation)
-	rotation_duration = 2.5  # seconds (steady)
+	max_rotation = 15.0  # degrees (more noticeable rotation)
+	rotation_duration = 2.5  # seconds (slightly faster)
 
 	# Pulse effect
 	pulse_min_scale = 1.0
-	pulse_max_scale = 1.18  # Moderate pulsing
-	pulse_duration = 1.3  # seconds (crisp pulse)
+	pulse_max_scale = 1.2  # More dramatic pulsing
+	pulse_duration = 1.2  # seconds (faster pulse)
 
-	# Color shift - Cool blue tint
-	color_shift_tint = Color(0.95, 1.05, 1.2)  # Cool blue tint
+	# Color shift - Cool purple/blue mystical tint
+	color_shift_tint = Color(1.1, 0.95, 1.3)  # Purple-ish tint
 
-	# Aura effect - Cyan aura
-	aura_color = Color(0.3, 0.7, 1.0, 0.55)  # Bright cyan aura
+	# Aura effect - Mystical purple aura
+	aura_color = Color(0.7, 0.3, 1.0, 0.6)  # Deep purple aura
 
 	# ========================================
 	# HELD PIECE IMAGE PATHS
 	# ========================================
 	# Custom held piece images (optional)
 	# Leave empty to use default paths
-	# Default path: res://assets/characters/character_6/pieces/held/white_[piece].png
+	# Default path: res://assets/characters/character_4/pieces/held/white_[piece].png
+	#
+	# To use custom images, uncomment and set paths:
+	# custom_held_image_king = "res://custom/path/to/held_king.png"
+	# custom_held_image_queen = "res://custom/path/to/held_queen.png"
+	# custom_held_image_rook = "res://custom/path/to/held_rook.png"
+	# custom_held_image_bishop = "res://custom/path/to/held_bishop.png"
+	# custom_held_image_knight = "res://custom/path/to/held_knight.png"
+	# custom_held_image_pawn = "res://custom/path/to/held_pawn.png"
 
 # ============================================================================
 # NOTES
 # ============================================================================
-# Character 6 (Mark) uses a cool, professional theme with cyan/blue colors
-# that complement the character's composed appearance.
+# Character 4 (Scyka) uses a more dramatic and magical effect set compared to
+# other characters. This reflects the dynamic nature of the Live2D animation
+# and creates a unique visual identity for this character.
+#
+# The purple/mystical theme complements the Live2D character's aesthetic.
 # ============================================================================

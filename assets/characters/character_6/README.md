@@ -1,53 +1,55 @@
-# Character 6 - Mark (Live2D)
+# Character 4 - Scyka (Live2D)
 
 ## Character Configuration
 
-**Character Name:** `Mark`
-**Character ID:** `6` (used in code references)
-**Folder:** `character_6`
+**Character Name:** `Scyka`
+**Character ID:** `4` (used in code references)
+**Folder:** `character_4`
 
-> **Important:** The JSON configuration files (`animations.json`) use `character_id: 6` and `character_name: "Mark"`. This is required for the Live2D animation system to work correctly. The character ID maps to the character in `live2d_animation_config.gd` and `piece_effects_config.gd`.
+> **Important:** The JSON configuration files (`animations.json`) use `character_id: 4` and `character_name: "Scyka"`. This is required for the Live2D animation system to work correctly. The character ID maps to the character in `live2d_animation_config.gd` and `piece_effects_config.gd`.
 
 ## Overview
 
-Character 6 features **Mark**, a fully animated Live2D character model. This character uses the Live2D Cubism SDK through the GDCubism plugin to provide dynamic, real-time 2D animations with a cool, professional theme.
+Character 4 features **Scyka**, a fully animated Live2D character model. This character uses the Live2D Cubism SDK through the GDCubism plugin to provide dynamic, real-time 2D animations.
 
 ## Assets Included
 
 ### Live2D Model Files
-- `Mark.model3.json` - Main model definition file
-- `Mark.moc3` - Model data (mesh and deformers) (not included, needs to be compiled)
-- `Mark.physics3.json` - Physics simulation configuration
-- `Mark.userdata3.json` - User data configuration
-- `Mark.cdi3.json` - CDI configuration file
+- `Scyka.model3.json` - Main model definition file
+- `Scyka.moc3` - Model data (mesh and deformers)
+- `Scyka.physics3.json` - Physics simulation configuration
 
 ### Textures
-High-resolution textures for detailed rendering are included in the model directory.
+Located in `Scyka.4096/` folder:
+- `texture_00.png` - Main texture atlas
+- `texture_01.png` - Additional texture atlas
+- `texture_02.png` - Additional texture atlas
+- `texture_03.png` - Additional texture atlas
+
+High-resolution textures (4096x4096) for detailed rendering.
 
 ### Animations (Motion Files)
 
-Located in `motions/` folder:
-
 | Animation | File | Purpose |
 |-----------|------|---------|
-| **Idle** | `mark_m01.motion3.json` | Default idle animation |
-| **Idle Variant 2** | `mark_m02.motion3.json` | Alternative idle/hover animation |
-| **Idle Variant 3** | `mark_m03.motion3.json` | Alternative idle/select animation |
-| **Reaction** | `mark_m04.motion3.json` | Reaction when piece captured |
-| **Victory Start** | `mark_m05.motion3.json` | Victory celebration start |
-| **Victory Loop** | `mark_m06.motion3.json` | Victory idle loop |
+| **Idle** | `Idle.motion3.json` | Default idle breathing animation |
+| **Hover Piece** | `Hover Piece.motion3.json` | When player hovers over a chess piece |
+| **Shock** | `Shock (Been Eated).motion3.json` | Reaction when a piece is captured |
+| **Win Enter** | `Win (Enter).motion3.json` | Victory celebration start |
+| **Win Idle** | `Win (Idle).motion3.json` | Victory idle loop |
+| **Lose Enter** | `Lose(Enter).motion3.json` | Defeat reaction |
 
 ## Configuration Files
 
 ### Animation Configuration
 **File:** `animations.json`
 
-This JSON file defines all animations for Mark. The file MUST include:
+This JSON file defines all animations for Scyka. The file MUST include:
 
 ```json
 {
-  "character_name": "Mark",
-  "character_id": 6,
+  "character_name": "Scyka",
+  "character_id": 4,
   "version": "1.0",
   "animations": {
     // ... animation definitions
@@ -55,27 +57,32 @@ This JSON file defines all animations for Mark. The file MUST include:
 }
 ```
 
-**Critical:** The `character_id` must be `6` to match the mapping in `live2d_animation_config.gd` and `piece_effects_config.gd`. The `character_name` should be `"Mark"` for proper identification.
+**Critical:** The `character_id` must be `4` to match the mapping in `live2d_animation_config.gd` and `piece_effects_config.gd`. The `character_name` should be `"Scyka"` for proper identification.
 
 ### Piece Effects Config
 **File:** `piece_effects_config.gd`
 
-Defines the visual effects for Character 6's chess pieces with a **cool cyan/blue professional theme**:
-- Bright cyan/blue glowing effects
-- Moderate scaling and rotation
-- Professional particle effects
-- Crisp sparkles and aura
-- 32% scale increase when holding pieces
+Defines the visual effects for Character 4's chess pieces with a **mystical purple theme**:
+- Purple/violet glowing effects
+- Enhanced scaling and rotation
+- Dramatic particle effects
+- Sparkles and aura
+- 35% scale increase when holding pieces
 
 ### Backgrounds
 **Folder:** `backgrounds/`
 - `character_background.png` - Static background for character selection preview
 
+### Held Pieces
+**Folder:** `pieces/held/`
+- Custom held piece images can be placed here
+- See `pieces/held/README.md` for instructions
+
 ## Character Theme
 
-**Visual Style:** Cool / Professional / Composed
-**Primary Colors:** Cyan, bright blue, cool tones
-**Effects:** Bright glow, crisp effects, professional
+**Visual Style:** Mystical / Magical
+**Primary Colors:** Purple, violet, magenta
+**Effects:** Glowing, sparkling, ethereal
 
 ## Technical Requirements
 
@@ -85,6 +92,22 @@ Defines the visual effects for Character 6's chess pieces with a **cool cyan/blu
    - Install instructions: See `/LIVE2D_SETUP.md`
    - Repository: https://github.com/MizunagiKB/gd_cubism
 
+### Live2D Parameters
+
+The Scyka model includes the following parameter groups:
+
+**LipSync:**
+- `ParamMouthForm`
+- `ParamMouthOpenY`
+
+**EyeBlink:**
+- `ParamEyeLOpen`
+- `ParamEyeLSmile`
+- `ParamEyeROpen`
+- `ParamEyeRSmile`
+
+These can be controlled programmatically for additional interactivity.
+
 ## Integration Status
 
 ✅ **Completed:**
@@ -92,8 +115,7 @@ Defines the visual effects for Character 6's chess pieces with a **cool cyan/blu
 - Character selection UI updated
 - Piece effects configuration created
 - Background and directory structure set up
-- Animation configuration with multiple idle variants
-- Character ID properly set to 6
+- Fallback texture preview implemented
 
 ⚠️ **Requires Setup:**
 - GDCubism plugin binaries installation
@@ -102,13 +124,13 @@ Defines the visual effects for Character 6's chess pieces with a **cool cyan/blu
 ## Usage in Game
 
 ### Character Selection
-Character 6 appears as the sixth option in character selection for both Player 1 and Player 2. The preview will show:
+Character 4 appears as the fourth option in character selection for both Player 1 and Player 2. The preview will show:
 - **With GDCubism:** Animated Live2D model (idle animation)
 - **Without GDCubism:** Static texture preview (fallback)
 
 ### During Gameplay
-When Character 6 is selected, the Live2D model can react to game events through animation triggers:
-- Idle state during normal play (multiple variant animations)
+When Character 4 is selected, the Live2D model can react to game events through animation triggers:
+- Idle state during normal play
 - Reactions to piece movements
 - Victory/defeat animations
 
@@ -118,16 +140,27 @@ Example code to trigger animations using the Live2D Animation Config system:
 
 ```gdscript
 # Using the Live2DAnimationConfig helper (RECOMMENDED)
-const MARK_ID = 6  # Character ID for Mark
+const SCYKA_ID = 4  # Character ID for Scyka
 
 # Get the Live2D model node
 var live2d_model = get_character_live2d_model()
 
 # Play animations using action names from animations.json
-Live2DAnimationConfig.play_animation(live2d_model, MARK_ID, "hover_piece")
-Live2DAnimationConfig.play_animation(live2d_model, MARK_ID, "piece_captured")
-Live2DAnimationConfig.play_animation(live2d_model, MARK_ID, "win_enter")
-Live2DAnimationConfig.play_animation(live2d_model, MARK_ID, "idle")
+Live2DAnimationConfig.play_animation(live2d_model, SCYKA_ID, "hover_piece")
+Live2DAnimationConfig.play_animation(live2d_model, SCYKA_ID, "piece_captured")
+Live2DAnimationConfig.play_animation(live2d_model, SCYKA_ID, "win_enter")
+Live2DAnimationConfig.play_animation(live2d_model, SCYKA_ID, "idle")
+
+# Manual method (if needed)
+if live2d_model and live2d_model.has_method("start_motion"):
+    # Hover animation when selecting a piece
+    live2d_model.start_motion("Hover Piece", 0, 2, false)
+
+    # Shock animation when piece captured
+    live2d_model.start_motion("Shock (Been Eated)", 0, 2, false)
+
+    # Victory animation
+    live2d_model.start_motion("Win (Enter)", 0, 2, false)
 ```
 
 **Note:** Using `Live2DAnimationConfig.play_animation()` is recommended as it automatically loads the correct animation parameters from `animations.json`.
@@ -137,7 +170,7 @@ Live2DAnimationConfig.play_animation(live2d_model, MARK_ID, "idle")
 ### Adjusting Piece Effects
 Edit `piece_effects_config.gd` to customize:
 - Effect toggles (enable/disable)
-- Colors and intensities (currently cyan/blue theme)
+- Colors and intensities
 - Animation durations
 - Scale factors
 
@@ -145,14 +178,14 @@ Edit `piece_effects_config.gd` to customize:
 To add new animations:
 1. Create motion files using Live2D Cubism Editor
 2. Export as `.motion3.json`
-3. Place in the `motions/` folder
-4. Update `animations.json` to reference the new animations
+3. Place in this folder
+4. Reference in code using the motion name
 
 ### Changing Colors
 To change the character's color theme:
-1. Edit `glow_color` in `piece_effects_config.gd` (currently Color(0.4, 0.8, 1.0, 0.85))
-2. Edit `aura_color` for aura effects (currently Color(0.3, 0.7, 1.0, 0.55))
-3. Edit `color_shift_tint` for piece color shifts (currently Color(0.95, 1.05, 1.2))
+1. Edit glow_color in `piece_effects_config.gd`
+2. Edit aura_color for aura effects
+3. Edit color_shift_tint for piece color shifts
 
 ## Performance Notes
 
@@ -161,15 +194,6 @@ Live2D rendering is generally performant, but for lower-end devices:
 - Reduce texture resolution
 - Disable physics simulation
 - Use static texture preview instead
-
-## File Naming
-
-All files follow the naming convention:
-- Model files: `Mark.*`
-- Motion files: `mark_m##.motion3.json` (lowercase for motion files)
-- Configuration: `character_id: 6` in all config files
-
-**No file name changes needed** - all files are properly named and configured.
 
 ## License
 
@@ -188,4 +212,4 @@ Please review Live2D licensing terms before distribution:
 
 **Character Created:** 2025-10-28
 **Status:** Ready for use (requires GDCubism setup)
-**Model Source:** Mark Live2D Model
+**Model Source:** Scyka Live2D Model

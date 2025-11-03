@@ -1,10 +1,10 @@
 extends PieceEffectsConfig
 
 # ============================================================================
-# CHARACTER 5 - PIECE EFFECTS CONFIGURATION (HIYORI - LIVE2D)
+# CHARACTER 4 - PIECE EFFECTS CONFIGURATION (LIVE2D)
 # ============================================================================
-# This configuration defines the visual effects for Character 5's chess pieces.
-# Character 5 features the Hiyori Live2D model with a light, elegant theme.
+# This configuration defines the visual effects for Character 4's chess pieces.
+# Character 4 features the Scyka Live2D model with a mystical/magical theme.
 #
 # To adjust effects:
 # 1. Enable/disable effects by setting the boolean values (true/false)
@@ -14,8 +14,8 @@ extends PieceEffectsConfig
 
 func _init():
 	# Character identification
-	character_id = 5
-	character_name = "Character 5 (Hiyori)"
+	character_id = 4
+	character_name = "Character 4 (Scyka)"
 
 	# ========================================
 	# EFFECT TOGGLES
@@ -39,37 +39,48 @@ func _init():
 	# ========================================
 	# Customize the appearance of each effect
 
-	# Glow effect - Soft pink/light elegant glow
-	glow_color = Color(1.0, 0.7, 0.9, 0.8)  # Soft pink
+	# Glow effect - Purple/violet mystical glow
+	glow_color = Color(0.8, 0.4, 1.0, 0.9)  # Vibrant purple
 
 	# Scale effect
-	scale_factor = 1.3  # 30% larger when held
+	scale_factor = 1.35  # 35% larger when held (slightly more dramatic)
 
 	# Rotation effect
-	max_rotation = 12.0  # degrees (gentle rotation)
-	rotation_duration = 2.8  # seconds (smooth and elegant)
+	max_rotation = 15.0  # degrees (more noticeable rotation)
+	rotation_duration = 2.5  # seconds (slightly faster)
 
 	# Pulse effect
 	pulse_min_scale = 1.0
-	pulse_max_scale = 1.15  # Gentle pulsing
-	pulse_duration = 1.5  # seconds (calm pulse)
+	pulse_max_scale = 1.2  # More dramatic pulsing
+	pulse_duration = 1.2  # seconds (faster pulse)
 
-	# Color shift - Warm light tint
-	color_shift_tint = Color(1.15, 1.05, 1.1)  # Light warm tint
+	# Color shift - Cool purple/blue mystical tint
+	color_shift_tint = Color(1.1, 0.95, 1.3)  # Purple-ish tint
 
-	# Aura effect - Soft pink aura
-	aura_color = Color(1.0, 0.6, 0.85, 0.5)  # Soft pink aura
+	# Aura effect - Mystical purple aura
+	aura_color = Color(0.7, 0.3, 1.0, 0.6)  # Deep purple aura
 
 	# ========================================
 	# HELD PIECE IMAGE PATHS
 	# ========================================
 	# Custom held piece images (optional)
 	# Leave empty to use default paths
-	# Default path: res://assets/characters/character_5/pieces/held/white_[piece].png
+	# Default path: res://assets/characters/character_4/pieces/held/white_[piece].png
+	#
+	# To use custom images, uncomment and set paths:
+	# custom_held_image_king = "res://custom/path/to/held_king.png"
+	# custom_held_image_queen = "res://custom/path/to/held_queen.png"
+	# custom_held_image_rook = "res://custom/path/to/held_rook.png"
+	# custom_held_image_bishop = "res://custom/path/to/held_bishop.png"
+	# custom_held_image_knight = "res://custom/path/to/held_knight.png"
+	# custom_held_image_pawn = "res://custom/path/to/held_pawn.png"
 
 # ============================================================================
 # NOTES
 # ============================================================================
-# Character 5 (Hiyori) uses an elegant, light theme with soft pink colors
-# that complement the character's graceful appearance.
+# Character 4 (Scyka) uses a more dramatic and magical effect set compared to
+# other characters. This reflects the dynamic nature of the Live2D animation
+# and creates a unique visual identity for this character.
+#
+# The purple/mystical theme complements the Live2D character's aesthetic.
 # ============================================================================

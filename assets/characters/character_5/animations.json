@@ -1,19 +1,18 @@
 {
-  "character_name": "Hiyori",
+  "character_name": "Cooler",
   "character_id": 5,
   "version": "1.0",
   "animations": {
     "idle": {
-      "motion_file": "Hiyori_m01",
+      "motion_file": "Idle",
       "group": 0,
       "priority": 1,
       "fade_in": true,
       "loop": true,
-      "description": "Default idle animation",
-      "variants": ["Hiyori_m01", "Hiyori_m02", "Hiyori_m03", "Hiyori_m05", "Hiyori_m06", "Hiyori_m07", "Hiyori_m08", "Hiyori_m09", "Hiyori_m10"]
+      "description": "Default idle breathing animation"
     },
     "hover_piece": {
-      "motion_file": "Hiyori_m02",
+      "motion_file": "Hover Piece",
       "group": 0,
       "priority": 2,
       "fade_in": true,
@@ -21,7 +20,7 @@
       "description": "When player hovers over a chess piece"
     },
     "select_piece": {
-      "motion_file": "Hiyori_m03",
+      "motion_file": "Hover Piece",
       "group": 0,
       "priority": 2,
       "fade_in": true,
@@ -29,15 +28,15 @@
       "description": "When player selects a chess piece"
     },
     "piece_captured": {
-      "motion_file": "Hiyori_m04",
+      "motion_file": "Shock (Been Eated)",
       "group": 0,
       "priority": 3,
       "fade_in": false,
       "loop": false,
-      "description": "When a piece is captured (TapBody animation)"
+      "description": "When a piece is captured"
     },
     "check": {
-      "motion_file": "Hiyori_m04",
+      "motion_file": "Shock (Been Eated)",
       "group": 0,
       "priority": 3,
       "fade_in": false,
@@ -45,7 +44,7 @@
       "description": "When the king is in check"
     },
     "win_enter": {
-      "motion_file": "Hiyori_m05",
+      "motion_file": "Win (Enter)",
       "group": 0,
       "priority": 3,
       "fade_in": false,
@@ -53,15 +52,15 @@
       "description": "Victory celebration start"
     },
     "win_idle": {
-      "motion_file": "Hiyori_m06",
+      "motion_file": "Win (Idle)",
       "group": 0,
       "priority": 1,
       "fade_in": true,
       "loop": true,
-      "description": "Victory idle loop"
+      "description": "Victory idle loop after win_enter completes"
     },
     "lose_enter": {
-      "motion_file": "Hiyori_m07",
+      "motion_file": "Lose(Enter)",
       "group": 0,
       "priority": 3,
       "fade_in": false,
@@ -69,12 +68,12 @@
       "description": "Defeat reaction"
     },
     "lose_idle": {
-      "motion_file": "Hiyori_m08",
+      "motion_file": "Idle",
       "group": 0,
       "priority": 1,
       "fade_in": true,
       "loop": true,
-      "description": "Idle after lose animation"
+      "description": "Idle after lose animation (fallback to normal idle)"
     }
   },
   "default_animation": "idle",

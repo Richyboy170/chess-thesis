@@ -1,0 +1,77 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "Scyka.moc3",
+		"Textures": [
+			"Scyka.4096/texture_00.png",
+			"Scyka.4096/texture_01.png",
+			"Scyka.4096/texture_02.png",
+			"Scyka.4096/texture_03.png"
+		],
+		"Physics": "Scyka.physics3.json",
+		"Motions": {
+			"Idle": [
+				{
+					"File": "Idle.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Hover Piece": [
+				{
+					"File": "Hover Piece.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Shock (Been Eated)": [
+				{
+					"File": "Shock (Been Eated).motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Win (Enter)": [
+				{
+					"File": "Win (Enter).motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Win (Idle)": [
+				{
+					"File": "Win (Idle).motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Lose(Enter)": [
+				{
+					"File": "Lose(Enter).motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			]
+		}
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": [
+				"ParamMouthForm",
+				"ParamMouthOpenY"
+			]
+		},
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": [
+				"ParamEyeLOpen",
+				"ParamEyeLSmile",
+				"ParamEyeROpen",
+				"ParamEyeRSmile"
+			]
+		}
+	]
+}
