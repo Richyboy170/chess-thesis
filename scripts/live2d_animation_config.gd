@@ -100,31 +100,73 @@ static func get_animation_params(character_id: int, action: String) -> Dictionar
 ## Play an animation on a Live2D model using the action name
 ## Returns true if animation was started successfully
 static func play_animation(live2d_model: Node, character_id: int, action: String) -> bool:
+	print("\n>>> Live2DAnimationConfig.play_animation() called")
+	print("    action: '%s', character_id: %d" % [action, character_id])
+
 	if live2d_model == null:
 		push_error("Live2DAnimationConfig: live2d_model is null")
+		print("    ERROR: live2d_model is null!")
 		return false
+	print("    ✓ live2d_model is valid: %s" % live2d_model)
 
 	if not live2d_model.has_method("start_motion"):
 		push_error("Live2DAnimationConfig: live2d_model doesn't have start_motion method")
+		print("    ERROR: start_motion method not found!")
 		return false
+	print("    ✓ start_motion method exists")
+
+	if not live2d_model.has_method("start_motion_loop"):
+		push_error("Live2DAnimationConfig: live2d_model doesn't have start_motion_loop method")
+		print("    ERROR: start_motion_loop method not found!")
+		return false
+	print("    ✓ start_motion_loop method exists")
 
 	var motion_file = get_motion_file(character_id, action)
+	print("    Motion file from config: '%s'" % motion_file)
+
 	if motion_file.is_empty():
 		push_error("Live2DAnimationConfig: No motion file found for action '" + action + "' on character " + str(character_id))
+		print("    ERROR: motion_file is empty!")
 		return false
+	print("    ✓ Motion file name is valid")
 
 	var params = get_animation_params(character_id, action)
+	print("    Animation params:")
+	print("      - group: %d" % params["group"])
+	print("      - priority: %d" % params["priority"])
+	print("      - loop: %s" % params["loop"])
+	print("      - fade_in: %s" % params["fade_in"])
 
-	print("Live2DAnimationConfig: Playing animation '" + action + "' (motion: " + motion_file + ", loop: " + str(params["loop"]) + ") on character " + str(character_id))
+	# Verify motion file actually exists
+	var char_path = CHARACTER_PATHS.get(character_id, "")
+	var full_motion_path = char_path + motion_file + ".motion3.json"
+	print("    Full motion path: %s" % full_motion_path)
+	var file_exists = FileAccess.file_exists(full_motion_path)
+	print("    Motion file exists on disk: %s" % file_exists)
 
-	# Start the motion using start_motion_loop (expects 5 arguments: group, no, priority, loop, loop_fade_in)
-	live2d_model.start_motion_loop(
+	if not file_exists:
+		push_error("Live2DAnimationConfig: Motion file does not exist: " + full_motion_path)
+		print("    ERROR: Motion file not found on disk!")
+		return false
+
+	print("    Calling start_motion_loop with:")
+	print("      1. motion_file: '%s'" % motion_file)
+	print("      2. group: %d" % params["group"])
+	print("      3. priority: %d" % params["priority"])
+	print("      4. loop: %s" % params["loop"])
+	print("      5. fade_in: %s" % params["fade_in"])
+
+	# Start the motion using start_motion_loop (expects 5 arguments: motion_file, group, priority, loop, fade_in)
+	var result = live2d_model.start_motion_loop(
 		motion_file,
 		params["group"],
 		params["priority"],
 		params["loop"],
 		params["fade_in"]
 	)
+
+	print("    start_motion_loop returned: %s" % result)
+	print("<<< Live2DAnimationConfig.play_animation() complete\n")
 
 	return true
 

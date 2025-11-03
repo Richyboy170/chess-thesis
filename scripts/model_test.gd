@@ -176,13 +176,109 @@ func _on_idle_animation_pressed():
 		Live2DAnimationConfig.play_animation(current_model, current_character_id, "idle")
 
 func _on_piece_captured_pressed():
-	if current_model and current_model.has_method("start_motion"):
-		print("Playing piece_captured animation")
-		current_animation = "piece_captured"
-		Live2DAnimationConfig.play_animation(current_model, current_character_id, "piece_captured")
+	print("\n" + "=".repeat(60))
+	print("DEBUG: piece_captured button pressed")
+	print("=".repeat(60))
+
+	# Check if model exists
+	if not current_model:
+		print("ERROR: current_model is null!")
+		return
+	print("✓ current_model exists: %s" % current_model)
+
+	# Check if model has start_motion method
+	if not current_model.has_method("start_motion"):
+		print("ERROR: current_model doesn't have start_motion method!")
+		print("Available methods: %s" % current_model.get_method_list())
+		return
+	print("✓ current_model has start_motion method")
+
+	# Check if model has start_motion_loop method
+	if not current_model.has_method("start_motion_loop"):
+		print("ERROR: current_model doesn't have start_motion_loop method!")
+		return
+	print("✓ current_model has start_motion_loop method")
+
+	# Get animation config
+	var anim_data = Live2DAnimationConfig.get_animation(current_character_id, "piece_captured")
+	print("Animation data: %s" % anim_data)
+
+	# Get motion file name
+	var motion_file = Live2DAnimationConfig.get_motion_file(current_character_id, "piece_captured")
+	print("Motion file name: '%s'" % motion_file)
+
+	# Check if motion file exists
+	var char_path = "res://assets/characters/character_%d/" % current_character_id
+	var motion_path = char_path + motion_file + ".motion3.json"
+	print("Looking for motion file at: %s" % motion_path)
+	print("Motion file exists: %s" % FileAccess.file_exists(motion_path))
+
+	# Get animation params
+	var params = Live2DAnimationConfig.get_animation_params(current_character_id, "piece_captured")
+	print("Animation params: %s" % params)
+
+	# Try to play the animation
+	print("Calling Live2DAnimationConfig.play_animation...")
+	current_animation = "piece_captured"
+	var success = Live2DAnimationConfig.play_animation(current_model, current_character_id, "piece_captured")
+	print("Animation play result: %s" % ("SUCCESS" if success else "FAILED"))
+
+	# Check if motion is actually playing
+	if current_model.has_method("get_motions"):
+		print("Current motions: %s" % current_model.get_motions())
+
+	print("=".repeat(60) + "\n")
 
 func _on_check_pressed():
-	if current_model and current_model.has_method("start_motion"):
-		print("Playing check animation")
-		current_animation = "check"
-		Live2DAnimationConfig.play_animation(current_model, current_character_id, "check")
+	print("\n" + "=".repeat(60))
+	print("DEBUG: check button pressed")
+	print("=".repeat(60))
+
+	# Check if model exists
+	if not current_model:
+		print("ERROR: current_model is null!")
+		return
+	print("✓ current_model exists: %s" % current_model)
+
+	# Check if model has start_motion method
+	if not current_model.has_method("start_motion"):
+		print("ERROR: current_model doesn't have start_motion method!")
+		print("Available methods: %s" % current_model.get_method_list())
+		return
+	print("✓ current_model has start_motion method")
+
+	# Check if model has start_motion_loop method
+	if not current_model.has_method("start_motion_loop"):
+		print("ERROR: current_model doesn't have start_motion_loop method!")
+		return
+	print("✓ current_model has start_motion_loop method")
+
+	# Get animation config
+	var anim_data = Live2DAnimationConfig.get_animation(current_character_id, "check")
+	print("Animation data: %s" % anim_data)
+
+	# Get motion file name
+	var motion_file = Live2DAnimationConfig.get_motion_file(current_character_id, "check")
+	print("Motion file name: '%s'" % motion_file)
+
+	# Check if motion file exists
+	var char_path = "res://assets/characters/character_%d/" % current_character_id
+	var motion_path = char_path + motion_file + ".motion3.json"
+	print("Looking for motion file at: %s" % motion_path)
+	print("Motion file exists: %s" % FileAccess.file_exists(motion_path))
+
+	# Get animation params
+	var params = Live2DAnimationConfig.get_animation_params(current_character_id, "check")
+	print("Animation params: %s" % params)
+
+	# Try to play the animation
+	print("Calling Live2DAnimationConfig.play_animation...")
+	current_animation = "check"
+	var success = Live2DAnimationConfig.play_animation(current_model, current_character_id, "check")
+	print("Animation play result: %s" % ("SUCCESS" if success else "FAILED"))
+
+	# Check if motion is actually playing
+	if current_model.has_method("get_motions"):
+		print("Current motions: %s" % current_model.get_motions())
+
+	print("=".repeat(60) + "\n")
