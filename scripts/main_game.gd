@@ -32,7 +32,7 @@ extends Control
 #
 # 5. SCORE PANEL:
 #    - Node path: $MainContainer/GameArea/ScorePanel
-#    - Toggle button: $MainContainer/ScoreToggleContainer/ScoreToggleButton
+#    - Toggle button: $MainContainer/GameArea/ChessboardContainer/ScoreToggleButton
 #    - To adjust: Modify setup_score_toggle() (line ~2238) and toggle_score_panel() (line ~2271)
 #    - Visibility: Hidden by default, toggle with button
 #    - Animation: Smooth zoom effect on chessboard when toggled (scales to 0.85x when open)
@@ -75,7 +75,7 @@ extends Control
 
 # Score panel and toggle button
 @onready var score_panel = $MainContainer/GameArea/ScorePanel
-@onready var score_toggle_button = $MainContainer/ScoreToggleContainer/ScoreToggleButton
+@onready var score_toggle_button = $MainContainer/GameArea/ChessboardContainer/ScoreToggleButton
 
 # Player timer labels
 @onready var player1_timer_label = $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/PlayerInfo/TimerLabel
