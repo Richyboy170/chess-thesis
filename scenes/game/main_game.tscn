@@ -25,7 +25,7 @@ grow_vertical = 2
 theme_override_constants/separation = 3
 
 [node name="TopPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 200)
+custom_minimum_size = Vector2(0, 600)
 layout_mode = 2
 size_flags_vertical = 8
 
@@ -111,6 +111,14 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 columns = 8
 
+[node name="ScoreToggleButton" type="Button" parent="MainContainer/GameArea/ChessboardContainer"]
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 48
+text = ">"
+
 [node name="ScorePanel" type="PanelContainer" parent="MainContainer/GameArea"]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
@@ -193,20 +201,8 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 44
 text = "MENU"
 
-[node name="ScoreToggleContainer" type="HBoxContainer" parent="MainContainer"]
-layout_mode = 2
-size_flags_vertical = 0
-alignment = 1
-
-[node name="ScoreToggleButton" type="Button" parent="MainContainer/ScoreToggleContainer"]
-custom_minimum_size = Vector2(60, 40)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 48
-text = ">"
-
 [node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 200)
+custom_minimum_size = Vector2(0, 600)
 layout_mode = 2
 size_flags_vertical = 8
 
