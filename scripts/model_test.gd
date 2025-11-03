@@ -308,7 +308,7 @@ func _on_motion_finished():
 
 	if not transition.is_empty() and transition.has("next_animation"):
 		var next_anim = transition["next_animation"]
-		var delay = transition.get("delay", 0.0)
+		var delay = transition.get("delay", 5)
 
 		print("\n▶️ Animation Transition:")
 		print("   From: %s" % current_animation)
@@ -613,7 +613,7 @@ func debug_list_animations():
 		for anim_name in transitions.keys():
 			var trans = transitions[anim_name]
 			var next_anim = trans.get("next_animation", "N/A")
-			var delay = trans.get("delay", 0.0)
+			var delay = trans.get("delay", 5)
 			print("   %s → %s (delay: %.2fs)" % [anim_name, next_anim, delay])
 
 	print("=".repeat(70) + "\n")
@@ -671,7 +671,7 @@ func debug_show_motion_status():
 	if not transition.is_empty():
 		print("\n🔄 Next Transition:")
 		print("   Next: %s" % transition.get("next_animation", "N/A"))
-		print("   Delay: %.2fs" % transition.get("delay", 0.0))
+		print("   Delay: %.2fs" % transition.get("delay", 5))
 	else:
 		print("\n🔄 No transition defined for this animation")
 
