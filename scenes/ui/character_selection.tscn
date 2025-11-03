@@ -86,20 +86,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Scyka"
 
-[node name="Character5Button" type="Button" parent="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(150, 200)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "Hiyori"
-
-[node name="Character6Button" type="Button" parent="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(150, 200)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "Mark"
-
 [node name="Player2Section" type="VBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -155,20 +141,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Scyka"
 
-[node name="Character5Button" type="Button" parent="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(150, 200)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "Hiyori"
-
-[node name="Character6Button" type="Button" parent="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(150, 200)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "Mark"
-
 [node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
@@ -189,13 +161,9 @@ text = "START GAME"
 [connection signal="pressed" from="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character2Button" to="." method="_on_player1_character_selected" binds= [1]]
 [connection signal="pressed" from="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character3Button" to="." method="_on_player1_character_selected" binds= [2]]
 [connection signal="pressed" from="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character4Button" to="." method="_on_player1_character_selected" binds= [3]]
-[connection signal="pressed" from="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character5Button" to="." method="_on_player1_character_selected" binds= [4]]
-[connection signal="pressed" from="VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character6Button" to="." method="_on_player1_character_selected" binds= [5]]
 [connection signal="pressed" from="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character1Button" to="." method="_on_player2_character_selected" binds= [0]]
 [connection signal="pressed" from="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character2Button" to="." method="_on_player2_character_selected" binds= [1]]
 [connection signal="pressed" from="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character3Button" to="." method="_on_player2_character_selected" binds= [2]]
 [connection signal="pressed" from="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character4Button" to="." method="_on_player2_character_selected" binds= [3]]
-[connection signal="pressed" from="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character5Button" to="." method="_on_player2_character_selected" binds= [4]]
-[connection signal="pressed" from="VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character6Button" to="." method="_on_player2_character_selected" binds= [5]]
 [connection signal="pressed" from="VBoxContainer/ButtonContainer/BackButton" to="." method="_on_back_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/ButtonContainer/StartButton" to="." method="_on_start_button_pressed"]

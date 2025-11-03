@@ -125,16 +125,12 @@ func load_character_previews():
 	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
 	# Character 4 not loaded for Player 1 - only available for Player 2
 	# load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
-	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character5Button, 4)
-	load_character_preview_on_button($VBoxContainer/Player1Section/Player1CharacterPanel/MarginContainer/HBoxContainer/Character6Button, 5)
 
 	# Player 2 character buttons
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character1Button, 0)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character2Button, 1)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character3Button, 2)
 	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character4Button, 3)
-	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character5Button, 4)
-	load_character_preview_on_button($VBoxContainer/Player2Section/Player2CharacterPanel/MarginContainer/HBoxContainer/Character6Button, 5)
 
 func load_character_preview_on_button(button: Button, character_id: int):
 	"""
@@ -148,8 +144,8 @@ func load_character_preview_on_button(button: Button, character_id: int):
 	print("\n===== LOADING CHARACTER ", character_id + 1, " PREVIEW =====")
 	print("Character path: ", char_path)
 
-	# Special handling for Live2D characters (4, 5, 6)
-	if character_id == 3 or character_id == 4 or character_id == 5:
+	# Special handling for Live2D characters (4)
+	if character_id == 3:
 		load_live2d_preview_on_button(button, char_path, character_id)
 		return
 
@@ -474,7 +470,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 	Args:
 		button: The button to add the preview to
 		char_path: Path to the character folder
-		character_id: The character ID (3=Scyka, 4=Hiyori, 5=Mark)
+		character_id: The character ID (3=Scyka)
 	"""
 	# Map button indices to actual character IDs (since characters 1-3 were removed)
 	# Button index 3 → Character 4, Button index 4 → Character 5, Button index 5 → Character 6
@@ -482,16 +478,12 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 
 	# Map character IDs to model names
 	var model_names = {
-		4: "Scyka",
-		5: "Hiyori",
-		6: "Mark"
+		4: "Scyka"
 	}
 
 	# Map character IDs to texture directories
 	var texture_dirs = {
-		4: "Scyka.4096",
-		5: "Hiyori.2048",
-		6: "Mark.2048"
+		4: "Scyka.4096"
 	}
 
 	var model_name = model_names.get(actual_character_id, "Scyka")
