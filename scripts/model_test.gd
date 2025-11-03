@@ -193,6 +193,14 @@ func load_character(character_id: int):
 	else:
 		print("   ⚠️ auto_scale property not available")
 
+	# Set playback_process_mode to ensure animations update
+	if "playback_process_mode" in live2d_model:
+		# IDLE = 1 (uses _process callback for animation updates)
+		live2d_model.playback_process_mode = 1  # GDCubismUserModel.IDLE
+		print("   ✓ Playback process mode set to IDLE (auto-update enabled)")
+	else:
+		print("   ⚠️ playback_process_mode property not available")
+
 	# Introspect model capabilities
 	print("\n🔬 Model Capabilities Inspection:")
 	var important_methods = ["start_motion", "start_motion_loop", "stop_motion", "get_motions", "get_canvas_info"]
