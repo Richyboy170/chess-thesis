@@ -73,10 +73,15 @@ horizontal_alignment = 2
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
-[node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(0, 200)
+[node name="CharacterDisplayWrapper" type="AspectRatioContainer" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 4
+ratio = 1.0
+stretch_mode = 2
+
+[node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
+layout_mode = 2
 clip_contents = true
 
 [node name="GameArea" type="HBoxContainer" parent="MainContainer"]
@@ -217,10 +222,15 @@ theme_override_constants/margin_bottom = 5
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(0, 200)
+[node name="CharacterDisplayWrapper" type="AspectRatioContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 4
+ratio = 1.0
+stretch_mode = 2
+
+[node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
+layout_mode = 2
 clip_contents = true
 
 [node name="PlayerInfo" type="VBoxContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
