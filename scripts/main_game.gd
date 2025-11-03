@@ -1326,6 +1326,148 @@ func get_live2d_model_from_display(display_node: Control):
 
 	return viewport.get_child(0)  # Live2DCharacter
 
+func load_scyka_live2d(display_node: Control, character_id: int) -> bool:
+	"""
+	Loads Scyka Live2D character using exact functions from scyka_model_test.
+	This dedicated function ensures Scyka is loaded with the same detailed
+	diagnostics and configuration as the test sandbox.
+
+	Args:
+		display_node: The Control node to display the Live2D model
+		character_id: The character ID (should be 4 for Scyka, but we use character_id from GameState which is 3)
+
+	Returns:
+		bool: True if Scyka Live2D model was loaded successfully, False otherwise
+	"""
+	const SCYKA_CHARACTER_ID = 4  # Scyka is character 4 in the system
+
+	print("\n" + "=".repeat(70))
+	print("--- Loading Scyka (Character 4) Live2D Model ---")
+	print("=".repeat(70))
+
+	# GDExtension diagnostics
+	print("\n🔍 GDExtension Check:")
+	if not ClassDB.class_exists("GDCubismUserModel"):
+		print("   ❌ CRITICAL: GDCubismUserModel class not found!")
+		print("   GDCubism plugin not loaded!")
+		print("=".repeat(70))
+		return false
+	print("   ✓ GDCubismUserModel available")
+
+	# Get Scyka's model path
+	print("\n📂 Loading Scyka Model:")
+	var model_path = Live2DDebugger.get_model_path(SCYKA_CHARACTER_ID)
+	if model_path.is_empty():
+		print("   ❌ ERROR: Could not find Scyka model path")
+		return false
+
+	print("   Model path: %s" % model_path)
+
+	if not FileAccess.file_exists(model_path):
+		print("   ❌ ERROR: Model file does not exist!")
+		return false
+	print("   ✓ Model file exists")
+
+	# Create a wrapper container for the Live2D model
+	print("\n🏗️ Creating Container Structure:")
+	var model_container = SubViewportContainer.new()
+	model_container.name = "Live2DContainer"
+	model_container.anchor_right = 1.0
+	model_container.anchor_bottom = 1.0
+	model_container.stretch = true
+	model_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	print("   ✓ Container created")
+
+	# Create SubViewport for isolated rendering
+	var viewport = SubViewport.new()
+	viewport.name = "Live2DViewport"
+	viewport.transparent_bg = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	viewport.size = Vector2(400, 200)
+	print("   ✓ Viewport created")
+
+	# Create Live2D model instance
+	print("\n🎭 Creating Model Instance:")
+	var live2d_model = ClassDB.instantiate("GDCubismUserModel")
+	if not live2d_model:
+		print("   ❌ ERROR: Failed to instantiate model")
+		return false
+	print("   ✓ Model instance created")
+
+	# Configure model
+	print("\n⚙️ Configuring Model:")
+	live2d_model.assets = model_path
+	live2d_model.name = "Live2DCharacter"
+	print("   ✓ Assets path set")
+
+	if "auto_scale" in live2d_model:
+		live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE
+		print("   ✓ Auto-scale enabled")
+
+	# Position model
+	live2d_model.position = Vector2(200, 100)
+	print("   ✓ Initial position set")
+
+	# Store character ID as metadata
+	live2d_model.set_meta("character_id", SCYKA_CHARACTER_ID)
+	print("   ✓ Metadata stored")
+
+	# Connect signals
+	print("\n🔔 Connecting Signals:")
+	if live2d_model.has_signal("motion_finished"):
+		live2d_model.motion_finished.connect(_on_live2d_motion_finished.bind(live2d_model, SCYKA_CHARACTER_ID))
+		print("   ✓ motion_finished signal connected")
+	else:
+		print("   ⚠️ motion_finished signal not available")
+
+	# Build the hierarchy
+	print("\n🏗️ Adding to Scene:")
+	viewport.add_child(live2d_model)
+	model_container.add_child(viewport)
+	display_node.add_child(model_container)
+	print("   ✓ Model added to scene tree")
+
+	# Connect to container resize
+	model_container.resized.connect(func():
+		var new_size = model_container.size
+		viewport.size = new_size
+		live2d_model.position = new_size / 2
+		print("   ✓ Live2D viewport resized to: ", new_size)
+	)
+	print("   ✓ Resize handler connected")
+
+	# Load animation configuration
+	print("\n🎬 Loading Scyka Animation Config:")
+	var anim_config = Live2DAnimationConfig.load_animation_config(SCYKA_CHARACTER_ID)
+	if not anim_config.is_empty():
+		print("   Character: %s" % anim_config.get("character_name", "Unknown"))
+		print("   Available animations:")
+		if anim_config.has("animations"):
+			for anim_name in anim_config["animations"].keys():
+				var anim = anim_config["animations"][anim_name]
+				var motion_file = anim.get("motion_file", "N/A")
+				var loop = anim.get("loop", false)
+				print("     - %s: file='%s', loop=%s" % [anim_name, motion_file, loop])
+
+	# Start idle animation
+	print("\n▶️ Starting Idle Animation:")
+	if live2d_model.has_method("start_motion"):
+		var default_action = Live2DAnimationConfig.get_default_animation(SCYKA_CHARACTER_ID)
+		var success = Live2DAnimationConfig.play_animation(live2d_model, SCYKA_CHARACTER_ID, default_action)
+		if success:
+			print("   ✓ Animation started from JSON config: " + default_action)
+			live2d_model.set_meta("current_animation", default_action)
+		else:
+			# Fallback to hardcoded idle if config fails
+			live2d_model.start_motion_loop("Idle", 0, 2, true, true)
+			print("   ✓ Started fallback Idle animation")
+			live2d_model.set_meta("current_animation", "idle")
+
+	print("\n✅ SUCCESS: Scyka Live2D model ready")
+	print("=".repeat(70) + "\n")
+
+	return true
+
 func load_live2d_character(display_node: Control, character_id: int) -> bool:
 	"""
 	Loads a Live2D character model into the display node.
@@ -1455,9 +1597,27 @@ func load_character_media(display_node: Control, _area_node: Control, animations
 	print("Character ID: ", character_id)
 	print("Animations dir: ", animations_dir)
 
-	# Check if this is a Live2D character (characters 4, 5, 6 = IDs 3, 4, 5)
-	if character_id >= 0 and Live2DDebugger.is_live2d_character(character_id):
-		print("Detected Live2D character!")
+	# Convert 0-indexed GameState character_id to 1-indexed actual character_id
+	var actual_character_id = character_id + 1
+
+	# CONDITIONAL IMPORT FOR SCYKA (Character 4)
+	# If Scyka is selected, check if it's Live2D and use dedicated loading function
+	if actual_character_id == 4:  # Scyka
+		print("=== SCYKA CHARACTER DETECTED ===")
+		# Check if Scyka should be loaded as Live2D
+		if Live2DDebugger.is_live2d_character(actual_character_id):
+			print("→ Loading Scyka as Live2D character")
+			if load_scyka_live2d(display_node, character_id):
+				print("✓ Scyka Live2D character loaded successfully")
+				return
+			else:
+				print("⚠ Scyka Live2D load failed, falling back to video/image")
+		else:
+			print("→ Loading Scyka as default character (not Live2D)")
+			# Continue to default video/image loading below
+	# Check if this is another Live2D character (characters 5, 6, etc.)
+	elif character_id >= 0 and Live2DDebugger.is_live2d_character(actual_character_id):
+		print("Detected Live2D character (ID: %d)" % actual_character_id)
 		if load_live2d_character(display_node, character_id):
 			print("✓ Live2D character loaded successfully")
 			return
