@@ -106,9 +106,9 @@ func load_character(character_id: int):
 
 	# Additional class checks
 	var available_classes = []
-	for class_name in ["GDCubismUserModel", "GDCubismEffect", "GDCubismEffectBreath"]:
-		if ClassDB.class_exists(class_name):
-			available_classes.append(class_name)
+	for cubism_class in ["GDCubismUserModel", "GDCubismEffect", "GDCubismEffectBreath"]:
+		if ClassDB.class_exists(cubism_class):
+			available_classes.append(cubism_class)
 	print("   ✓ Available GDCubism classes: %s" % ", ".join(available_classes))
 
 	# Get model path
