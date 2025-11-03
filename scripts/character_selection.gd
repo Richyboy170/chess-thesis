@@ -526,6 +526,9 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 			# Position the model in the center of the viewport
 			live2d_model.position = Vector2(200, 200)  # Center position
 
+			# Scale down the model to 1/7 of its original size
+			live2d_model.scale = Vector2(1.0/7.0, 1.0/7.0)
+
 			# Try to set auto_scale if available (makes model fit the container)
 			if "auto_scale" in live2d_model:
 				live2d_model.auto_scale = 2  # AUTO_SCALE_FORCE_INSIDE

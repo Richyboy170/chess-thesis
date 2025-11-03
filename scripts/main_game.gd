@@ -1408,6 +1408,10 @@ func load_scyka_live2d(display_node: Control, character_id: int) -> bool:
 	live2d_model.position = Vector2(200, 100)
 	print("   ✓ Initial position set")
 
+	# Scale down the model to 1/7 of its original size
+	live2d_model.scale = Vector2(1.0/7.0, 1.0/7.0)
+	print("   ✓ Scale set to 1/7")
+
 	# Store character ID as metadata
 	live2d_model.set_meta("character_id", SCYKA_CHARACTER_ID)
 	print("   ✓ Metadata stored")
@@ -1529,6 +1533,9 @@ func load_live2d_character(display_node: Control, character_id: int) -> bool:
 
 	# Position the model in the center of the viewport
 	live2d_model.position = Vector2(200, 100)  # Center position, will be adjusted
+
+	# Scale down the model to 1/7 of its original size
+	live2d_model.scale = Vector2(1.0/7.0, 1.0/7.0)
 
 	# Try to set auto_scale if available (makes model fit the container)
 	if "auto_scale" in live2d_model:
