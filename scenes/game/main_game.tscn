@@ -27,7 +27,7 @@ theme_override_constants/separation = 3
 [node name="TopPlayerArea" type="PanelContainer" parent="MainContainer"]
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
-size_flags_vertical = 8
+size_flags_vertical = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="MainContainer/TopPlayerArea"]
 layout_mode = 2
@@ -97,7 +97,7 @@ layout_mode = 2
 
 [node name="GameArea" type="HBoxContainer" parent="MainContainer"]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_vertical = 0
 theme_override_constants/separation = 10
 
 [node name="ChessboardContainer" type="PanelContainer" parent="MainContainer/GameArea"]
@@ -216,7 +216,7 @@ text = "MENU"
 [node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
-size_flags_vertical = 8
+size_flags_vertical = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="MainContainer/BottomPlayerArea"]
 layout_mode = 2

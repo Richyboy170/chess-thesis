@@ -93,6 +93,8 @@ extends Control
 # UI ADJUSTMENT: Character backgrounds are disabled in Main Game. To re-enable, uncomment code in load_character_media() (line ~637)
 @onready var player1_area = $MainContainer/BottomPlayerArea
 @onready var player2_area = $MainContainer/TopPlayerArea
+@onready var game_area = $MainContainer/GameArea
+@onready var main_container = $MainContainer
 
 # ============================================================================
 # GAME STATE VARIABLES
@@ -384,6 +386,9 @@ func _ready():
 
 	# Print final status
 	ChessboardStorage.print_status()
+
+	# Setup responsive layout
+	setup_responsive_layout()
 
 func _handle_chessboard_creation_failure():
 	"""
@@ -3109,6 +3114,39 @@ func setup_score_toggle():
 	chessboard_container.scale = Vector2(1.0, 1.0)
 
 	print("Score panel initialized as hidden")
+
+func setup_responsive_layout():
+	"""
+	Sets up responsive layout for GameArea and PlayerAreas.
+	GameArea size is based on the chessboard size (not flex).
+	TopPlayerArea and BottomPlayerArea expand to fill remaining space.
+	"""
+	# Connect to resize signals for responsive behavior
+	chessboard_container.resized.connect(_update_responsive_layout)
+	main_container.resized.connect(_update_responsive_layout)
+
+	# Set initial layout
+	_update_responsive_layout()
+
+	print("Responsive layout initialized ✓")
+
+func _update_responsive_layout():
+	"""
+	Updates the layout responsively based on chessboard and available space.
+	Called when the chessboard or container resizes.
+	"""
+	# Wait for next frame to ensure all sizes are updated
+	await get_tree().process_frame
+
+	# Get the chessboard's actual size
+	var chessboard_size = chessboard_container.size
+
+	# Set GameArea's custom minimum size based on chessboard
+	# This makes GameArea responsive to chessboard size instead of using flex
+	game_area.custom_minimum_size = Vector2(0, chessboard_size.y)
+
+	# The TopPlayerArea and BottomPlayerArea will automatically expand
+	# to fill the remaining vertical space due to size_flags_vertical = 3
 
 func _on_score_toggle_pressed():
 	"""
