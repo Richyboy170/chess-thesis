@@ -25,7 +25,7 @@ grow_vertical = 2
 theme_override_constants/separation = 3
 
 [node name="TopPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 400)
+custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 size_flags_vertical = 8
 
@@ -74,25 +74,14 @@ horizontal_alignment = 2
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
-;# ===== CHARACTER DISPLAY SIZE ADJUSTMENT =====
-;# To adjust the size of the Live2D character display:
-;# 1. Modify 'custom_minimum_size' on CharacterDisplayWrapper (line below) - this controls the wrapper container size
-;# 2. Modify 'custom_minimum_size' on CharacterDisplay (further below) - this controls the actual display area
-;# 3. Keep both values the same to maintain proper aspect ratio
-;# 4. The 'ratio = 1.0' property enforces a 1:1 (square) aspect ratio
-;# Current size: 400x400 pixels (increased from 200x200 to show full Live2D character)
-;# Recommended range: 300-600 pixels (smaller = less space, larger = more detail but takes more screen space)
-;# =============================================
 [node name="CharacterDisplayWrapper" type="AspectRatioContainer" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
-ratio = 1.0
-stretch_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
-custom_minimum_size = Vector2(600, 600)
+custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 
 [node name="GameArea" type="HBoxContainer" parent="MainContainer"]
@@ -214,7 +203,7 @@ theme_override_font_sizes/font_size = 44
 text = "MENU"
 
 [node name="BottomPlayerArea" type="PanelContainer" parent="MainContainer"]
-custom_minimum_size = Vector2(0, 400)
+custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 size_flags_vertical = 8
 
@@ -229,26 +218,14 @@ theme_override_constants/margin_bottom = 5
 layout_mode = 2
 theme_override_constants/separation = 20
 
-;# ===== CHARACTER DISPLAY SIZE ADJUSTMENT =====
-;# To adjust the size of the Live2D character display:
-;# 1. Modify 'custom_minimum_size' on CharacterDisplayWrapper (line below) - this controls the wrapper container size
-;# 2. Modify 'custom_minimum_size' on CharacterDisplay (further below) - this controls the actual display area
-;# 3. Keep both values the same to maintain proper aspect ratio
-;# 4. The 'ratio = 1.0' property enforces a 1:1 (square) aspect ratio
-;# Current size: 400x400 pixels (increased from 200x200 to show full Live2D character)
-;# Recommended range: 300-600 pixels (smaller = less space, larger = more detail but takes more screen space)
-;# =============================================
-
 [node name="CharacterDisplayWrapper" type="AspectRatioContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
-ratio = 1.0
-stretch_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
-custom_minimum_size = Vector2(500, 500)
+custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 
 [node name="PlayerInfo" type="VBoxContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
