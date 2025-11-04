@@ -21,9 +21,9 @@ extends Control
 # 3. CHARACTER ANIMATIONS (Live2D & Video):
 #    - Player 1: $MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper/CharacterDisplay
 #    - Player 2: $MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper/CharacterDisplay
-#    - To adjust size: Modify 'custom_minimum_size' in scenes/game/main_game.tscn (lines ~87, 95, 242, 250)
-#    - Current size: 400x400px (increased to show full Live2D character)
-#    - Recommended range: 300-600px (adjust both CharacterDisplayWrapper and CharacterDisplay to same value)
+#    - To adjust size: Modify 'custom_minimum_size' in scenes/game/main_game.tscn (lines ~87, 95, 243, 251)
+#    - Current size: 800x800px (doubled from 400x400 to show entire Live2D character)
+#    - Recommended range: 400-1200px (adjust both CharacterDisplayWrapper and CharacterDisplay to same value)
 #    - Aspect ratio: 1:1 (square) enforced by AspectRatioContainer
 #    - For Live2D scale/position adjustments: Use Character Animation Debugger (Press 'D' in game)
 #    - Code location: load_character_media() function (line ~957)
