@@ -80,11 +80,11 @@ layout_mode = 2
 ;# 2. Modify 'custom_minimum_size' on CharacterDisplay (further below) - this controls the actual display area
 ;# 3. Keep both values the same to maintain proper aspect ratio
 ;# 4. The 'ratio = 1.0' property enforces a 1:1 (square) aspect ratio
-;# Current size: 400x400 pixels (increased from 200x200 to show full Live2D character)
-;# Recommended range: 300-600 pixels (smaller = less space, larger = more detail but takes more screen space)
+;# Current size: 800x800 pixels (doubled from 400x400 to show entire Live2D character)
+;# Recommended range: 400-1200 pixels (smaller = less space, larger = more detail but takes more screen space)
 ;# =============================================
 [node name="CharacterDisplayWrapper" type="AspectRatioContainer" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(400, 400)
+custom_minimum_size = Vector2(800, 800)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
@@ -92,7 +92,7 @@ ratio = 1.0
 stretch_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/TopPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
-custom_minimum_size = Vector2(600, 600)
+custom_minimum_size = Vector2(800, 800)
 layout_mode = 2
 
 [node name="GameArea" type="HBoxContainer" parent="MainContainer"]
@@ -235,12 +235,12 @@ theme_override_constants/separation = 20
 ;# 2. Modify 'custom_minimum_size' on CharacterDisplay (further below) - this controls the actual display area
 ;# 3. Keep both values the same to maintain proper aspect ratio
 ;# 4. The 'ratio = 1.0' property enforces a 1:1 (square) aspect ratio
-;# Current size: 400x400 pixels (increased from 200x200 to show full Live2D character)
-;# Recommended range: 300-600 pixels (smaller = less space, larger = more detail but takes more screen space)
+;# Current size: 800x800 pixels (doubled from 400x400 to show entire Live2D character)
+;# Recommended range: 400-1200 pixels (smaller = less space, larger = more detail but takes more screen space)
 ;# =============================================
 
 [node name="CharacterDisplayWrapper" type="AspectRatioContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(400, 400)
+custom_minimum_size = Vector2(800, 800)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
@@ -248,7 +248,7 @@ ratio = 1.0
 stretch_mode = 2
 
 [node name="CharacterDisplay" type="Control" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer/CharacterDisplayWrapper"]
-custom_minimum_size = Vector2(500, 500)
+custom_minimum_size = Vector2(800, 800)
 layout_mode = 2
 
 [node name="PlayerInfo" type="VBoxContainer" parent="MainContainer/BottomPlayerArea/MarginContainer/HBoxContainer"]
