@@ -1433,7 +1433,7 @@ func load_scyka_live2d(display_node: Control, character_id: int) -> bool:
 	#   Vector2(3.0/7.0, 3.0/7.0)  → 3x larger
 	#   Vector2(4.0/7.0, 4.0/7.0)  → 4x larger
 	# ═══════════════════════════════════════════════════════════════════
-	live2d_model.scale = Vector2(2.0/7.0, 2.0/7.0)
+	live2d_model.scale = Vector2(1.0/7.0, 1.0/7.0)
 	print("   ✓ Scale set to 2/7 (2x larger)")
 
 	# Store character ID as metadata
