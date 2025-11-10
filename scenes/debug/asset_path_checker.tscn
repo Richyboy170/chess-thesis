@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://djyh8xr5wv8xy"]
+
+[ext_resource type="Script" path="res://scripts/asset_path_bug_checker.gd" id="1_x8r4c"]
+
+[node name="AssetPathChecker" type="Node"]
+script = ExtResource("1_x8r4c")
