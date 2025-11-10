@@ -360,6 +360,8 @@ func _ready():
 	update_character_displays()   # Show selected characters
 	load_character_assets()       # Load themed assets (backgrounds, videos)
 	validate_all_media()          # Validate all media assets and report errors
+	# Wait for one frame to ensure Control nodes have their final positions/sizes
+	await get_tree().process_frame
 	update_board_display()        # Place pieces on the board
 	update_score_display()        # Initialize score panel
 	setup_score_toggle()          # Configure score panel toggle button
