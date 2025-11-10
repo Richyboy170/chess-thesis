@@ -2671,7 +2671,7 @@ func create_captured_piece_visual(piece: ChessPiece) -> Control:
 # DRAG AND DROP FUNCTIONS
 # ============================================================================
 
-func create_drag_shadow(piece_node: Node2D):
+func create_drag_shadow(piece_node: CanvasItem):
 	"""
 	Creates a shadow/glow effect behind the dragged piece for visual feedback.
 	The shadow follows the piece during dragging.
