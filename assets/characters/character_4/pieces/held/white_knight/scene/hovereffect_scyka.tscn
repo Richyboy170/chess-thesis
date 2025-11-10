@@ -116,7 +116,7 @@ material = SubResource("ShaderMaterial_waf30")
 
 [node name="PurplePiece" type="Sprite2D" parent="Body"]
 position = Vector2(0, 0)
-scale = Vector2(0.8, 0.8)
+scale = Vector2(1.27, 1.27)
 texture = ExtResource("2_e6wfc")
 
 [node name="Ghosts" type="GPUParticles2D" parent="."]
