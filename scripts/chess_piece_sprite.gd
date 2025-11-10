@@ -8,6 +8,39 @@ class_name ChessPieceSprite
 ## 1. PNG-based pieces: Simple image files loaded as textures
 ## 2. Scene-based pieces: Complex animated scenes (like character 4's white_knight)
 
+## Helper function to find scene file in a piece folder
+## Searches for .tscn files in the scene subdirectory
+##
+## Args:
+##     piece_type: The type of piece (e.g., "knight", "queen", "pawn")
+##     character_id: The character ID (1-4)
+##     is_held: Whether to check held or board piece folder
+##
+## Returns:
+##     The path to the scene file, or empty string if not found
+static func find_piece_scene(piece_type: String, character_id: int, is_held: bool) -> String:
+	var base_path = ""
+
+	# Determine base path for piece folder
+	if is_held:
+		base_path = "res://assets/characters/character_%d/pieces/held/white_%s" % [character_id, piece_type]
+	else:
+		base_path = "res://assets/characters/character_%d/pieces/white_%s" % [character_id, piece_type]
+
+	# Check if the piece folder exists (it should be a directory, not a PNG)
+	var scene_dir = base_path + "/scene"
+
+	# Common scene file names to check
+	var scene_names = ["hovereffect_scyka.tscn", "scene.tscn", "piece.tscn", "white_%s.tscn" % piece_type]
+
+	for scene_name in scene_names:
+		var scene_path = scene_dir + "/" + scene_name
+		if FileAccess.file_exists(scene_path):
+			return scene_path
+
+	return ""
+
+
 ## Creates a Sprite2D node for a chess piece with proper art loading
 ## Handles both PNG files and scene-based pieces (like white_knight)
 ##
@@ -25,26 +58,23 @@ static func create_piece_sprite(piece_type: String, character_id: int, is_held: 
 	# Normalize piece type to lowercase
 	piece_type = piece_type.to_lower()
 
-	# Check if this is a special scene-based piece
-	if is_held and piece_type == "knight" and character_id == 4:
-		# WHITE KNIGHT SCENE (Character 4 held piece)
-		var knight_scene_path = "res://assets/characters/character_4/pieces/held/white_knight/scene/hovereffect_scyka.tscn"
+	# IF-ELSE LOGIC: Check if piece is a scene folder or PNG file
+	var scene_path = find_piece_scene(piece_type, character_id, is_held)
 
-		if FileAccess.file_exists(knight_scene_path):
-			var knight_scene = load(knight_scene_path)
-			if knight_scene:
-				# Instantiate the scene
-				var scene_instance = knight_scene.instantiate()
-				scene_instance.name = "WhiteKnightScene"
-				container.add_child(scene_instance)
-				print("Created scene-based piece: white_knight (Character 4)")
-				return container
-			else:
-				push_error("Failed to load white_knight scene: %s" % knight_scene_path)
+	if scene_path != "":
+		# SCENE-BASED PIECE: Load and instantiate the scene
+		var piece_scene = load(scene_path)
+		if piece_scene:
+			var scene_instance = piece_scene.instantiate()
+			scene_instance.name = "%sScene" % piece_type.capitalize()
+			container.add_child(scene_instance)
+			print("Created scene-based piece: %s (Character %d, is_held: %s)" % [piece_type, character_id, is_held])
+			return container
 		else:
-			push_warning("White knight scene not found at: %s" % knight_scene_path)
+			push_error("Failed to load scene: %s" % scene_path)
+			# Fall through to PNG loading as fallback
 
-	# PNG-BASED PIECE (Standard for all other pieces)
+	# PNG-BASED PIECE: Standard image file loading
 	var sprite = Sprite2D.new()
 	sprite.name = "PieceSprite"
 
@@ -105,12 +135,9 @@ static func create_held_piece_sprite(piece_type: String, character_id: int) -> N
 static func is_scene_based_piece(piece_type: String, character_id: int, is_held: bool = false) -> bool:
 	piece_type = piece_type.to_lower()
 
-	# Currently only white_knight for character 4 held piece is scene-based
-	if is_held and piece_type == "knight" and character_id == 4:
-		var scene_path = "res://assets/characters/character_4/pieces/held/white_knight/scene/hovereffect_scyka.tscn"
-		return FileAccess.file_exists(scene_path)
-
-	return false
+	# Check if a scene file exists for this piece
+	var scene_path = find_piece_scene(piece_type, character_id, is_held)
+	return scene_path != ""
 
 
 ## Gets the appropriate path for a piece (PNG or scene)
@@ -125,12 +152,17 @@ static func is_scene_based_piece(piece_type: String, character_id: int, is_held:
 static func get_piece_path(piece_type: String, character_id: int, is_held: bool = false) -> String:
 	piece_type = piece_type.to_lower()
 
-	# Check for scene-based piece
-	if is_scene_based_piece(piece_type, character_id, is_held):
-		return "res://assets/characters/character_4/pieces/held/white_knight/scene/hovereffect_scyka.tscn"
+	# Check for scene-based piece first
+	var scene_path = find_piece_scene(piece_type, character_id, is_held)
+	if scene_path != "":
+		return scene_path
 
 	# Return PNG path
 	if is_held:
-		return "res://assets/characters/character_%d/pieces/held/white_%s.png" % [character_id, piece_type]
+		var held_path = "res://assets/characters/character_%d/pieces/held/white_%s.png" % [character_id, piece_type]
+		if FileAccess.file_exists(held_path):
+			return held_path
+		# Fallback to board piece if held doesn't exist
+		return "res://assets/characters/character_%d/pieces/white_%s.png" % [character_id, piece_type]
 	else:
 		return "res://assets/characters/character_%d/pieces/white_%s.png" % [character_id, piece_type]
