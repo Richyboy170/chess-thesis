@@ -2291,8 +2291,10 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 
 		# Position the piece at the center of the board square
 		var square = board_squares[pos.x][pos.y]
-		var square_center = square.position + square.size / 2.0
-		piece_sprite.position = square_center
+		# Convert square's global position to pieces_layer's local coordinate space
+		var square_global_center = square.global_position + square.size / 2.0
+		var piece_local_position = pieces_layer.to_local(square_global_center)
+		piece_sprite.position = piece_local_position
 
 		# Scale the piece to fit the square (adjust as needed)
 		var square_size = square.size.x
@@ -2669,18 +2671,38 @@ func create_captured_piece_visual(piece: ChessPiece) -> Control:
 # DRAG AND DROP FUNCTIONS
 # ============================================================================
 
-func create_drag_shadow(piece_node: Control):
+func create_drag_shadow(piece_node: Node2D):
 	"""
 	Creates a shadow/glow effect behind the dragged piece for visual feedback.
 	The shadow follows the piece during dragging.
+	Works with both Node2D (Sprite2D) and Control (Label) pieces.
 
 	Args:
-		piece_node: The piece node being dragged
+		piece_node: The piece node being dragged (Node2D or Control)
 	"""
 	# Remove any existing shadow
 	if drag_shadow:
 		drag_shadow.queue_free()
 		drag_shadow = null
+
+	# Calculate the size of the piece node
+	var piece_size = Vector2(100, 100)  # Default size
+
+	if piece_node is Control:
+		# For Control nodes (Label fallback), use the size property
+		piece_size = piece_node.size
+	else:
+		# For Node2D nodes (Sprite2D), estimate size from children
+		# Look for a Sprite2D child with a texture
+		for child in piece_node.get_children():
+			if child is Sprite2D and child.texture:
+				var texture_size = child.texture.get_size()
+				piece_size = texture_size * child.scale
+				break
+			elif child is Control:
+				# Scene-based piece might have Control nodes
+				piece_size = child.size
+				break
 
 	# Create a ColorRect as shadow
 	drag_shadow = ColorRect.new()
@@ -2688,8 +2710,8 @@ func create_drag_shadow(piece_node: Control):
 	drag_shadow.z_index = 99  # Just behind the dragged piece
 
 	# Match the piece's size and position
-	drag_shadow.custom_minimum_size = piece_node.size
-	drag_shadow.size = piece_node.size
+	drag_shadow.custom_minimum_size = piece_size
+	drag_shadow.size = piece_size
 	drag_shadow.global_position = piece_node.global_position + Vector2(5, 5)  # Offset for shadow effect
 
 	# Add shadow to the scene
