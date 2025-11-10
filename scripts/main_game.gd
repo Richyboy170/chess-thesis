@@ -106,6 +106,9 @@ var chess_board: ChessBoard
 # Visual representation of chess pieces on the board
 var visual_pieces: Array = []
 
+# Node2D layer for chess piece sprites (Sprite2D nodes)
+var pieces_layer: Node2D = null
+
 # 2D array of button nodes representing board squares [row][col]
 var board_squares: Array = []
 
@@ -172,7 +175,7 @@ var piece_effects: Node = null
 # ============================================================================
 
 # Reference to the piece currently being dragged (TextureRect or Label)
-var dragging_piece: Control = null
+var dragging_piece: Node2D = null
 
 # Offset from mouse position to piece center for smooth dragging
 var drag_offset: Vector2 = Vector2.ZERO
@@ -1089,8 +1092,10 @@ func _input(event):
 		# Handle mouse movement or touch drag - update piece position
 		if event is InputEventMouseMotion or event is InputEventScreenDrag:
 			var mouse_pos = get_viewport().get_mouse_position()
+			# Convert global mouse position to pieces_layer local coordinates
+			var local_mouse = pieces_layer.get_global_transform().affine_inverse() * mouse_pos
 			# Make piece stick to cursor with offset for natural feel
-			dragging_piece.global_position = mouse_pos - drag_offset
+			dragging_piece.position = local_mouse - drag_offset
 			# Update shadow to follow the piece
 			update_drag_shadow()
 
@@ -1209,9 +1214,15 @@ func setup_chessboard():
 	chessboard.mouse_filter = Control.MOUSE_FILTER_PASS
 	chessboard.gui_input.connect(_on_chessboard_input)
 
+	# Create Node2D layer for Sprite2D chess pieces
+	pieces_layer = Node2D.new()
+	pieces_layer.name = "PiecesLayer"
+	chessboard.add_child(pieces_layer)
+
 	# Ensure chessboard is visible
 	chessboard.visible = true
 	print("Chessboard created with classic checkerboard pattern")
+	print("Pieces layer created for Sprite2D nodes")
 
 func find_character_background(char_path: String) -> String:
 	"""
@@ -2238,7 +2249,8 @@ func update_board_display():
 func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	"""
 	Creates a visual representation of a chess piece at the specified position.
-	Uses custom character-themed images from the assets folder.
+	Uses the ChessPieceSprite system with Sprite2D nodes.
+	IF-ELSE LOGIC: Automatically checks if piece is PNG or scene folder.
 
 	Args:
 		piece: The ChessPiece object containing piece data
@@ -2250,58 +2262,49 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	# Get piece type name
 	var piece_type_name = ChessPiece.PieceType.keys()[piece.piece_type].to_lower()
 
-	# Construct path to piece image
-	var piece_image_path = "res://assets/characters/character_%d/pieces/white_%s.png" % [character_id + 1, piece_type_name]
+	# Use ChessPieceSprite system to create the piece
+	# This handles the IF-ELSE logic:
+	# - IF scene folder exists: Load the scene
+	# - ELSE: Load the PNG and put it in a Sprite2D node
+	var piece_sprite = ChessPieceSprite.create_piece_sprite(piece_type_name, character_id + 1, false)
 
-	# Try to load the custom piece image
-	if FileAccess.file_exists(piece_image_path):
-		var texture = load(piece_image_path)
-		if texture:
-			# Create TextureRect to display the piece image
-			var piece_texture_rect = TextureRect.new()
-			piece_texture_rect.texture = texture
-			piece_texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-			piece_texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			piece_texture_rect.mouse_filter = Control.MOUSE_FILTER_PASS
+	if piece_sprite:
+		# Apply color modulation for black pieces
+		if piece.piece_color == ChessPiece.PieceColor.BLACK:
+			# Define theme-based tint colors for black pieces
+			var tint_colors = {
+				"classic": Color(0.3, 0.3, 0.3),    # Dark gray
+				"modern": Color(0.2, 0.3, 0.5),     # Dark blue
+				"fantasy": Color(0.5, 0.2, 0.4)     # Dark purple
+			}
+			var piece_style = piece.character_style
+			if piece_style in tint_colors:
+				piece_sprite.modulate = tint_colors[piece_style]
+			else:
+				piece_sprite.modulate = Color(0.3, 0.3, 0.3)  # Default dark gray
 
-			# Center the piece within its square using anchors
-			piece_texture_rect.anchor_left = 0.0
-			piece_texture_rect.anchor_top = 0.0
-			piece_texture_rect.anchor_right = 1.0
-			piece_texture_rect.anchor_bottom = 1.0
-			piece_texture_rect.offset_left = 0
-			piece_texture_rect.offset_top = 0
-			piece_texture_rect.offset_right = 0
-			piece_texture_rect.offset_bottom = 0
-			piece_texture_rect.grow_horizontal = Control.GROW_DIRECTION_BOTH
-			piece_texture_rect.grow_vertical = Control.GROW_DIRECTION_BOTH
+		# Store piece metadata for effects system
+		piece_sprite.set_meta("piece_type", piece_type_name)
+		piece_sprite.set_meta("piece_color", "white" if piece.piece_color == ChessPiece.PieceColor.WHITE else "black")
+		piece_sprite.set_meta("character_id", character_id + 1)
+		piece_sprite.set_meta("board_position", pos)
 
-			# Apply color modulation for black pieces
-			if piece.piece_color == ChessPiece.PieceColor.BLACK:
-				# Define theme-based tint colors for black pieces
-				var tint_colors = {
-					"classic": Color(0.3, 0.3, 0.3),    # Dark gray
-					"modern": Color(0.2, 0.3, 0.5),     # Dark blue
-					"fantasy": Color(0.5, 0.2, 0.4)     # Dark purple
-				}
-				var piece_style = piece.character_style
-				if piece_style in tint_colors:
-					piece_texture_rect.modulate = tint_colors[piece_style]
-				else:
-					piece_texture_rect.modulate = Color(0.3, 0.3, 0.3)  # Default dark gray
+		# Position the piece at the center of the board square
+		var square = board_squares[pos.x][pos.y]
+		var square_center = square.position + square.size / 2.0
+		piece_sprite.position = square_center
 
-			# Store piece metadata for effects system
-			piece_texture_rect.set_meta("piece_type", piece_type_name)
-			piece_texture_rect.set_meta("piece_color", "white" if piece.piece_color == ChessPiece.PieceColor.WHITE else "black")
-			piece_texture_rect.set_meta("character_id", character_id + 1)
-			piece_texture_rect.set_meta("board_position", pos)
+		# Scale the piece to fit the square (adjust as needed)
+		var square_size = square.size.x
+		var scale_factor = square_size / 200.0  # Assuming pieces are ~200px originally
+		piece_sprite.scale = Vector2(scale_factor, scale_factor)
 
-			# Add piece to the board square and track it
-			board_squares[pos.x][pos.y].add_child(piece_texture_rect)
-			visual_pieces.append(piece_texture_rect)
-			return
+		# Add piece to the pieces layer and track it
+		pieces_layer.add_child(piece_sprite)
+		visual_pieces.append(piece_sprite)
+		return
 
-	# Fallback to Unicode symbols if image not found
+	# Fallback to Unicode symbols if sprite creation failed
 	var piece_label = Label.new()
 	piece_label.text = piece.get_piece_symbol()
 	piece_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -2723,58 +2726,65 @@ func start_drag(pos: Vector2i):
 	if game_ended:
 		return
 
-	var square = board_squares[pos.x][pos.y]
-	if square.get_child_count() > 0:
-		var piece_node = square.get_child(0)
+	# Find the piece at this board position in the pieces_layer
+	var piece_node = null
+	for child in pieces_layer.get_children():
+		if child.has_meta("board_position"):
+			var board_pos = child.get_meta("board_position")
+			if board_pos == pos:
+				piece_node = child
+				break
 
-		# Support both TextureRect and Label pieces
-		if piece_node is TextureRect or piece_node is Label:
-			# Store reference to the piece and its original position
-			dragging_piece = piece_node
-			original_parent = square
-			original_scale = piece_node.scale
+	if piece_node:
+		# Store reference to the piece and its original position
+		dragging_piece = piece_node
+		original_parent = pieces_layer
+		original_scale = piece_node.scale
 
-			# Get current mouse/touch position
-			var mouse_pos = get_viewport().get_mouse_position()
+		# Get current mouse/touch position
+		var mouse_pos = get_viewport().get_mouse_position()
 
-			# Calculate offset from mouse to piece position to prevent shifting
-			# This ensures the piece stays in the exact same position relative to the cursor
-			drag_offset = mouse_pos - piece_node.global_position
+		# Convert global mouse position to pieces_layer local coordinates
+		var local_mouse = pieces_layer.get_global_transform().affine_inverse() * mouse_pos
 
-			# Create shadow/glow effect behind the piece
-			create_drag_shadow(piece_node)
+		# Calculate offset from mouse to piece position to prevent shifting
+		# This ensures the piece stays in the exact same position relative to the cursor
+		drag_offset = local_mouse - piece_node.position
 
-			# Apply visual effects for dragging
-			# 1. Scale up slightly (1.2x) for emphasis
-			var tween_scale = create_tween()
-			tween_scale.tween_property(piece_node, "scale", original_scale * 1.2, 0.1)
+		# Create shadow/glow effect behind the piece
+		create_drag_shadow(piece_node)
 
-			# 2. Make piece semi-transparent (80% opacity)
-			piece_node.modulate = Color(1, 1, 1, 0.8)
+		# Apply visual effects for dragging
+		# 1. Scale up slightly (1.2x) for emphasis
+		var tween_scale = create_tween()
+		tween_scale.tween_property(piece_node, "scale", original_scale * 1.2, 0.1)
 
-			# 3. Bring piece to front (above all other elements)
-			piece_node.z_index = 100
+		# 2. Make piece semi-transparent (80% opacity)
+		piece_node.modulate = Color(1, 1, 1, 0.8)
 
-			# 4. Apply piece effects system (image swap, glow, particles, etc.)
-			if piece_effects:
-				var piece_data = {
-					"type": piece_node.get_meta("piece_type", ""),
-					"color": piece_node.get_meta("piece_color", ""),
-					"character_id": piece_node.get_meta("character_id", 1),
-					"position": pos
-				}
-				piece_effects.apply_drag_effects(piece_node, piece_data)
+		# 3. Bring piece to front (above all other elements)
+		piece_node.z_index = 100
 
-			# Update drag state
-			is_dragging = true
+		# 4. Apply piece effects system (image swap, glow, particles, etc.)
+		if piece_effects:
+			var piece_data = {
+				"type": piece_node.get_meta("piece_type", ""),
+				"color": piece_node.get_meta("piece_color", ""),
+				"character_id": piece_node.get_meta("character_id", 1),
+				"position": pos
+			}
+			piece_effects.apply_drag_effects(piece_node, piece_data)
 
-			# Play hover_piece animation for the player who is dragging
-			var piece = chess_board.get_piece_at(pos)
-			if piece:
-				var display_node = player1_character_display if piece.piece_color == ChessPiece.PieceColor.WHITE else player2_character_display
-				play_special_animation(display_node, "hover_piece", 1.0)
+		# Update drag state
+		is_dragging = true
 
-			print("Started dragging piece at ", pos)
+		# Play hover_piece animation for the player who is dragging
+		var piece = chess_board.get_piece_at(pos)
+		if piece:
+			var display_node = player1_character_display if piece.piece_color == ChessPiece.PieceColor.WHITE else player2_character_display
+			play_special_animation(display_node, "hover_piece", 1.0)
+
+		print("Started dragging piece at ", pos)
 
 func end_drag(drop_position: Vector2):
 	"""
@@ -2861,36 +2871,49 @@ func return_piece_to_original_position():
 	if piece_effects and dragging_piece:
 		piece_effects.remove_drag_effects(dragging_piece)
 
-	if dragging_piece and original_parent:
-		# Calculate the target position (center of original square)
-		var target_position = original_parent.global_position + (original_parent.size / 2) - (dragging_piece.size / 2)
+	if dragging_piece:
+		# Get the original board position from metadata
+		var board_pos = dragging_piece.get_meta("board_position", Vector2i(-1, -1))
+		if board_pos != Vector2i(-1, -1):
+			# Calculate the target position (center of original square)
+			var square = board_squares[board_pos.x][board_pos.y]
+			var target_position = square.position + square.size / 2.0
 
-		# Create animation tween for smooth return
-		var tween = create_tween()
-		tween.set_parallel(true)  # Run all animations simultaneously
-		tween.set_ease(Tween.EASE_OUT)
-		tween.set_trans(Tween.TRANS_BACK)  # "Bounce back" effect
+			# Create animation tween for smooth return
+			var tween = create_tween()
+			tween.set_parallel(true)  # Run all animations simultaneously
+			tween.set_ease(Tween.EASE_OUT)
+			tween.set_trans(Tween.TRANS_BACK)  # "Bounce back" effect
 
-		# Animate position back to original square
-		tween.tween_property(dragging_piece, "global_position", target_position, 0.3)
+			# Animate position back to original square
+			tween.tween_property(dragging_piece, "position", target_position, 0.3)
 
-		# Restore scale to original with animation
-		tween.tween_property(dragging_piece, "scale", original_scale, 0.3)
+			# Restore scale to original with animation
+			tween.tween_property(dragging_piece, "scale", original_scale, 0.3)
 
-		# Restore full opacity with animation
-		tween.tween_property(dragging_piece, "modulate", Color(1, 1, 1, 1), 0.3)
+			# Restore full opacity with animation
+			tween.tween_property(dragging_piece, "modulate", Color(1, 1, 1, 1), 0.3)
 
-		# After animation completes, clean up drag state
-		tween.chain().tween_callback(func():
-			if dragging_piece:
-				dragging_piece.z_index = 0
+			# After animation completes, clean up drag state
+			tween.chain().tween_callback(func():
+				if dragging_piece:
+					dragging_piece.z_index = 0
+				dragging_piece = null
+				is_dragging = false
+				original_parent = null
+				clear_highlights()
+				selected_square = Vector2i(-1, -1)
+				print("Piece returned to original position")
+			)
+		else:
+			# No valid board position, just reset immediately
+			dragging_piece.modulate = Color(1, 1, 1, 1)
+			dragging_piece.z_index = 0
 			dragging_piece = null
 			is_dragging = false
 			original_parent = null
 			clear_highlights()
 			selected_square = Vector2i(-1, -1)
-			print("Piece returned to original position")
-		)
 	else:
 		# Fallback if no dragging_piece or original_parent
 		if dragging_piece:
