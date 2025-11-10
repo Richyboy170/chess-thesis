@@ -2803,7 +2803,10 @@ func start_drag(pos: Vector2i):
 				"character_id": piece_node.get_meta("character_id", 1),
 				"position": pos
 			}
-			piece_effects.apply_drag_effects(piece_node, piece_data)
+			# Get square size for proper scaling of held piece
+			var square = board_squares[pos.x][pos.y]
+			var square_size = square.size.x
+			piece_effects.apply_drag_effects(piece_node, piece_data, square_size)
 
 		# Update drag state
 		is_dragging = true

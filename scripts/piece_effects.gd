@@ -25,7 +25,7 @@ var original_piece_nodes = {}
 # MAIN EFFECT FUNCTIONS
 # ============================================================================
 
-func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
+func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}, square_size: float = 0.0):
 	"""
 	Swaps the piece to its scene-based held version (if available).
 	The scene-based version contains built-in animations and effects.
@@ -33,6 +33,7 @@ func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
 	Args:
 		piece_node: The current piece node (Node2D container with sprite/scene)
 		piece_data: Dictionary with piece info (type, color, character_id)
+		square_size: The size of the chess board square (for proper scaling)
 	"""
 	if not piece_node:
 		return
@@ -68,6 +69,28 @@ func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
 				var scene_instance = held_scene.instantiate()
 				scene_instance.name = "%sHeldScene" % piece_type.capitalize()
 				piece_node.add_child(scene_instance)
+
+				# Scale the piece to fit the square based on actual texture size
+				if square_size > 0.0:
+					var texture_size = 200.0  # Default fallback size
+
+					# Get the actual texture size from the held piece scene
+					# Look for Sprite2D nodes that have textures
+					var sprites_to_check = [scene_instance]
+					while sprites_to_check.size() > 0:
+						var current = sprites_to_check.pop_front()
+						if current is Sprite2D and current.texture:
+							texture_size = current.texture.get_size().x
+							break
+						# Add children to check
+						for child in current.get_children():
+							sprites_to_check.append(child)
+
+					# Calculate and apply scale factor
+					var scale_factor = square_size / texture_size
+					piece_node.scale = Vector2(scale_factor, scale_factor)
+					print("[PieceEffects] ✓ Rescaled held piece: square_size=%f, texture_size=%f, scale_factor=%f" % [square_size, texture_size, scale_factor])
+
 				print("[PieceEffects] ✓ Swapped to scene-based held piece: %s" % held_scene_path)
 			else:
 				push_error("[PieceEffects] ✗ Failed to load held scene: %s" % held_scene_path)
