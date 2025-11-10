@@ -1,8 +1,8 @@
 [gd_scene load_steps=17 format=3 uid="uid://c6ss7iuvbic58"]
 
-[ext_resource type="Texture2D" uid="uid://bb8xqgf0rh6su" path="res://assets/characters/character_4/pieces/held/white_knight/eye.png" id="1_waf30"]
-[ext_resource type="Texture2D" uid="uid://b54dg3ekb6m6s" path="res://assets/characters/character_4/pieces/held/white_knight/purple piece.png" id="2_e6wfc"]
-[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://assets/characters/character_4/pieces/held/white_knight/ghost flip.png" id="3_waf30"]
+[ext_resource type="Texture2D" uid="uid://bb8xqgf0rh6su" path="res://eye.png" id="1_waf30"]
+[ext_resource type="Texture2D" uid="uid://b54dg3ekb6m6s" path="res://purple piece.png" id="2_e6wfc"]
+[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://ghost flip.png" id="3_waf30"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3fcv4"]
 atlas = ExtResource("1_waf30")
