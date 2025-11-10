@@ -317,8 +317,8 @@ CubismMotionQueueEntryHandle InternalCubismUserModel::motion_start(const char* g
 
     if(motion == nullptr ) return InvalidMotionQueueEntryHandleValue;
 
-    motion->IsLoop(loop);
-    motion->IsLoopFadeIn(loop_fade_in);
+    motion->SetLoop(loop);
+    motion->SetLoopFadeIn(loop_fade_in);
     motion->SetFinishedMotionHandler(GDCubismUserModel::on_motion_finished);
     #ifdef CUBISM_MOTION_CUSTOMDATA
     motion->SetFinishedMotionCustomData(custom_data);
