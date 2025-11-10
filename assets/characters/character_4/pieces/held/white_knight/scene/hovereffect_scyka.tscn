@@ -95,9 +95,12 @@ scale_curve = SubResource("CurveTexture_3tn4d")
 color_ramp = SubResource("GradientTexture1D_6xqae")
 
 [node name="hovereffect_Scyka" type="Node2D"]
+scale = Vector2(0.1, 0.1)
 
 [node name="Eye" type="AnimatedSprite2D" parent="."]
 z_index = 1
+position = Vector2(0, -400)
+scale = Vector2(0.8, 0.8)
 sprite_frames = SubResource("SpriteFrames_krick")
 frame_progress = 0.48363882
 
@@ -112,22 +115,15 @@ z_index = 2
 material = SubResource("ShaderMaterial_waf30")
 
 [node name="PurplePiece" type="Sprite2D" parent="Body"]
-position = Vector2(-316, 786.00006)
-scale = Vector2(3.7739255, 3.7739255)
+position = Vector2(0, 0)
+scale = Vector2(0.8, 0.8)
 texture = ExtResource("2_e6wfc")
 
 [node name="Ghosts" type="GPUParticles2D" parent="."]
 z_index = 1
-position = Vector2(267, 191)
+position = Vector2(0, -100)
 texture = ExtResource("3_waf30")
 lifetime = 20.0
 speed_scale = 5.0
 randomness = 0.3
 process_material = SubResource("ParticleProcessMaterial_krfyl")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(175, 383)
-limit_left = -2509
-limit_top = -857
-limit_right = 2743
-limit_bottom = 2720
