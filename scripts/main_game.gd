@@ -2298,9 +2298,17 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 		var piece_local_position = pieces_layer.to_local(square_global_center)
 		piece_sprite.position = piece_local_position
 
-		# Scale the piece to fit the square (adjust as needed)
+		# Scale the piece to fit the square based on actual texture size
 		var square_size = square.size.x
-		var scale_factor = square_size / 200.0  # Assuming pieces are ~200px originally
+		var texture_size = 200.0  # Default fallback size
+
+		# Get the actual texture size from the sprite
+		for child in piece_sprite.get_children():
+			if child is Sprite2D and child.texture:
+				texture_size = child.texture.get_size().x
+				break
+
+		var scale_factor = square_size / texture_size
 		piece_sprite.scale = Vector2(scale_factor, scale_factor)
 
 		# Add piece to the pieces layer and track it

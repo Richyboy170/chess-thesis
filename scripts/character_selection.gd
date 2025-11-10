@@ -169,7 +169,7 @@ func load_character_preview_on_button(button: Button, character_id: int):
 	preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE  # Let clicks pass through to button
 	preview_container.anchor_right = 1.0
 	preview_container.anchor_bottom = 1.0
-	preview_container.stretch = true
+	preview_container.stretch = false  # Disable stretch to allow manual viewport resizing
 	preview_container.z_index = -1  # Place behind button text
 
 	# Create SubViewport for isolated rendering with 1:1 square boundaries
@@ -533,7 +533,7 @@ func load_live2d_preview_on_button(button: Button, char_path: String, character_
 		model_container.name = "Live2DContainer"
 		model_container.anchor_right = 1.0
 		model_container.anchor_bottom = 1.0
-		model_container.stretch = true
+		model_container.stretch = false  # Disable stretch to allow manual viewport resizing
 		model_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		model_container.z_index = -1  # Place behind button text
 
