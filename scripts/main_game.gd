@@ -181,7 +181,7 @@ var dragging_piece: Node2D = null
 var drag_offset: Vector2 = Vector2.ZERO
 
 # Original parent node to return piece to if drag is cancelled
-var original_parent: Control = null
+var original_parent: Node2D = null
 
 # Original scale of the piece before dragging
 var original_scale: Vector2 = Vector2.ONE
@@ -2341,8 +2341,6 @@ func create_visual_piece(piece: ChessPiece, pos: Vector2i):
 	# Add piece to the board square and track it
 	board_squares[pos.x][pos.y].add_child(piece_label)
 	visual_pieces.append(piece_label)
-
-	print("Warning: Could not load piece image: ", piece_image_path, " - using Unicode fallback")
 
 # ============================================================================
 # SQUARE CLICK AND PIECE SELECTION FUNCTIONS
