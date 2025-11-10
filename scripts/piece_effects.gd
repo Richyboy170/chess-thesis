@@ -128,27 +128,10 @@ func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
 	# Effects are controlled by the character-specific config
 	# Edit configs in: assets/characters/character_X/piece_effects_config.gd
 
-	# Get piece type to check if it's a knight with special scene
-	var piece_type = piece_data.get("type", "").to_lower()
-	var is_white_knight_scene = (piece_type == "knight" and character_id == 4)
-
 	# 1. IMAGE SWAP - Change piece appearance when held
 	var image_swap = active_config.image_swap_enabled if active_config else config.image_swap_enabled
 	if image_swap:
 		apply_image_swap(piece_node, piece_data, active_config)
-
-	# ============================================================================
-	# SKIP ALL OTHER EFFECTS FOR WHITE KNIGHT SCENE
-	# ============================================================================
-	# The white_knight scene has its own built-in effects (eye animation,
-	# particles, ghost effects). Skip all standard effects to avoid interference.
-	if is_white_knight_scene:
-		print("Skipping standard effects for white_knight scene (has built-in effects)")
-		return
-
-	# ============================================================================
-	# STANDARD EFFECTS (for all other pieces)
-	# ============================================================================
 
 	# 2. SCALE EFFECT - Make piece larger
 	var scale_on = active_config.scale_enabled if active_config else config.scale_enabled
@@ -157,14 +140,12 @@ func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
 		apply_enhanced_scale(piece_node, scale_factor)
 
 	# 3. GLOW EFFECT - Add glowing outline
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var glow_on = active_config.glow_enabled if active_config else config.glow_enabled
 	if glow_on:
 		var glow_color = active_config.glow_color if active_config else Color(1.0, 0.9, 0.3, 0.8)
 		apply_glow_effect(piece_node, glow_color)
 
 	# 4. PULSE EFFECT - Gentle pulsing animation
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var pulse_on = active_config.pulse_enabled if active_config else config.pulse_enabled
 	if pulse_on:
 		var min_s = active_config.pulse_min_scale if active_config else 1.0
@@ -173,7 +154,6 @@ func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
 		apply_pulse_effect(piece_node, min_s, max_s, duration)
 
 	# 5. ROTATION EFFECT - Gentle rotation
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var rotation_on = active_config.rotation_enabled if active_config else config.rotation_enabled
 	if rotation_on:
 		var max_rot = active_config.max_rotation if active_config else 10.0
@@ -181,45 +161,38 @@ func apply_drag_effects(piece_node: Node, piece_data: Dictionary = {}):
 		apply_rotation_effect(piece_node, max_rot, duration)
 
 	# 6. SHIMMER EFFECT - Shimmering light overlay
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var shimmer_on = active_config.shimmer_enabled if active_config else config.shimmer_enabled
 	if shimmer_on:
 		apply_shimmer_effect(piece_node)
 
 	# 7. PARTICLE EFFECT - Sparkles and particles
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own ghost particle effects
 	var particle_on = active_config.particle_enabled if active_config else config.particle_enabled
 	if particle_on:
 		apply_particle_effect(piece_node)
 
 	# 8. SHADOW BLUR - Enhanced shadow with blur
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var shadow_on = active_config.shadow_blur_enabled if active_config else config.shadow_blur_enabled
 	if shadow_on:
 		apply_shadow_blur(piece_node)
 
 	# 9. COLOR SHIFT - Change piece tint when held
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var color_shift_on = active_config.color_shift_enabled if active_config else config.color_shift_enabled
 	if color_shift_on:
 		var tint = active_config.color_shift_tint if active_config else Color(1.2, 1.1, 0.9)
 		apply_color_shift(piece_node, tint)
 
 	# 10. SPARKLE EFFECT - Occasional sparkles
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var sparkle_on = active_config.sparkle_enabled if active_config else config.sparkle_enabled
 	if sparkle_on:
 		apply_sparkle_effect(piece_node)
 
 	# 11. AURA EFFECT - Colored aura around piece
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var aura_on = active_config.aura_enabled if active_config else config.aura_enabled
 	if aura_on:
 		var aura_color = active_config.aura_color if active_config else Color(1.0, 0.8, 0.0, 0.5)
 		apply_aura_effect(piece_node, aura_color)
 
 	# 12. TRAIL EFFECT - Motion trail (for drag movement)
-	# COMMENTED OUT FOR WHITE KNIGHT - white_knight scene has its own effects
 	var trail_on = active_config.trail_enabled if active_config else config.trail_enabled
 	if trail_on:
 		apply_trail_effect(piece_node)
@@ -268,7 +241,7 @@ func remove_drag_effects(piece_node: Node):
 func apply_image_swap(piece_node: Node, piece_data: Dictionary, char_config: PieceEffectsConfig = null):
 	"""
 	Swaps the piece image to an alternate 'held' version.
-	Supports PNG, JPEG, OGV (video) files, and scene (.tscn) files.
+	Supports PNG, JPEG, and OGV (video) files.
 	Uses character-specific held image paths.
 
 	Args:
@@ -285,44 +258,6 @@ func apply_image_swap(piece_node: Node, piece_data: Dictionary, char_config: Pie
 		return
 
 	var character_id = piece_data.get("character_id", 1)
-
-	# ============================================================================
-	# WHITE KNIGHT SPECIAL SCENE HANDLING (Character 4)
-	# ============================================================================
-	# Check if this is a knight for Character 4 with the white_knight scene
-	if piece_type == "knight" and character_id == 4:
-		var knight_scene_path = "res://assets/characters/character_4/pieces/held/white_knight/scene/hovereffect_scyka.tscn"
-		if FileAccess.file_exists(knight_scene_path):
-			var knight_scene = load(knight_scene_path)
-			if knight_scene:
-				# Instantiate the scene
-				var knight_effect_node = knight_scene.instantiate()
-				knight_effect_node.set_meta("piece_effect", true)
-				knight_effect_node.name = "WhiteKnightEffect"
-
-				# Store reference for cleanup
-				if not piece_node in active_effects:
-					active_effects[piece_node] = {}
-				active_effects[piece_node]["knight_scene"] = knight_effect_node
-
-				# Position the scene at the piece location
-				knight_effect_node.position = piece_node.size / 2
-
-				# Hide the original piece texture (knight scene replaces it)
-				original_textures[piece_node] = piece_node.texture
-				piece_node.modulate = Color(1, 1, 1, 0)  # Make original invisible
-
-				# Add the scene as a child
-				piece_node.add_child(knight_effect_node)
-
-				print("Loaded white_knight scene for Character 4")
-				return
-			else:
-				print("Failed to load white_knight scene")
-
-	# ============================================================================
-	# STANDARD IMAGE SWAP (for non-knight or other characters)
-	# ============================================================================
 	var held_image_path = ""
 
 	# Try to get held image path from character config
@@ -359,8 +294,6 @@ func restore_original_texture(piece_node: Node):
 	if piece_node in original_textures:
 		if piece_node is TextureRect:
 			piece_node.texture = original_textures[piece_node]
-			# Restore visibility (in case it was hidden for knight scene)
-			piece_node.modulate = Color(1, 1, 1, 1)
 		original_textures.erase(piece_node)
 
 # ----------------------------------------------------------------------------
