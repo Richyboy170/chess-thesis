@@ -139,9 +139,9 @@ Win (Enter).motion3.json::JSON::2625517129638074321::1762017169::0::1::::<><><>0
 Win (Idle).motion3.json::JSON::1913894791177460337::1762017169::0::1::::<><><>0<>0<><>::
 ::res://assets/characters/character_4/backgrounds/::1762017336
 character_background.png::CompressedTexture2D::7750086626658467256::1762017169::1762017336::1::::<><><>0<>0<>a92e47f896a48567d55b16ae1c458420<>res://.godot/imported/character_background.png-60483317009bc15c1e77a7655266cde9.ctex::
-::res://assets/characters/character_4/chessboard/::1762882055
-board_theme_config.gd::GDScript::8023962051004815097::1762881979::0::1::::Character4BoardThemeConfig<>Node<><>0<>0<><>::
-chessboard_art.png::CompressedTexture2D::2651016800028454215::1762882056::1762882060::1::::<><><>0<>0<>9ff627db8bd0b3c2c4f79f0c72dc6e77<>res://.godot/imported/chessboard_art.png-9fd9aa2a286619e92f5ecefe5300692d.ctex::
+::res://assets/characters/character_4/chessboard/::1762882216
+board_themex.png::CompressedTexture2D::1302180924380142640::1762882056::1762882224::1::::<><><>0<>0<>de76769cace4ed21ca76a6bfb7b17fa4<>res://.godot/imported/board_themex.png-addd207145a1bdbdc232447c949679bd.ctex::
+board_theme_config.gd::GDScript::8023962051004815097::1762882062::0::1::::Character4BoardThemeConfig<>Node<><>0<>0<><>::
 README.md::TextFile::-1::1762881568::0::1::::<><><>0<>0<><>::
 USAGE_GUIDE.md::TextFile::-1::1762881568::0::1::::<><><>0<>0<><>::
 ::res://assets/characters/character_4/pieces/::1762874569
