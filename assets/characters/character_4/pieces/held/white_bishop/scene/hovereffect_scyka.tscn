@@ -98,6 +98,7 @@ color_ramp = SubResource("GradientTexture1D_6xqae")
 scale = Vector2(1, 1)
 
 [node name="Eye" type="AnimatedSprite2D" parent="."]
+visible = false
 z_index = 1
 position = Vector2(0, 0)
 scale = Vector2(1, 1)
