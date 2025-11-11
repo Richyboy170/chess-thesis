@@ -81,26 +81,26 @@ particle_flag_align_y = true
 particle_flag_rotate_y = true
 particle_flag_disable_z = true
 emission_shape = 1
-emission_sphere_radius = 360.0
+emission_sphere_radius = 36.0
 angle_min = 1.0728835e-05
 angle_max = 1.0728835e-05
 spread = 180.0
-initial_velocity_min = 50.0
-initial_velocity_max = 100.0
+initial_velocity_min = 5.0
+initial_velocity_max = 10.0
 gravity = Vector3(0, 0, 0)
-linear_accel_min = 4.9999976
-linear_accel_max = 9.999997
+linear_accel_min = 0.49999976
+linear_accel_max = 0.9999997
 scale_max = 1.5
 scale_curve = SubResource("CurveTexture_3tn4d")
 color_ramp = SubResource("GradientTexture1D_6xqae")
 
 [node name="hovereffect_Scyka" type="Node2D"]
-scale = Vector2(0.1, 0.1)
+scale = Vector2(1, 1)
 
 [node name="Eye" type="AnimatedSprite2D" parent="."]
 z_index = 1
-position = Vector2(0, -400)
-scale = Vector2(0.8, 0.8)
+position = Vector2(0, -40)
+scale = Vector2(0.08, 0.08)
 sprite_frames = SubResource("SpriteFrames_krick")
 frame_progress = 0.48363882
 
@@ -116,12 +116,12 @@ material = SubResource("ShaderMaterial_waf30")
 
 [node name="PurplePiece" type="Sprite2D" parent="Body"]
 position = Vector2(0, 0)
-scale = Vector2(1.27, 1.27)
+scale = Vector2(1, 1)
 texture = ExtResource("2_e6wfc")
 
 [node name="Ghosts" type="GPUParticles2D" parent="."]
 z_index = 1
-position = Vector2(0, -100)
+position = Vector2(0, -10)
 texture = ExtResource("3_waf30")
 lifetime = 20.0
 speed_scale = 5.0
