@@ -28,22 +28,30 @@ var character_data = [
 	{
 		"name": "Character 1",
 		"description": "First playable character",
-		"piece_style": "classic"
+		"piece_style": "classic",
+		"board_light_color": Color(0.93, 0.85, 0.71, 0.7),  # Beige/cream
+		"board_dark_color": Color(0.55, 0.42, 0.29, 0.7)   # Warm brown
 	},
 	{
 		"name": "Character 2",
 		"description": "Second playable character",
-		"piece_style": "modern"
+		"piece_style": "modern",
+		"board_light_color": Color(0.85, 0.92, 0.95, 0.7),  # Light cyan/blue
+		"board_dark_color": Color(0.35, 0.50, 0.60, 0.7)   # Steel blue
 	},
 	{
 		"name": "Character 3",
 		"description": "Third playable character",
-		"piece_style": "fantasy"
+		"piece_style": "fantasy",
+		"board_light_color": Color(0.95, 0.85, 0.60, 0.7),  # Golden yellow
+		"board_dark_color": Color(0.65, 0.35, 0.25, 0.7)   # Rich red-brown
 	},
 	{
 		"name": "Character 4 (Scyka)",
 		"description": "Live2D character with mystical theme",
-		"piece_style": "mystical"
+		"piece_style": "mystical",
+		"board_light_color": Color(0.75, 0.65, 0.85, 0.7),  # Light purple/lavender
+		"board_dark_color": Color(0.45, 0.35, 0.55, 0.7)   # Dark purple
 	}
 ]
 
@@ -78,6 +86,27 @@ func get_character_piece_style(character_id: int) -> String:
 	if character_id >= 0 and character_id < character_data.size():
 		return character_data[character_id]["piece_style"]
 	return "classic"
+
+func get_character_board_colors(character_id: int) -> Dictionary:
+	"""
+	Returns the board colors for a given character.
+
+	Args:
+		character_id: The ID of the character (0-3)
+
+	Returns:
+		A dictionary with "light" and "dark" Color values
+	"""
+	if character_id >= 0 and character_id < character_data.size():
+		return {
+			"light": character_data[character_id]["board_light_color"],
+			"dark": character_data[character_id]["board_dark_color"]
+		}
+	# Default to Character 4's mystical purple theme
+	return {
+		"light": Color(0.75, 0.65, 0.85, 0.7),
+		"dark": Color(0.45, 0.35, 0.55, 0.7)
+	}
 
 func get_player_display_name(player_number: int) -> String:
 	"""
