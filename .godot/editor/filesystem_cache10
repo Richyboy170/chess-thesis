@@ -1,5 +1,5 @@
 72322a848ab928aa5c89f0cb78209805
-::res://::1762876275
+::res://::1762878621
 ANIMATION_DEBUG_GUIDE.md::TextFile::-1::1762130249::0::1::::<><><>0<>0<><>::
 ANIMATION_ERROR_DETECTOR.md::TextFile::-1::1762017166::0::1::::<><><>0<>0<><>::
 ASSET_PATH_BUG_CHECKER.md::TextFile::-1::1762802228::0::1::::<><><>0<>0<><>::
@@ -19,7 +19,7 @@ README.md::TextFile::-1::1762017166::0::1::::<><><>0<>0<><>::
 gd_cubism.gdextension::GDExtension::8689015402339381427::1762045712::0::1::::<><><>0<>0<><>::
 plugin.cfg::TextFile::-1::1762045713::0::1::::<><><>0<>0<><>::
 plugin.gd::GDScript::839934386144879475::1762100761::0::1::::<>EditorPlugin<><>0<>1<><>::
-::res://addons/gd_cubism/bin/::1762876268
+::res://addons/gd_cubism/bin/::1762878615
 ::res://addons/gd_cubism/cs/::1762045712
 ::res://addons/gd_cubism/example/::1762046406
 demo_effect_custom_01.gd::GDScript::4115423399158580703::1762045712::0::1::::<>Node2D<><>0<>0<><>::
@@ -200,8 +200,8 @@ eye.png::CompressedTexture2D::8204846692766301591::1762871220::1762871383::1::::
 ghost flip.png::CompressedTexture2D::4761317587994138984::1762816767::1762817679::1::::<><><>0<>0<>ee9691e222927d1556604fae5fcf85c7<>res://.godot/imported/ghost flip.png-0b8d8d686e0b89ab6d48483715ec93c3.ctex::
 ghost.png::CompressedTexture2D::9132304565842423640::1762816767::1762817679::1::::<><><>0<>0<>52f4e38cfeafd7e5c0135a3039760b04<>res://.godot/imported/ghost.png-2ee0f47915e80fa11d597d546a1917e2.ctex::
 purple piece.png::CompressedTexture2D::2650901960740188398::1762871217::1762871383::1::::<><><>0<>0<>3b7a75451aefba7ef5043f0edd66f633<>res://.godot/imported/purple piece.png-710f25da5d67aadf6486783f61e5bb19.ctex::
-::res://assets/characters/character_4/pieces/held/white_rook/scene/::1762872572
-hovereffect_scyka.tscn::PackedScene::290869622710623089::1762874675::0::1::::<><><>0<>0<><>::uid://bd1d7587im4n7::::res://assets/characters/character_4/pieces/held/white_rook/purple piece.png<>uid://b83og8a1nwt0k::::res://assets/characters/character_4/pieces/held/white_rook/ghost flip.png<>uid://do5qvj8tsl0et::::res://assets/characters/character_4/pieces/held/white_rook/eye.png
+::res://assets/characters/character_4/pieces/held/white_rook/scene/::1762876650
+hovereffect_scyka.tscn::PackedScene::290869622710623089::1762876650::0::1::::<><><>0<>0<><>::uid://bd1d7587im4n7::::res://assets/characters/character_4/pieces/held/white_rook/purple piece.png<>uid://b83og8a1nwt0k::::res://assets/characters/character_4/pieces/held/white_rook/ghost flip.png<>uid://do5qvj8tsl0et::::res://assets/characters/character_4/pieces/held/white_rook/eye.png
 ::res://assets/characters/character_4/Scyka.4096/::1762135036
 texture_00.png::CompressedTexture2D::4172414919941344937::1762017169::1762017336::1::::<><><>0<>0<>4e4fdd1c6204fd8bf3f3c89c0795383e<>res://.godot/imported/texture_00.png-58b2aa49663f530d7a02b5d839eeee21.ctex::
 texture_01.png::CompressedTexture2D::5810748536967615787::1762017169::1762017336::1::::<><><>0<>0<>a9eec9e3fbd790ec4c1fe6889d3f8550<>res://.godot/imported/texture_01.png-8d8ced2170ddb164573a9f566c665631.ctex::
@@ -925,7 +925,7 @@ scyka_model_test.tscn::PackedScene::3578224500640386329::1762182023::0::1::::<><
 ::res://scenes/ui/::1762198156
 character_selection.tscn::PackedScene::6385717420630671164::1762198156::0::1::::<><><>0<>0<><>::uid://wrnhkbhvgg3h::::res://scripts/character_selection.gd
 login_page.tscn::PackedScene::4047925081359635663::1762017169::0::1::::<><><>0<>0<><>::res://scripts/login_page.gd
-::res://scripts/::1762827177
+::res://scripts/::1762878614
 animation_error_detector.gd::GDScript::8774860603303973675::1762107881::0::1::::<>Node<><>0<>0<><>::
 animation_error_viewer.gd::GDScript::2594811155737183095::1762017169::0::1::::<>PanelContainer<><>0<>0<><>::
 asset_path_bug_checker.gd::GDScript::3336472010679481226::1762802228::0::1::::AssetPathBugChecker<>Node<><>0<>0<><>::
@@ -937,12 +937,12 @@ chess_board.gd::GDScript::3158449970499120343::1762017169::0::1::::ChessBoard<>N
 chess_piece.gd::GDScript::2174625388039789211::1762017169::0::1::::ChessPiece<>Node<><>0<>0<><>::
 chess_pieces.gd::GDScript::5278464903077807793::1762017169::0::1::::<>Node<><>0<>0<><>::
 chess_piece_sprite.gd::GDScript::5188792888079457874::1762802228::0::1::::ChessPieceSprite<>Node<><>0<>0<><>::
-game_state.gd::GDScript::7170636022792330861::1762198156::0::1::::<>Node<><>0<>0<><>::
+game_state.gd::GDScript::7170636022792330861::1762878550::0::1::::<>Node<><>0<>0<><>::
 gdextension_error_detector.gd::GDScript::3582426838699555771::1762019456::0::1::::<>Node<><>0<>0<><>::
 live2d_animation_config.gd::GDScript::7825246965181793663::1762198156::0::1::::Live2DAnimationConfig<>Node<><>0<>0<><>::
 live2d_debugger.gd::GDScript::6392242167857135134::1762198156::0::1::::Live2DDebugger<>Node<><>0<>0<><>::
 login_page.gd::GDScript::8146014109777437171::1762017169::0::1::::<>Control<><>0<>0<><>::
-main_game.gd::GDScript::1063598807600793956::1762827177::0::1::::<>Control<><>0<>0<><>::
+main_game.gd::GDScript::1063598807600793956::1762878614::0::1::::<>Control<><>0<>0<><>::
 model_test.gd::GDScript::797100904047268557::1762198156::0::1::::<>Control<><>0<>0<><>::
 piece_effects.gd::GDScript::5353345601905213264::1762823222::0::1::::<>Node<><>0<>0<><>::
 scyka_model_test.gd::GDScript::356621000438615265::1762182023::0::1::::<>Control<><>0<>0<><>::
