@@ -170,6 +170,11 @@ var error_viewer_visible: bool = false
 # Reference to piece effects system for drag animations
 var piece_effects: Node = null
 
+# Held piece scale multiplier - adjust this value to scale all held pieces
+# Default: 1.0 (100% size), increase for larger held pieces, decrease for smaller
+# Example: 1.2 = 120% size, 0.8 = 80% size
+var held_piece_scale_multiplier: float = 1.0
+
 # ============================================================================
 # DRAG AND DROP SYSTEM VARIABLES
 # ============================================================================
@@ -2806,7 +2811,7 @@ func start_drag(pos: Vector2i):
 			# Get square size for proper scaling of held piece
 			var square = board_squares[pos.x][pos.y]
 			var square_size = square.size.x
-			piece_effects.apply_drag_effects(piece_node, piece_data, square_size)
+			piece_effects.apply_drag_effects(piece_node, piece_data, square_size, held_piece_scale_multiplier)
 
 		# Update drag state
 		is_dragging = true
