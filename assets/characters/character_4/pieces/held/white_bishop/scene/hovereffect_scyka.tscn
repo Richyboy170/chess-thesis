@@ -1,64 +1,8 @@
-[gd_scene load_steps=17 format=3 uid="uid://cbishop001"]
+[gd_scene load_steps=17 format=3 uid="uid://h0mjj1ia3h3f"]
 
-[ext_resource type="Texture2D" uid="uid://bb8xqgf0rh6su" path="res://assets/characters/character_4/pieces/held/white_bishop/eye.png" id="1_waf30"]
-[ext_resource type="Texture2D" uid="uid://b54dg3ekb6m6s" path="res://assets/characters/character_4/pieces/held/white_bishop/purple piece.png" id="2_e6wfc"]
-[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://assets/characters/character_4/pieces/held/white_bishop/ghost flip.png" id="3_waf30"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3fcv4"]
-atlas = ExtResource("1_waf30")
-region = Rect2(0, 0, 1000, 1000)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3tn4d"]
-atlas = ExtResource("1_waf30")
-region = Rect2(1000, 0, 1000, 1000)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_krfyl"]
-atlas = ExtResource("1_waf30")
-region = Rect2(2000, 0, 1000, 1000)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_tj7s7"]
-atlas = ExtResource("1_waf30")
-region = Rect2(2000, 0, 1000, 1000)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_d1j5q"]
-atlas = ExtResource("1_waf30")
-region = Rect2(3000, 0, 1000, 1000)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_a5pfj"]
-atlas = ExtResource("1_waf30")
-region = Rect2(4000, 0, 1000, 1000)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_krick"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_3fcv4")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_3tn4d")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_krfyl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_tj7s7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_tj7s7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_d1j5q")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_a5pfj")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_a5pfj")
-}],
-"loop": true,
-"name": &"default",
-"speed": 5.0
-}]
+[ext_resource type="Texture2D" uid="uid://bcou5eonm8kpg" path="res://bishop purple.png" id="1_6awv5"]
+[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://ghost flip.png" id="2_wnxpw"]
+[ext_resource type="Texture2D" uid="uid://c5boejfddl37s" path="res://bishop eye.png" id="3_wnxpw"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_waf30"]
 
@@ -90,37 +34,84 @@ initial_velocity_max = 100.0
 gravity = Vector3(0, 0, 0)
 linear_accel_min = 4.9999976
 linear_accel_max = 9.999997
+scale_min = 0.5
 scale_max = 1.5
 scale_curve = SubResource("CurveTexture_3tn4d")
 color_ramp = SubResource("GradientTexture1D_6xqae")
 
-[node name="hovereffect_Scyka" type="Node2D"]
-scale = Vector2(1, 1)
+[sub_resource type="AtlasTexture" id="AtlasTexture_wotot"]
+atlas = ExtResource("3_wnxpw")
+region = Rect2(0, 0, 500, 500)
 
-[node name="Eye" type="AnimatedSprite2D" parent="."]
-z_index = 1
-position = Vector2(0, 0)
-scale = Vector2(1, 1)
-sprite_frames = SubResource("SpriteFrames_krick")
-frame_progress = 0.48363882
+[sub_resource type="AtlasTexture" id="AtlasTexture_efsjg"]
+atlas = ExtResource("3_wnxpw")
+region = Rect2(500, 0, 500, 500)
 
-[node name="Eye" type="AnimatedSprite2D" parent="Eye"]
-z_index = 1
-sprite_frames = SubResource("SpriteFrames_krick")
-autoplay = "default"
-frame_progress = 0.9836117
+[sub_resource type="AtlasTexture" id="AtlasTexture_3lunt"]
+atlas = ExtResource("3_wnxpw")
+region = Rect2(1000, 0, 500, 500)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gadnv"]
+atlas = ExtResource("3_wnxpw")
+region = Rect2(1500, 0, 500, 500)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u4i3c"]
+atlas = ExtResource("3_wnxpw")
+region = Rect2(2000, 0, 500, 500)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m13jk"]
+atlas = ExtResource("3_wnxpw")
+region = Rect2(2500, 0, 500, 500)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_nm1h5"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wotot")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_efsjg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3lunt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gadnv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u4i3c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m13jk")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Pawn_Scyka_Hover_vfx" type="Node2D"]
 
 [node name="Body" type="Sprite2D" parent="."]
 z_index = 2
-position = Vector2(-316, 786.00006)
+material = SubResource("ShaderMaterial_waf30")
+
+[node name="PurplePiece" type="Sprite2D" parent="Body"]
+position = Vector2(6, 7.000061)
 scale = Vector2(3.7739255, 3.7739255)
-texture = ExtResource("2_e6wfc")
+texture = ExtResource("1_6awv5")
 
 [node name="Ghosts" type="GPUParticles2D" parent="."]
-z_index = 1
-position = Vector2(267, 191)
-texture = ExtResource("3_waf30")
+position = Vector2(9, -1)
+texture = ExtResource("2_wnxpw")
 lifetime = 20.0
 speed_scale = 5.0
 randomness = 0.3
 process_material = SubResource("ParticleProcessMaterial_krfyl")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
+position = Vector2(150.5156, -872.5156)
+scale = Vector2(1.8459374, 1.8459374)
+sprite_frames = SubResource("SpriteFrames_nm1h5")
+autoplay = "default"
+frame_progress = 0.26822528

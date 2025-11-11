@@ -150,10 +150,10 @@ Win (Enter).motion3.json::JSON::2625517129638074321::1762017169::0::1::::<><><>0
 Win (Idle).motion3.json::JSON::1913894791177460337::1762017169::0::1::::<><><>0<>0<><>::
 ::res://assets/characters/character_4/backgrounds/::1762017336
 character_background.png::CompressedTexture2D::7750086626658467256::1762017169::1762017336::1::::<><><>0<>0<>a92e47f896a48567d55b16ae1c458420<>res://.godot/imported/character_background.png-60483317009bc15c1e77a7655266cde9.ctex::
-::res://assets/characters/character_4/pieces/::1762135079
+::res://assets/characters/character_4/pieces/::1762830268
 white_bishop.png::CompressedTexture2D::7539031377320416786::1762017169::1762135079::1::::<><><>0<>0<>08f4d07637667f29a6ed633c9ebfa2f8<>res://.godot/imported/white_bishop.png-f1a93f754d5d5a0303ff495b884231e8.ctex::
 white_king.png::CompressedTexture2D::3893619105634030408::1762017169::1762135079::1::::<><><>0<>0<>6f1fb33cf78ffa133dc9c0cec7d4e543<>res://.godot/imported/white_king.png-85d9e3bb135f2fc11708615dfeba25be.ctex::
-white_knight.png::CompressedTexture2D::7162737708960707092::1762017169::1762135079::1::::<><><>0<>0<>7aa8dfcedcd64de28255fec7b5d51a54<>res://.godot/imported/white_knight.png-ac8fb76b02e04eb5c03f0f484605dcbc.ctex::
+white_knight.png::CompressedTexture2D::7162737708960707092::1762830268::1762830275::1::::<><><>0<>0<>7aa8dfcedcd64de28255fec7b5d51a54<>res://.godot/imported/white_knight.png-ac8fb76b02e04eb5c03f0f484605dcbc.ctex::
 white_pawn.png::CompressedTexture2D::4498233354737980550::1762017169::1762135079::1::::<><><>0<>0<>9e3fe335a05704de85fdfae0ca20db4c<>res://.godot/imported/white_pawn.png-ee8f270e444bdb5be79d60b4e9e66d05.ctex::
 white_queen.png::CompressedTexture2D::4332780625583297361::1762017169::1762135079::1::::<><><>0<>0<>c385750fbef81518ab78761678b4ba4b<>res://.godot/imported/white_queen.png-72034a27ca11d59daf17891fef7595be.ctex::
 white_rook.png::CompressedTexture2D::2575361351354237670::1762017169::1762135079::1::::<><><>0<>0<>6110e13046082d4bd7ecccb4617027e9<>res://.godot/imported/white_rook.png-0a960538fe17f17a02e80f27379f8141.ctex::
@@ -164,44 +164,44 @@ eye.png::CompressedTexture2D::1250966646375488335::1762816767::1762817680::1::::
 ghost flip.png::CompressedTexture2D::4259068883776195925::1762816767::1762817679::1::::<><><>0<>0<>3dfb45fc916f3450c4c97fe22d7341c5<>res://.godot/imported/ghost flip.png-a0e7e330271577cc1af8d5eaf205beea.ctex::
 ghost.png::CompressedTexture2D::9205264435598397686::1762816767::1762817679::1::::<><><>0<>0<>fe10b10e2e785ed3c7a858b23968f789<>res://.godot/imported/ghost.png-821789d65f1fdc003ee0c22ca428cac3.ctex::
 purple piece.png::CompressedTexture2D::3307597521484809769::1762816767::1762817679::1::::<><><>0<>0<>86521fa47288edea5877c737ee5c9df6<>res://.godot/imported/purple piece.png-eb3b039772fb55e66fda282ab5d0fa0b.ctex::
-::res://assets/characters/character_4/pieces/held/white_bishop/scene/::1762821426
-hovereffect_scyka.tscn::PackedScene::123668110094472::1762821426::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_bishop/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_bishop/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_bishop/ghost flip.png
+::res://assets/characters/character_4/pieces/held/white_bishop/scene/::1762823222
+hovereffect_scyka.tscn::PackedScene::123668110094472::1762823222::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_bishop/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_bishop/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_bishop/ghost flip.png
 ::res://assets/characters/character_4/pieces/held/white_king/::1762817680
 eye.png::CompressedTexture2D::2538997467602563872::1762816767::1762817680::1::::<><><>0<>0<>545e7ff63936f637df670604cc6d9dab<>res://.godot/imported/eye.png-b6fb9e9b40daf787ab7507acf58cde9b.ctex::
 ghost flip.png::CompressedTexture2D::9208682569392138350::1762816767::1762817679::1::::<><><>0<>0<>d129b98f05d120f5990e68a787790e9a<>res://.godot/imported/ghost flip.png-fd55862f02ccdd9645b84447d4c682f7.ctex::
 ghost.png::CompressedTexture2D::4207856896454279050::1762816767::1762817679::1::::<><><>0<>0<>d123a7b8f562f8ceba8f1804aee9d532<>res://.godot/imported/ghost.png-5474239dde8d6e2acbaefb941f3d0f45.ctex::
 purple piece.png::CompressedTexture2D::4965099103134737266::1762816767::1762817679::1::::<><><>0<>0<>6df9b66badd25ab66a07b341113cdd93<>res://.godot/imported/purple piece.png-afcb514fa2afb5a7f46f8dcd2986a37c.ctex::
-::res://assets/characters/character_4/pieces/held/white_king/scene/::1762821426
-hovereffect_scyka.tscn::PackedScene::120875865808::1762821426::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_king/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_king/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_king/ghost flip.png
+::res://assets/characters/character_4/pieces/held/white_king/scene/::1762823222
+hovereffect_scyka.tscn::PackedScene::120875865808::1762823222::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_king/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_king/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_king/ghost flip.png
 ::res://assets/characters/character_4/pieces/held/white_knight/::1762781884
 eye.png::CompressedTexture2D::4183262061055909242::1762779616::1762781884::1::::<><><>0<>0<>e204173c5a79d5e93621606988046db1<>res://.godot/imported/eye.png-f2e2fd07b9d2343ba5724577f843a9fb.ctex::
 ghost flip.png::CompressedTexture2D::2374530738027025926::1762779616::1762781883::1::::<><><>0<>0<>74fa974d79e344098d1b263432ba745f<>res://.godot/imported/ghost flip.png-549b94436248bea803fa6748c125770b.ctex::
 ghost.png::CompressedTexture2D::6558633453981365175::1762779616::1762781883::1::::<><><>0<>0<>818668ad29f0da87f8d57b57c4ad6e7d<>res://.godot/imported/ghost.png-5f8ea317e3225a48d314fdf094ae43e7.ctex::
 icon.svg::CompressedTexture2D::8142015307583821627::1762779616::1762781883::1::::<><><>0<>0<>d9cfadd935fa732053c122c9d466f89f<>res://.godot/imported/icon.svg-a2abe98b624a59b6f1cd46bb8fda446d.ctex::
 purple piece.png::CompressedTexture2D::3471390385510836439::1762779616::1762781883::1::::<><><>0<>0<>5f78c81758670f4e5e7c39eb0b9a4da7<>res://.godot/imported/purple piece.png-48f32fb5b99af14ac8286a251eea6162.ctex::
-::res://assets/characters/character_4/pieces/held/white_knight/scene/::1762821426
-hovereffect_scyka.tscn::PackedScene::6987004823051722517::1762821426::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_knight/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_knight/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_knight/ghost flip.png
+::res://assets/characters/character_4/pieces/held/white_knight/scene/::1762828214
+hovereffect_scyka.tscn::PackedScene::6987004823051722517::1762828214::0::1::::<><><>0<>0<><>::uid://b0unykq6jfyac::::res://assets/characters/character_4/pieces/held/white_knight/eye.png<>uid://bpptj7dmbl43d::::res://assets/characters/character_4/pieces/held/white_knight/purple piece.png<>uid://83if6r7fmjow::::res://assets/characters/character_4/pieces/held/white_knight/ghost flip.png
 ::res://assets/characters/character_4/pieces/held/white_pawn/::1762817680
 eye.png::CompressedTexture2D::7166063641054270624::1762816767::1762817680::1::::<><><>0<>0<>a4f9c975577eaa9b9de78a9eceb55232<>res://.godot/imported/eye.png-317f9cafb78d097db9b176eee00b50bb.ctex::
 ghost flip.png::CompressedTexture2D::4331518112771661179::1762816767::1762817679::1::::<><><>0<>0<>8af6a4dcdc6a4bf8d50cebb4cabe7633<>res://.godot/imported/ghost flip.png-851b0ab0474ffdfacc001d29b339869b.ctex::
 ghost.png::CompressedTexture2D::8291250091187307069::1762816767::1762817679::1::::<><><>0<>0<>3fd325bb8a9be6da51be157fa2dbfc3d<>res://.godot/imported/ghost.png-3568b0708141614687c13872181f38c7.ctex::
 purple piece.png::CompressedTexture2D::4853394946448080198::1762816767::1762817678::1::::<><><>0<>0<>4020d1eb1b094eb8c13e7c6ae2b51a0b<>res://.godot/imported/purple piece.png-25eea634e81522e9cadb8242e17eda74.ctex::
-::res://assets/characters/character_4/pieces/held/white_pawn/scene/::1762821426
-hovereffect_scyka.tscn::PackedScene::128248706648::1762821426::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_pawn/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_pawn/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_pawn/ghost flip.png
+::res://assets/characters/character_4/pieces/held/white_pawn/scene/::1762823222
+hovereffect_scyka.tscn::PackedScene::128248706648::1762823222::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_pawn/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_pawn/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_pawn/ghost flip.png
 ::res://assets/characters/character_4/pieces/held/white_queen/::1762817680
 eye.png::CompressedTexture2D::6969072977564904573::1762816767::1762817680::1::::<><><>0<>0<>eccd62edee48168ae8d75a9f3407e9bf<>res://.godot/imported/eye.png-7ac81d2f63449c74ad9d26ff6c53668d.ctex::
 ghost flip.png::CompressedTexture2D::1501165716192001551::1762816767::1762817679::1::::<><><>0<>0<>48d6c2235a8589fdd8d19b904bcfc068<>res://.godot/imported/ghost flip.png-8c9f558212d1ad11c10766073e9c6803.ctex::
 ghost.png::CompressedTexture2D::8856222778899098765::1762816767::1762817679::1::::<><><>0<>0<>6df6ef2e0f5fa9a9e0cb422f2447fac3<>res://.godot/imported/ghost.png-93d49ac88a4b17c8e30aad535797d37e.ctex::
 purple piece.png::CompressedTexture2D::1381257297223875750::1762816767::1762817678::1::::<><><>0<>0<>397da979e167c2a544151f858e4474d4<>res://.godot/imported/purple piece.png-85d29567b92385015d3a5d922f6a97aa.ctex::
-::res://assets/characters/character_4/pieces/held/white_queen/scene/::1762821426
-hovereffect_scyka.tscn::PackedScene::4443045128184::1762821426::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_queen/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_queen/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_queen/ghost flip.png
+::res://assets/characters/character_4/pieces/held/white_queen/scene/::1762823222
+hovereffect_scyka.tscn::PackedScene::4443045128184::1762823222::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_queen/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_queen/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_queen/ghost flip.png
 ::res://assets/characters/character_4/pieces/held/white_rook/::1762817680
 eye.png::CompressedTexture2D::1182544373557745315::1762816767::1762817680::1::::<><><>0<>0<>50a97a3575ff2eb45472a936d070f56e<>res://.godot/imported/eye.png-6a76f6bb173ed0d2524260fba51f6923.ctex::
 ghost flip.png::CompressedTexture2D::4761317587994138984::1762816767::1762817679::1::::<><><>0<>0<>ee9691e222927d1556604fae5fcf85c7<>res://.godot/imported/ghost flip.png-0b8d8d686e0b89ab6d48483715ec93c3.ctex::
 ghost.png::CompressedTexture2D::9132304565842423640::1762816767::1762817679::1::::<><><>0<>0<>52f4e38cfeafd7e5c0135a3039760b04<>res://.godot/imported/ghost.png-2ee0f47915e80fa11d597d546a1917e2.ctex::
 purple piece.png::CompressedTexture2D::7756045937171388090::1762816767::1762817678::1::::<><><>0<>0<>52a241a9fe24bf399eaaaec5e9c8023e<>res://.godot/imported/purple piece.png-710f25da5d67aadf6486783f61e5bb19.ctex::
-::res://assets/characters/character_4/pieces/held/white_rook/scene/::1762821426
-hovereffect_scyka.tscn::PackedScene::131963602816::1762821426::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_rook/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_rook/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_rook/ghost flip.png
+::res://assets/characters/character_4/pieces/held/white_rook/scene/::1762823222
+hovereffect_scyka.tscn::PackedScene::131963602816::1762823222::0::1::::<><><>0<>0<><>::uid://bb8xqgf0rh6su::::res://assets/characters/character_4/pieces/held/white_rook/eye.png<>uid://b54dg3ekb6m6s::::res://assets/characters/character_4/pieces/held/white_rook/purple piece.png<>uid://b2kjwedurjnen::::res://assets/characters/character_4/pieces/held/white_rook/ghost flip.png
 ::res://assets/characters/character_4/Scyka.4096/::1762135036
 texture_00.png::CompressedTexture2D::4172414919941344937::1762017169::1762017336::1::::<><><>0<>0<>4e4fdd1c6204fd8bf3f3c89c0795383e<>res://.godot/imported/texture_00.png-58b2aa49663f530d7a02b5d839eeee21.ctex::
 texture_01.png::CompressedTexture2D::5810748536967615787::1762017169::1762017336::1::::<><><>0<>0<>a9eec9e3fbd790ec4c1fe6889d3f8550<>res://.godot/imported/texture_01.png-8d8ced2170ddb164573a9f566c665631.ctex::
@@ -916,8 +916,8 @@ S__20307977_0.jpg::CompressedTexture2D::6520078883704490666::1762017169::1762017
 ::res://scenes/::1762802228
 ::res://scenes/debug/::1762802228
 asset_path_checker.tscn::PackedScene::7840991895759310898::1762802228::0::1::::<><><>0<>0<><>::res://scripts/asset_path_bug_checker.gd
-::res://scenes/game/::1762803194
-main_game.tscn::PackedScene::68356272596805699::1762803194::0::1::::<><><>0<>0<><>::uid://pfhk1odaxqw7::::res://scripts/main_game.gd
+::res://scenes/game/::1762828727
+main_game.tscn::PackedScene::68356272596805699::1762828727::0::1::::<><><>0<>0<><>::uid://pfhk1odaxqw7::::res://scripts/main_game.gd
 ::res://scenes/sandbox/::1762198156
 model_test.tscn::PackedScene::6366742561718946691::1762198156::0::1::::<><><>0<>0<><>::uid://lmeeutalnkrl::::res://scripts/model_test.gd
 README.md::TextFile::-1::1762017169::0::1::::<><><>0<>0<><>::
@@ -925,7 +925,7 @@ scyka_model_test.tscn::PackedScene::3578224500640386329::1762182023::0::1::::<><
 ::res://scenes/ui/::1762198156
 character_selection.tscn::PackedScene::6385717420630671164::1762198156::0::1::::<><><>0<>0<><>::uid://wrnhkbhvgg3h::::res://scripts/character_selection.gd
 login_page.tscn::PackedScene::4047925081359635663::1762017169::0::1::::<><><>0<>0<><>::res://scripts/login_page.gd
-::res://scripts/::1762819669
+::res://scripts/::1762827177
 animation_error_detector.gd::GDScript::8774860603303973675::1762107881::0::1::::<>Node<><>0<>0<><>::
 animation_error_viewer.gd::GDScript::2594811155737183095::1762017169::0::1::::<>PanelContainer<><>0<>0<><>::
 asset_path_bug_checker.gd::GDScript::3336472010679481226::1762802228::0::1::::AssetPathBugChecker<>Node<><>0<>0<><>::
@@ -942,9 +942,9 @@ gdextension_error_detector.gd::GDScript::3582426838699555771::1762019456::0::1::
 live2d_animation_config.gd::GDScript::7825246965181793663::1762198156::0::1::::Live2DAnimationConfig<>Node<><>0<>0<><>::
 live2d_debugger.gd::GDScript::6392242167857135134::1762198156::0::1::::Live2DDebugger<>Node<><>0<>0<><>::
 login_page.gd::GDScript::8146014109777437171::1762017169::0::1::::<>Control<><>0<>0<><>::
-main_game.gd::GDScript::1063598807600793956::1762819669::0::1::::<>Control<><>0<>0<><>::
+main_game.gd::GDScript::1063598807600793956::1762827177::0::1::::<>Control<><>0<>0<><>::
 model_test.gd::GDScript::797100904047268557::1762198156::0::1::::<>Control<><>0<>0<><>::
-piece_effects.gd::GDScript::5353345601905213264::1762819669::0::1::::<>Node<><>0<>0<><>::
+piece_effects.gd::GDScript::5353345601905213264::1762823222::0::1::::<>Node<><>0<>0<><>::
 scyka_model_test.gd::GDScript::356621000438615265::1762182023::0::1::::<>Control<><>0<>0<><>::
 theme_manager.gd::GDScript::7670422072006327044::1762017169::0::1::::<>Node<><>0<>0<><>::
 visual_chess_piece.gd::GDScript::3187258787519199654::1762017169::0::1::::VisualChessPiece<>Button<><>0<>0<><>::
