@@ -94,7 +94,7 @@ scale_curve = SubResource("CurveTexture_3tn4d")
 color_ramp = SubResource("GradientTexture1D_6xqae")
 
 [node name="hovereffect_Scyka" type="Node2D"]
-scale = Vector2(0.4, 0.4)
+scale = Vector2(0.1, 0.1)
 
 [node name="Eye" type="AnimatedSprite2D" parent="."]
 z_index = 1

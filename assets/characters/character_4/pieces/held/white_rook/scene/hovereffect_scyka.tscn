@@ -1,8 +1,8 @@
 [gd_scene load_steps=17 format=3 uid="uid://ee5tyx1cekaj"]
 
-[ext_resource type="Texture2D" uid="uid://bo1m66g8ppog0" path="res://assets/characters/character_4/pieces/held/white_rook/purple piece.png" id="1_urem1"]
-[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://assets/characters/character_4/pieces/held/white_rook/ghost flip.png" id="2_c2tvv"]
-[ext_resource type="Texture2D" uid="uid://tjma3tqkgdqc" path="res://assets/characters/character_4/pieces/held/white_rook/eye.png" id="3_c2tvv"]
+[ext_resource type="Texture2D" uid="uid://bd1d7587im4n7" path="res://assets/characters/character_4/pieces/held/white_rook/purple piece.png" id="1_urem1"]
+[ext_resource type="Texture2D" uid="uid://b83og8a1nwt0k" path="res://assets/characters/character_4/pieces/held/white_rook/ghost flip.png" id="2_c2tvv"]
+[ext_resource type="Texture2D" uid="uid://do5qvj8tsl0et" path="res://assets/characters/character_4/pieces/held/white_rook/eye.png" id="3_c2tvv"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_waf30"]
 
@@ -34,8 +34,8 @@ initial_velocity_max = 100.0
 gravity = Vector3(0, 0, 0)
 linear_accel_min = 4.9999976
 linear_accel_max = 9.999997
-scale_min = 0.5
-scale_max = 1.5
+scale_min = 0.19999999
+scale_max = 0.5
 scale_curve = SubResource("CurveTexture_3tn4d")
 color_ramp = SubResource("GradientTexture1D_6xqae")
 
@@ -93,6 +93,7 @@ animations = [{
 }]
 
 [node name="Pawn_Scyka_Hover_vfx" type="Node2D"]
+scale = Vector2(0.4, 0.4)
 
 [node name="Body" type="Sprite2D" parent="."]
 z_index = 2
