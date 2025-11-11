@@ -1181,10 +1181,10 @@ func setup_chessboard():
 	"""
 	board_squares = []
 
-	# UI ADJUSTMENT: Change these colors to customize the chessboard appearance
-	# Format: Color(red, green, blue, alpha) where values are 0.0 to 1.0
-	var light_color = Color(0.75, 0.65, 0.85, 0.7)  # Light purple/lavender with transparency
-	var dark_color = Color(0.45, 0.35, 0.55, 0.7)   # Dark purple with transparency
+	# Get board colors based on bottom player's (Player 1) character
+	var board_colors = GameState.get_character_board_colors(GameState.player1_character)
+	var light_color = board_colors["light"]
+	var dark_color = board_colors["dark"]
 
 	# Create 8x8 grid of squares using Panel nodes (lighter than Button)
 	for row in range(8):
