@@ -1183,8 +1183,8 @@ func setup_chessboard():
 
 	# UI ADJUSTMENT: Change these colors to customize the chessboard appearance
 	# Format: Color(red, green, blue, alpha) where values are 0.0 to 1.0
-	var light_color = Color(0.9, 0.9, 0.8, 0.7)    # Cream with transparency
-	var dark_color = Color(0.5, 0.4, 0.3, 0.7)     # Brown with transparency
+	var light_color = Color(0.75, 0.65, 0.85, 0.7)  # Light purple/lavender with transparency
+	var dark_color = Color(0.45, 0.35, 0.55, 0.7)   # Dark purple with transparency
 
 	# Create 8x8 grid of squares using Panel nodes (lighter than Button)
 	for row in range(8):
