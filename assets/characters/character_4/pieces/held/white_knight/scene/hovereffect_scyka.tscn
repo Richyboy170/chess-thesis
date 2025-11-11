@@ -110,7 +110,7 @@ sprite_frames = SubResource("SpriteFrames_krick")
 autoplay = "default"
 frame_progress = 0.9836117
 
-[node name="PurplePiece" type="Sprite2D" parent="."]
+[node name="Body" type="Sprite2D" parent="."]
 z_index = 2
 position = Vector2(-316, 786.00006)
 scale = Vector2(3.7739255, 3.7739255)
