@@ -1171,20 +1171,50 @@ func setup_chessboard():
 	Creates the 8x8 chessboard grid with simple classic checkerboard pattern.
 	Each square is a Panel node with custom styling.
 	Uses a simpler, more reliable rendering method with unified theme.
+	Supports custom board themes including background images.
 
 	UI ADJUSTMENT GUIDE - CHESSBOARD APPEARANCE:
 	- Square size: Modify custom_minimum_size below (currently 60x60)
-	- Colors: Adjust light_color and dark_color below
+	- Colors: Adjust light_color and dark_color below or use theme config files
 	- Transparency: Change the 4th value (alpha) in the Color() definitions
 	- Board position: Adjust in the scene file (main_game.tscn)
 	- Board scale: Use mouse wheel zoom (scroll up/down)
+	- Background images: Place board_theme.png in character's chessboard folder
 	"""
 	board_squares = []
 
-	# Get board colors based on bottom player's (Player 1) character
-	var board_colors = GameState.get_character_board_colors(GameState.player1_character)
-	var light_color = board_colors["light"]
-	var dark_color = board_colors["dark"]
+	# Load theme for bottom player's (Player 1) character using BoardThemeLoader
+	var theme_data = BoardThemeLoader.load_theme(GameState.player1_character)
+	var light_color = theme_data.light_color
+	var dark_color = theme_data.dark_color
+
+	# If theme has a background image, create it as a lower layer
+	if theme_data.has_image and theme_data.image_texture != null:
+		print("Setting up chessboard with background image theme")
+		var background_layer = TextureRect.new()
+		background_layer.name = "BoardThemeBackground"
+		background_layer.texture = theme_data.image_texture
+		background_layer.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		background_layer.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		background_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		background_layer.z_index = -10  # Behind board squares
+
+		# Size the background to match the chessboard grid
+		background_layer.custom_minimum_size = Vector2(1040, 1040)  # 130px * 8 squares
+		background_layer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		background_layer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+		# Add background as first child so it renders behind everything
+		chessboard.add_child(background_layer)
+		chessboard.move_child(background_layer, 0)
+
+		print("Board theme background image loaded and positioned")
+
+	# Determine square opacity based on whether image is present
+	var square_opacity = theme_data.square_opacity
+	if theme_data.has_image:
+		square_opacity = theme_data.image_mode_square_opacity
+		print("Using image mode with square opacity: ", square_opacity)
 
 	# Create 8x8 grid of squares using Panel nodes (lighter than Button)
 	for row in range(8):
@@ -1197,13 +1227,20 @@ func setup_chessboard():
 			square.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			square.mouse_filter = Control.MOUSE_FILTER_PASS  # Allow mouse events to pass through
 
-			# Create background style with classic colors
+			# Create background style with theme colors
 			var style_box = StyleBoxFlat.new()
 			# Alternate light and dark squares for checkerboard pattern
+			var base_color: Color
 			if (row + col) % 2 == 0:
-				style_box.bg_color = light_color
+				base_color = light_color
 			else:
-				style_box.bg_color = dark_color
+				base_color = dark_color
+
+			# Apply opacity override if using image mode
+			if theme_data.has_image:
+				base_color.a = square_opacity
+
+			style_box.bg_color = base_color
 
 			# Apply style to panel
 			square.add_theme_stylebox_override("panel", style_box)
@@ -1228,7 +1265,10 @@ func setup_chessboard():
 
 	# Ensure chessboard is visible
 	chessboard.visible = true
-	print("Chessboard created with classic checkerboard pattern")
+	if theme_data.has_image:
+		print("Chessboard created with custom image background theme")
+	else:
+		print("Chessboard created with color-based theme")
 	print("Pieces layer created for Sprite2D nodes")
 
 func find_character_background(char_path: String) -> String:
