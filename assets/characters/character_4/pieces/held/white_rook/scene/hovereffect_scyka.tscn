@@ -110,12 +110,8 @@ sprite_frames = SubResource("SpriteFrames_krick")
 autoplay = "default"
 frame_progress = 0.9836117
 
-[node name="Body" type="Sprite2D" parent="."]
-visible = false
+[node name="PurplePiece" type="Sprite2D" parent="."]
 z_index = 2
-material = SubResource("ShaderMaterial_waf30")
-
-[node name="PurplePiece" type="Sprite2D" parent="Body"]
 position = Vector2(0, 0)
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("2_e6wfc")
