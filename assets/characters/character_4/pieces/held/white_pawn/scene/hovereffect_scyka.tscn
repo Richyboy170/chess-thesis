@@ -1,8 +1,8 @@
 [gd_scene load_steps=17 format=3 uid="uid://tdg4bquqy8fm"]
 
-[ext_resource type="Texture2D" uid="uid://ccmiba135haby" path="res://pawn.png" id="2_q4ddb"]
-[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://ghost flip.png" id="3_dh16a"]
-[ext_resource type="Texture2D" uid="uid://bxsc5dn2ibpoj" path="res://pawn Eye.png" id="3_q4ddb"]
+[ext_resource type="Texture2D" uid="uid://ccmiba135haby" path="res://assets/characters/character_4/pieces/held/white_pawn/purple piece.png" id="2_q4ddb"]
+[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://assets/characters/character_4/pieces/held/white_pawn/ghost flip.png" id="3_dh16a"]
+[ext_resource type="Texture2D" uid="uid://bxsc5dn2ibpoj" path="res://assets/characters/character_4/pieces/held/white_pawn/eye.png" id="3_q4ddb"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_waf30"]
 

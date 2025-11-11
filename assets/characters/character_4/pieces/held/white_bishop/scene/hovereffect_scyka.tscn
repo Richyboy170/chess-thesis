@@ -1,8 +1,8 @@
 [gd_scene load_steps=17 format=3 uid="uid://h0mjj1ia3h3f"]
 
-[ext_resource type="Texture2D" uid="uid://bcou5eonm8kpg" path="res://bishop purple.png" id="1_6awv5"]
-[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://ghost flip.png" id="2_wnxpw"]
-[ext_resource type="Texture2D" uid="uid://c5boejfddl37s" path="res://bishop eye.png" id="3_wnxpw"]
+[ext_resource type="Texture2D" uid="uid://bcou5eonm8kpg" path="res://assets/characters/character_4/pieces/held/white_bishop/eye.png" id="1_6awv5"]
+[ext_resource type="Texture2D" uid="uid://b2kjwedurjnen" path="res://assets/characters/character_4/pieces/held/white_bishop/purple piece.png" id="2_wnxpw"]
+[ext_resource type="Texture2D" uid="uid://c5boejfddl37s" path="res://assets/characters/character_4/pieces/held/white_bishop/ghost flip.png" id="3_wnxpw"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_waf30"]
 
